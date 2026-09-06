@@ -16,6 +16,9 @@
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
+/* El atributo hidden debe ganar SIEMPRE aunque el elemento tenga display */
+[hidden] { display: none !important; }
+
 html, body { height: 100%; }
 
 body {
@@ -33,6 +36,7 @@ body {
   z-index: -1;
   overflow: hidden;
   background: linear-gradient(160deg, #0a0a24 0%, #171238 40%, #251342 70%, #0e1230 100%);
+  pointer-events: none;  /* el fondo NUNCA intercepta clics/escritura */
 }
 .orb {
   position: absolute;
@@ -110,7 +114,7 @@ h1 { font-size: 1.6rem; margin: 0 0 6px; font-weight: 650; letter-spacing: -0.02
   position: relative;
   z-index: 1;
 }
-.input-shell { overflow: hidden; padding: 1px; }
+.input-shell { overflow: hidden; padding: 1px; position: relative; z-index: 1; }
 .input-shell input,
 .input-shell textarea {
   width: 100%;
@@ -122,8 +126,11 @@ h1 { font-size: 1.6rem; margin: 0 0 6px; font-weight: 650; letter-spacing: -0.02
   font-family: inherit;
   outline: none;
   resize: none;
+  position: relative;
+  z-index: 1;
+  display: block;
 }
-.input-shell textarea { max-height: 140px; }
+.input-shell textarea { max-height: 140px; min-height: 46px; }
 .input-shell input::placeholder, .input-shell textarea::placeholder { color: rgba(255,255,255,0.5); }
 
 .auth-error {

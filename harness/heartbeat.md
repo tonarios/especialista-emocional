@@ -117,3 +117,7 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
    - **Multi-hop es el punto débil (0.333):** citar TODOS los síntomas en una síntesis con gemma4 local + el hueco de sinonimia `pelo→alopecia`. Documentado como riesgo en el reporte.
    - **GIFs:** omitidos (sin `ffmpeg` en el host); el exit criteria de M8 solo exige PNGs + PDF.
    - **Verificación:** `pytest` → **203 passed**; `scripts/evidence.sh` orquesta e2e→capturas→reporte; artefactos en `outputs/`.
+
+- **2026-09-05 — post-M8, ajustes finales.** Dos correcciones tras la revisión con el owner:
+   - **Memoria (FR-13):** el camino determinista NO leía el historial (solo existía la tool `get_user_profile` para ADK). Ahora `run_deterministic` inyecta `<historial>` en la síntesis cada turno y detecta preguntas de memoria (`"¿cuál fue mi última consulta?"`, `"¿recuerdas mis consultas?"`) → responde desde el historial persistido. Sin historial → aviso amable. tests: +3 (`test_memory_question_detected`, `test_format_history`, `test_format_history_empty`). Commit `f2ec2fb`.
+   - **Frontend Liquid Glass:** (a) `display:flex` en `#login-view`/`#chat-view` pisaba el atributo `hidden` → quedaba clavado en el login (fix `[hidden]{display:none !important}`); (b) el fondo aurora `.bg` podía interceptar escritura → `pointer-events:none`; (c) se perdió la clase `btn-send` del botón Enviar → salía a ancho completo; restaurada (queda a un lado del input). `pytest` → **206 passed**.
