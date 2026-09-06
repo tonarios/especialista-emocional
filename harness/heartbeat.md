@@ -14,7 +14,7 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
 | 5 | agent-core | **done** | M3 | smoke multi-hop + citas + disclaimer | 2026-09-05 | deepseek-v4-pro | commit `14830bb`; runner determinista + LlmAgent; emergencia/injection no llegan al LLM; sin-cobertura sin confabular; gemma4 exige `think:false` |
 | 6 | auth-memory | **done** | M4 | aislamiento por usuario + persistencia + delete | 2026-09-05 | deepseek-v4-pro | commit `1a1a3ca`; register/login/JWT; perfil por portador; sesiones ADK en Postgres; record/clear consultations; rate-limit; 27 pytest passed |
 | 7 | frontend | **done** | M5 | flujo completo con chips de fuentes + disclaimer | 2026-09-05 | deepseek-v4-pro | commit `58b9331`; `frontend/` vanilla; `/chat` NDJSON; chips `basado en`; disclaimer fijo; 401/403/429 amigables |
-| 8 | docker | **done** | M6 | `make up` + chat + persistencia + non-root | 2026-09-05 | deepseek-v4-pro | commit `TBD`; imagen 2.7 GB; app+db sanos; chat gemma4 OK; login 200 tras down/up; whoami=appuser |
+| 8 | docker | **done** | M6 | `make up` + chat + persistencia + non-root | 2026-09-05 | deepseek-v4-pro | commit `05a3890`; imagen 2.7 GB; app+db sanos; chat gemma4 OK; login 200 tras down/up; whoami=appuser |
 | 9 | security-tests | pending | M7 | — | — | — | — |
 | 10 | evidence-eval | pending | M8 | — | — | — | — |
 | 11 | gcp-terraform | pending | M9 | — | — | — | — |
@@ -86,7 +86,7 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
    - **Verificación:** `/`, `/app.js`, `/styles.css` → 200; `/chat` NDJSON con `done` event + `sources`; 403 injection; `app.js` sintaxis OK (node --check); `pytest` → **27 passed**. Captura visual formal la aporta `evidence-eval` (M8).
 
 - **2026-09-05 — docker (M6) DONE.** Dockerfile (imagen única back+front, non-root) + docker-compose (db `postgres:16-alpine` + app) + Makefile SOLO con targets Docker. Cumple §7/§11, D9, NFR-04/06.
-   - **Commit:** `TBD`.
+   - **Commit:** `05a3890`.
    - **Imagen `agent-app:latest`: 2.7 GB** (base `uv:python3.12-bookworm-slim` + google-adk/litellm/faiss-cpu…). Usuario **`appuser` (non-root, uid 999)**.
    - **Makefile (D9, solo Docker):** `build`, `up`, `down`, `logs`, `ps`. `up` pasa `LOCAL_DB_PASSWORD` (default `emociones_dev`, solo local).
    - **Índice FAISS:** se genera en HOST (`scripts/index.sh`, necesita Ollama) y se monta `./data/index:/app/data/index:ro` (§11); `data/` sigue en `.dockerignore`.
