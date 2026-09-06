@@ -16,7 +16,7 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
 | 7 | frontend | **done** | M5 | flujo completo con chips de fuentes + disclaimer | 2026-09-05 | deepseek-v4-pro | commit `58b9331`; `frontend/` vanilla; `/chat` NDJSON; chips `basado en`; disclaimer fijo; 401/403/429 amigables |
 | 8 | docker | **done** | M6 | `make up` + chat + persistencia + non-root | 2026-09-05 | deepseek-v4-pro | commit `05a3890`; imagen 2.7 GB; app+db sanos; chat gemma4 OK; login 200 tras down/up; whoami=appuser |
 | 9 | security-tests | **done** | M7 | pytest verde + secrets_audit limpio | 2026-09-05 | deepseek-v4-pro | commit `55d3618`; 201 passed; 156 términos paramétricos; 6 emergencias sin recuperación; secrets_audit 4/4 limpio |
-| 10 | evidence-eval | **done** | M8 | PNGs + PDF + GIFs con métricas | 2026-09-05 | deepseek-v4-pro | commit `TBD`; e2e 52 preguntas; recall single 0.935 / alias 1.0 / multi 0.333; bootstrap seed 42; 4 PNGs + reporte.pdf |
+| 10 | evidence-eval | **done** | M8 | PNGs + PDF + GIFs con métricas | 2026-09-05 | deepseek-v4-pro | commit `befe33a`; e2e 52 preguntas; recall single 0.935 / alias 1.0 / multi 0.333; bootstrap seed 42; 4 PNGs + reporte.pdf |
 | 11 | gcp-terraform | pending | M9 | — | — | — | — |
 
 ## Bitácora (cronológica)
@@ -105,7 +105,7 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
    - **Nota:** cubre los 6 grupos (medical-safety añadió `sudden_neurological` sin caso en gold set; su aserción se cierra aquí, como se anticipó en el heartbeat de medical-safety).
 
 - **2026-09-05 — evidence-eval (M8) DONE.** Evidencia + eval end-to-end + reporte. Cumple PRD §13.3/13.4, D8, O8.
-   - **Commit:** `TBD`.
+   - **Commit:** `befe33a`.
    - **`eval/questions.json`**: 52 preguntas del dominio (31 single / 15 alias / 6 multi) derivadas del gold set.
    - **Eval e2e (`scripts/e2e.py`)**: corre `run_deterministic` (pipeline real del chat, gemma4) por pregunta; verificación **determinista** (slugs en `sources[]` ∪ título del término en el texto); latencia por turno. **Métricas por bootstrap (seed=42, 2000 remuestreos)**:
      - **global 0.885** (IC95 [0.788, 0.962]) · **single 0.935** (29/31) · **alias 1.000** (15/15) · **multi 0.333** (2/6).
