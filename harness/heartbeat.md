@@ -1,14 +1,14 @@
 # heartbeat — estado del proceso (ah-emociones)
 
 Última actualización: 2026-09-05
-LLM activo: opencode/deepseek-v4-pro (skill bootstrap ejecutada)
+LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutadas)
 
 ## Resumen por skill
 
 | # | Skill | Estado | Milestone | Gate | Fecha | LLM | Evidencia |
 |---|-------|--------|-----------|------|-------|-----|-----------|
 | 1 | bootstrap | **done** | M1 | paquete importable + /health + línea base commiteada | 2026-09-05 | deepseek-v4-pro | commits `7ef4f6f`, `d133a3c`; `import especialista` OK; `/health` 200; pytest 14 passed |
-| 2 | medical-safety | pending | transversal | — | — | — | — |
+| 2 | medical-safety | **done** | transversal (M0 pendiente) | 6 grupos emergencia + plantillas por tier + causal testeable | 2026-09-05 | deepseek-v4-pro | commit `c4a334e`; 5/5 emergency gold set + 0 falsos positivos; 8 plantillas sin causal |
 | 3 | rag-index | pending | M2 | — | — | — | — |
 | 4 | rag-retrieval | pending | M2 | GATE DURO gold set | — | — | — |
 | 5 | agent-core | pending | M3 | — | — | — | — |
@@ -31,3 +31,11 @@ LLM activo: opencode/deepseek-v4-pro (skill bootstrap ejecutada)
   - **Entorno:** Python 3.14.5 (venv vía `uv`); google-adk 2.8.0, litellm 1.100.0. Ollama: `gemma4:latest` (9.6 GB) y `bge-m3:latest` (1.2 GB) presentes.
   - **Verificación:** `import especialista` OK; `uvicorn backend.main:app` `/health` → 200; `uv run pytest -q` → **14 passed**; `.env` no trackeado (git check-ignore OK); sin residuos de álgebra/`tutor` en `especialista/`, `backend/`, `tests/`.
   - **Nota de entorno:** el puerto `8000` está ocupado por un contenedor Docker ajeno (`api_spread_engine-api-1`). El back corre en `127.0.0.1:8000`; `localhost` puede resolver a `::1` y tocar ese contenedor. Avisar al skill `docker` (M6): considerar otro puerto de host o `docker compose` con un puerto distinto.
+
+- **2026-09-05 — medical-safety (transversal) DONE.** Completa el pendiente de M0 (`rag/emergency_patterns.json`) y entrega el mecanismo determinista de guardarraíles médicos. Cumple: FR-05, FR-05a, FR-05b, FR-06, NFR-02, NFR-02b.
+  - **Commit:** `c4a334e`.
+  - **`rag/emergency_patterns.json`**: 6 grupos (ideación suicida, autolesión, cuadro coronario agudo, urgencia pediátrica, intoxicación/sobredosis, síntomas neurológicos súbitos), cada uno con `patterns` (evaluados deterministas, minúsculas + sin tildes) y `response` de derivación SIN interpretación emocional ni teléfonos inventados.
+  - **`especialista/medical_safety.py`**: `detect_emergency` (evalúa ANTES de recuperar), `template_for` (mapeo tier→plantilla leído de `rag/risk_tiers.json`; falla con `ValueError` ante nivel desconocido), `causal_patterns` (FR-05b), y plantillas versionadas `EMERGENCY_TEMPLATE` + `SIN_COBERTURA_TEMPLATE`.
+  - **Verificación (gate):** 5/5 casos `emergency` del gold set matchean su grupo; `detect_emergency("quiero suicidarme")`/`("me estoy cortando")` → match, `("me duele la garganta…")` → None; **0 falsos positivos** de emergencia sobre los 75 casos no-emergency; las 8 plantillas (7 elevadas + estándar) encabezan con derivación (elem estándar no) y **ninguna contiene lenguaje causal**; 0 falsos negativos en las 6 frases causales listadas; registro asociativo permitido no se marca como causal.
+  - **Flag M2 (no bloquea):** el caso `g048` ("cáncer de mama") es `risk_tier` oncologico pero sus slugs esperados en el gold set (`senos-problemas-en-los-senos`, `nodulos-mamarios`) **no** figuran en los niveles elevados de `rag/risk_tiers.json` → si la recuperación devuelve esos slugs, la plantilla no encabezará con derivación. Revisar en `rag-retrieval`/`rag-index` (posible slug canónico `cancer-de-pecho`, que sí es `oncologico`). Los otros 9 casos risk_tier mapean a nivel elevado.
+  - **Nota:** el grupo `sudden_neurological` no tiene caso en `eval/gold_set.json` (gold set es M0 "hecho", no se modifica); su cobertura se garantiza con aserción propia de la skill. Lo añadirá `security-tests` (M7) como `tests/test_medical_safety.py`.
