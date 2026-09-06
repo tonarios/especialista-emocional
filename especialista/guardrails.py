@@ -23,15 +23,17 @@ MAX_MESSAGE_CHARS = 4000
 # (patrón, peso) — pesos suman; el umbral decide bloqueo.
 _INJECTION_PATTERNS: list[tuple[re.Pattern[str], int]] = [
     # Manipulación directa de instrucciones (es/en)
-    (re.compile(r"ignora\s+(todas?\s+)?(las\s+)?instrucciones", re.I), 4),
-    (re.compile(r"olvida\s+(todo|todas\s+las\s+instrucciones|tu\s+rol)", re.I), 4),
+    (re.compile(r"ignora\s+(todas?\s+)?(las\s+|tus\s+|mis\s+)?instrucciones", re.I), 4),
+    (re.compile(r"ignora\s+(todo\s+lo\s+anterior|lo\s+que\s+te\s+dije)", re.I), 3),
+    (re.compile(r"olvida\s+(todo|todas\s+las\s+instrucciones|tu\s+rol|que\s+eres)", re.I), 4),
     (re.compile(r"ignore\s+(all\s+)?(previous|prior|above)\s+instructions", re.I), 4),
     (re.compile(r"disrega(rd|de)\s+(all\s+)?(previous|prior|above)", re.I), 4),
     # Exfiltración del prompt/instrucciones del sistema
-    (re.compile(r"(reveal|show|print|muestra|revela|imprime).{0,30}(system\s*prompt|instrucciones\s+(del\s+)?sistema|prompt\s+del\s+sistema)", re.I), 4),
+    (re.compile(r"(reveal|show|print|muestra|revela|imprime|dime).{0,30}(system\s*prompt|instrucciones\s+(del\s+)?sistema|prompt\s+del\s+sistema|tu\s+prompt)", re.I), 4),
     (re.compile(r"what\s+(are|is)\s+your\s+(system\s+)?(prompt|instructions)", re.I), 3),
     # Suplantación de rol / jailbreak conocido
     (re.compile(r"a\s+partir\s+de\s+ahora\s+(eres|actúa\s+como|actua\s+como)", re.I), 3),
+    (re.compile(r"\b(actua|actúa)\s+como\s+un\b", re.I), 3),
     (re.compile(r"from\s+now\s+on\s+(you\s+are|pretend|behave)", re.I), 3),
     (re.compile(r"\bDAN\b|\bjailbreak\b|developer\s+mode", re.I), 3),
     (re.compile(r"you\s+have\s+no\s+(restrictions|rules|filters)", re.I), 3),
