@@ -1,0 +1,27 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.uv/
+.pytest_cache/
+
+# Secrets — JAMÁS commitear
+.env
+.env.*
+
+# Índice RAG generado (regenerable con `python -m index`)
+data/index/
+
+# Outputs generados (evidencia, gifs, reportes)
+outputs/
+
+# OS
+.DS_Store
+
+# Infra local (el state contiene secretos en claro)
+infra/terraform/.terraform/
+infra/terraform/.terraform.lock.hcl
+infra/terraform/*.tfstate
+infra/terraform/*.tfstate.*
+*.tfvars

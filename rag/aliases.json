@@ -1,0 +1,350 @@
+{
+  "_generated_by": "scripts/build_aliases.py",
+  "_corpus_docs": 1265,
+  "_redirect_docs": 55,
+  "_resolved": 52,
+  "_unresolved": 3,
+  "aliases": {
+    "dislocacion-ver-hueso-dislocacion": {
+      "target_text": "HUESO – DISLOCACIÓN",
+      "target_slug": "huesos-en-general#dislocacion",
+      "source": "curado",
+      "indexable": false
+    },
+    "distrofia-muscular": {
+      "target_text": "MÚSCULOS – DISTROFIA MUSCULAR",
+      "target_slug": "musculos-distrofia-muscular",
+      "source": "auto",
+      "indexable": false
+    },
+    "diverticulitis-ver-intestinos-diverticulitis": {
+      "target_text": "INTESTINOS – DIVERTICULITIS",
+      "target_slug": "intestinos-diverticulitis",
+      "source": "auto",
+      "indexable": false
+    },
+    "dolor-de-espalda-ver-espalda-en-general": {
+      "target_text": "ESPALDA [en general…]",
+      "target_slug": "espalda-en-general",
+      "source": "auto",
+      "indexable": false
+    },
+    "dolor-de-muelas-ver-dientes-dolores-de": {
+      "target_text": "DIENTES [dolores de…]",
+      "target_slug": "dientes-dolor-de-o-de-muelas",
+      "source": "curado",
+      "indexable": false
+    },
+    "dolores-de-cabeza-ver-cabeza-dolores-de": {
+      "target_text": "CABEZA [dolores de…]",
+      "target_slug": "cabeza-dolores-de",
+      "source": "auto",
+      "indexable": false
+    },
+    "eclampsia-ver-embarazo-eclampsia": {
+      "target_text": "EMBARAZO – ECLAMPSIA",
+      "target_slug": "embarazo-eclampsia",
+      "source": "auto",
+      "indexable": false
+    },
+    "empiema-ver-absceso": {
+      "target_text": "ABSCESO",
+      "target_slug": null,
+      "source": "curado",
+      "indexable": false,
+      "candidates": [
+        "ano-absceso-anal",
+        "cerebro-absceso-del",
+        "diente-absceso-del",
+        "higado-absceso-del"
+      ],
+      "note": "destino ambiguo; tratar como sin cobertura"
+    },
+    "encefalitis-ver-cerebro-encefalitis": {
+      "target_text": "CEREBRO – ENCEFALITIS",
+      "target_slug": "cerebro-encefalitis",
+      "source": "auto",
+      "indexable": false
+    },
+    "encefalomielitis-fibromialgia": {
+      "target_text": "CANSANCIO CRÓNICO síndrome de",
+      "target_slug": "cansancio-cronico-sindrome-de-fatiga-cronica-fatiga-cronica",
+      "source": "auto",
+      "indexable": false
+    },
+    "enfermedad-de-crohn": {
+      "target_text": "INTESTINOS -- CROHN enfermedad de",
+      "target_slug": "intestinos-crohn-enfermedad-de",
+      "source": "auto",
+      "indexable": false
+    },
+    "enfermedad-de-dupuytren": {
+      "target_text": "MANOS -- DESVIACIÓN DE DUPUYTREN",
+      "target_slug": "manos-contractura-de-depuytren",
+      "source": "curado",
+      "indexable": false
+    },
+    "enfermedad-de-friedriech-ver-ataxia-de-friedriech": {
+      "target_text": "ATAXIA DE FRIEDRIECH",
+      "target_slug": "ataxia-de-friedreich",
+      "source": "curado",
+      "indexable": false
+    },
+    "enfermedad-de-hansen-ver-lepra": {
+      "target_text": "LEPRA",
+      "target_slug": "lepra",
+      "source": "auto",
+      "indexable": false
+    },
+    "enfermedad-de-parkinson": {
+      "target_text": "CEREBRO -- PARKINSON enfermedad de",
+      "target_slug": "cerebro-parkinson-enfermedad-de",
+      "source": "auto",
+      "indexable": false
+    },
+    "enronquecimiento-ver-laringitis": {
+      "target_text": "LARINGITIS",
+      "target_slug": "garganta-laringitis",
+      "source": "curado",
+      "indexable": false
+    },
+    "enuresis-ver-incontinencia": {
+      "target_text": "INCONTINENCIA",
+      "target_slug": "incontinencia-fecal-urinaria",
+      "source": "auto",
+      "indexable": false
+    },
+    "epicondilitis-ver-codos-epicondilitis": {
+      "target_text": "CODOS – EPICONDILITIS",
+      "target_slug": "codos-epicondilitis",
+      "source": "auto",
+      "indexable": false
+    },
+    "epifisitis-ver-enfermedad-de-scheuermann": {
+      "target_text": "ENFERMEDAD DE SCHEUERMANN",
+      "target_slug": "enfermedad-de-scheuermann-escoliosis-juvenil",
+      "source": "auto",
+      "indexable": false
+    },
+    "epilepsia-ver-cerebro-epilepsia": {
+      "target_text": "CEREBRO – EPILEPSIA",
+      "target_slug": "cerebro-epilepsia",
+      "source": "auto",
+      "indexable": false
+    },
+    "epistaxis-ver-nariz-hemorragias-de": {
+      "target_text": "NARIZ [hemorragias de…]",
+      "target_slug": "nariz",
+      "source": "auto",
+      "indexable": false
+    },
+    "erupcion-de-granos-ver-piel-brote-de-granos": {
+      "target_text": "PIEL – BROTE",
+      "target_slug": "piel-brote-de-granos",
+      "source": "auto",
+      "indexable": false
+    },
+    "espinillas-ver-piel-espinillas": {
+      "target_text": "PIEL – ESPINILLAS",
+      "target_slug": "piel-espinillas",
+      "source": "auto",
+      "indexable": false
+    },
+    "estomago-cancer-del-ver-cancer-del-estomago": {
+      "target_text": "CÁNCER DEL ESTÓMAGO",
+      "target_slug": "cancer-de-estomago",
+      "source": "curado",
+      "indexable": false
+    },
+    "estrabismo-ver-ojos-estrabismo": {
+      "target_text": "OJOS – ESTRABISMO",
+      "target_slug": "ojos-estrabismo-en-general",
+      "source": "curado",
+      "indexable": false
+    },
+    "estrenimiento-ver-intestinos-estrenimiento": {
+      "target_text": "INTESTINOS – ESTREÑIMIENTO",
+      "target_slug": "intestinos-estrenimiento",
+      "source": "auto",
+      "indexable": false
+    },
+    "exceso-de-apetito-ver-apetito-exceso-de": {
+      "target_text": "APETITO [exceso de…]",
+      "target_slug": "apetito-exceso-de",
+      "source": "auto",
+      "indexable": false
+    },
+    "exceso-de-peso-ver-peso-exceso-de": {
+      "target_text": "PESO [exceso de…]",
+      "target_slug": "obesidad",
+      "source": "auto",
+      "indexable": false,
+      "resolved_via": "peso-exceso-de-ver-obesidad",
+      "hops": 1
+    },
+    "eyaculacion-imposibilidad-de-ver-impotencia": {
+      "target_text": "IMPOTENCIA",
+      "target_slug": "impotencia",
+      "source": "auto",
+      "indexable": false
+    },
+    "faringitis-ver-garganta-faringitis": {
+      "target_text": "GARGANTA – FARINGITIS",
+      "target_slug": "garganta-faringitis",
+      "source": "auto",
+      "indexable": false
+    },
+    "fibromatosis-ver-musculos-fibromatosis": {
+      "target_text": "MÚSCULOS – FIBROMATOSIS",
+      "target_slug": "musculos-fibromatosis",
+      "source": "auto",
+      "indexable": false
+    },
+    "fibrosis-quistica-ver-musculos-fibrosis-quistica": {
+      "target_text": "MÚSCULOS – FIBROSIS QUÍSTICA",
+      "target_slug": "musculos-fibrosis-quistica",
+      "source": "auto",
+      "indexable": false
+    },
+    "fiebre-de-los-henos-ver-alergia-la-fiebre-de-los-henos": {
+      "target_text": "ALERGIA LA FIEBRE DE LOS HENOS",
+      "target_slug": "alergia-a-la-fiebre-del-heno-rinitis-alergica",
+      "source": "curado",
+      "indexable": false
+    },
+    "fisuras-anales-ver-ano-fisuras-anales": {
+      "target_text": "ANO – FISURAS ANALES",
+      "target_slug": "ano-fisuras-anales",
+      "source": "auto",
+      "indexable": false
+    },
+    "flatulencia-ver-gases": {
+      "target_text": "GASES",
+      "target_slug": "gases-dolores-causados-por-o-flatulencia",
+      "source": "auto",
+      "indexable": false
+    },
+    "flebitis-ver-sangre-flebitis": {
+      "target_text": "SANGRE – FLEBITIS",
+      "target_slug": "sangre-flebitis",
+      "source": "auto",
+      "indexable": false
+    },
+    "fobia-ver-neurosis": {
+      "target_text": "NEUROSIS",
+      "target_slug": "neurosis",
+      "source": "auto",
+      "indexable": false
+    },
+    "fractura-ver-hueso-fractura-osea": {
+      "target_text": "HUESO – FRACTURA […ósea]",
+      "target_slug": "huesos-en-general#fractura",
+      "source": "curado",
+      "indexable": false
+    },
+    "furunculos-vaginales-ver-piel-furunculos-vaginales": {
+      "target_text": "PIEL – FURÚNCULOS VAGINALES",
+      "target_slug": "piel-furunculos-vaginales",
+      "source": "auto",
+      "indexable": false
+    },
+    "furunculos-ver-piel-furunculos": {
+      "target_text": "PIEL – FURÚNCULOS",
+      "target_slug": "piel-furunculos",
+      "source": "auto",
+      "indexable": false
+    },
+    "gangrena-ver-sangre-gangrena": {
+      "target_text": "SANGRE – GANGRENA",
+      "target_slug": "sangre-gangrena",
+      "source": "auto",
+      "indexable": false
+    },
+    "globulos-sanguineos-ver-sangre": {
+      "target_text": "SANGRE",
+      "target_slug": "sangre-globulos-problemas-en-los",
+      "source": "curado",
+      "indexable": false
+    },
+    "granos-en-todo-el-cuerpo-ver-piel-granos": {
+      "target_text": "PIEL – GRANOS",
+      "target_slug": "piel-granos-acne",
+      "source": "auto",
+      "indexable": false
+    },
+    "gripe-espanola-ver-cerebro-encefalitis": {
+      "target_text": "CEREBRO – ENCEFALITIS",
+      "target_slug": "cerebro-encefalitis",
+      "source": "auto",
+      "indexable": false
+    },
+    "osteomielitis-ver-huesos-osteomielitis": {
+      "target_text": "HUESOS – OSTEOMIELITIS",
+      "target_slug": null,
+      "source": "curado",
+      "indexable": false,
+      "note": "destino inexistente en el corpus; hueco de cobertura"
+    },
+    "osteoporosis-ver-huesos-osteoporosis": {
+      "target_text": "HUESOS – OSTEOPOROSIS",
+      "target_slug": "huesos-en-general#osteoporosis",
+      "source": "curado",
+      "indexable": false
+    },
+    "otitis-ver-orejas-otitis": {
+      "target_text": "OREJAS – OTITIS",
+      "target_slug": "orejas-otitis",
+      "source": "auto",
+      "indexable": false
+    },
+    "paladar-ver-boca-paladar": {
+      "target_text": "BOCA – PALADAR",
+      "target_slug": "boca-paladar",
+      "source": "auto",
+      "indexable": false
+    },
+    "paralisis-de-bell-ver-bell-enfermedad-de": {
+      "target_text": "BELL (enfermedad de…)",
+      "target_slug": "bell-enfermedad-de-paralisis-de-bell",
+      "source": "auto",
+      "indexable": false
+    },
+    "parkinson-enfermedad-de": {
+      "target_text": "CEREBRO – PARKINSON (enfermedad de…)",
+      "target_slug": "cerebro-parkinson-enfermedad-de",
+      "source": "auto",
+      "indexable": false
+    },
+    "parotiditis-ver-paperas": {
+      "target_text": "PAPERAS – PAROTIDITIS",
+      "target_slug": "paperas-parotiditis",
+      "source": "auto",
+      "indexable": false
+    },
+    "peladera-alopecia": {
+      "target_text": "CABELLOS – PELADERA (ALOPECIA)",
+      "target_slug": null,
+      "source": "curado",
+      "indexable": false,
+      "note": "destino inexistente en el corpus; hueco de cobertura"
+    },
+    "peso-exceso-de-ver-obesidad": {
+      "target_text": "OBESIDAD",
+      "target_slug": "obesidad",
+      "source": "auto",
+      "indexable": false
+    },
+    "pie-de-atleta-tinea-pedis-ver-pies-micosis": {
+      "target_text": "PIES – MICOSIS",
+      "target_slug": "pies-micosis-o-infecciones-por-hongos",
+      "source": "auto",
+      "indexable": false
+    },
+    "piedras-en-los-rinones-ver-calculos-y-rinones": {
+      "target_text": "CÁLCULOS y RIÑONES",
+      "target_slug": "calculos-renales-o-litiasis-urinaria",
+      "source": "curado",
+      "indexable": false
+    }
+  }
+}
