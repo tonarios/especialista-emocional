@@ -96,3 +96,15 @@ def test_rate_limit_trips(monkeypatch):
     with pytest.raises(HTTPException) as exc:
         ratelimit.check_rate_limit("u@x.com", "test")
     assert exc.value.status_code == 429
+
+
+# ── Cabeceras de seguridad (NFR-06) ───────────────────────────────
+def test_security_headers_nosniff_and_deny():
+    from fastapi.testclient import TestClient
+
+    from backend.main import app
+
+    client = TestClient(app)
+    r = client.get("/health")
+    assert r.headers.get("x-content-type-options") == "nosniff"
+    assert r.headers.get("x-frame-options") == "DENY"

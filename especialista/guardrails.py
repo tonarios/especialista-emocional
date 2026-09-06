@@ -43,6 +43,10 @@ _INJECTION_PATTERNS: list[tuple[re.Pattern[str], int]] = [
     (re.compile(r"\bSYSTEM\s*:", re.M), 4),
     # Intento de acceso a datos de otros usuarios (aislamiento)
     (re.compile(r"(dame|muestra|lista|give\s?me|show|list).{0,40}(datos|conversaciones|sesiones|perfiles?|historial)\s+(de\s+)?(otro|otros|todos\s+los)\s+(usuario|usuarios)", re.I), 4),
+    # Petición de prescripción / diagnóstico forzado (fuera del rol, FR-06/07)
+    (re.compile(r"(rec[eé]ta(me)?|prescr[ií]be(me)?|dame\s+.*\s+(dosis|medicamento|f[aá]rmaco|antibi[oó]tico))", re.I), 4),
+    (re.compile(r"(diagnost[ií]ca(me)?|hazme\s+un\s+diagn[oó]stico|es\s+una\s+enfermedad\s+grave)", re.I), 4),
+    (re.compile(r"\b(dime|dame)\s+(cu[aá]nto|qu[eé]\s+dosis)", re.I), 4),
 ]
 
 _CONTROL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f\u200b-\u200f\u2028\u2029\u2060\ufeff]")
