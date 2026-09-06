@@ -181,11 +181,69 @@ def _synthesize(context: str, instruction: str) -> str:
         "A partir de los siguientes documentos del diccionario, escribe SOLO la "
         "lectura emocional integrada (asociativa, nunca causal). No escribas "
         "saludo, preámbulo ni disclaimer (el backend ya añade eso), y no pongas "
-        "slugs dentro del texto. Al final, en una sola línea aparte, lista los "
+        "slugs dentro del texto. Si el contexto incluye un historial de consultas "
+        "previas del usuario, puedes personalizar la lectura mencionándolo de forma "
+        "natural. Al final, en una sola línea aparte, lista los "
         "slugs que realmente usaste: `FUENTES: slug1, slug2, ...`\n\n"
         f"{context}"
     )
     return _complete(instruction, user, max_tokens=900, temperature=0.3)
+
+
+# ── Memoria del usuario (FR-13/14) ────────────────────────────────
+_MEMORY_MARKERS = (
+    "ultima consulta", "ultimo sintoma", "ultima enfermedad", "ultima vez",
+    "ultimo que", "cual fue mi", "cual fue lo ultimo", "que fue lo ultimo",
+    "mi historial", "historial", "recordas", "recuerdas", "te consulte",
+    "te pregunte", "consultas anteriores", "enfermedad anterior",
+    "que te habia", "me has preguntado", "lo que te he",
+)
+
+
+def _format_history(consultations: list[dict]) -> str:
+    if not consultations:
+        return ""
+    lines = []
+    for c in consultations[-10:]:
+        ts = str(c.get("ts", ""))[:10]
+        symptom = ", ".join(c.get("symptom", []) or [])
+        term = ", ".join(c.get("term", []) or [])
+        if not symptom and not term:
+            continue
+        suffix = f" (términos: {term})" if term else ""
+        lines.append(f"- {ts}: {symptom}{suffix}")
+    return "\n".join(lines)
+
+
+def _is_memory_question(message: str) -> bool:
+    from especialista.index import norm
+
+    n = " " + norm(message) + " "
+    return any(marker in n for marker in _MEMORY_MARKERS)
+
+
+def _memory_answer(message: str, history_text: str, user_id: str) -> dict:
+    """Responde una pregunta sobre el propio historial sin recuperar (FR-13)."""
+    if history_text:
+        answer = _complete(
+            SYSTEM_INSTRUCTION,
+            "Tienes acceso al historial de consultas que este usuario ha registrado "
+            "contigo. A continuación está SU historial (es real, úsalo y respóndele "
+            "a partir de él; no inventes entradas que no estén listadas ni hagas una "
+            "lectura emocional nueva):\n\n"
+            f"{history_text}\n\nPregunta del usuario: {message}",
+            max_tokens=320, temperature=0.2,
+        ).strip()
+        answer = _strip_sources_line(answer)
+        audit_mod.audit("chat_memory", user_email=user_id, status=200)
+        return {"kind": "respuesta", "text": answer, "sources": [],
+                "risk_tier": None, "termino": None, "detail": "memory"}
+    audit_mod.audit("chat_memory", user_email=user_id, status=200)
+    return {"kind": "respuesta", "text":
+            "Todavía no tengo consultas registradas tuyas. Cuéntame un síntoma o "
+            "una enfermedad y la iré guardando para recordarla en futuras "
+            "conversaciones.", "sources": [], "risk_tier": None, "termino": None,
+            "detail": "memory_empty"}
 
 
 # ── Orquestación determinista del turno ───────────────────────────
@@ -225,6 +283,19 @@ def run_deterministic(
         return {"kind": "emergency", "text": emergency["response"], "sources": [],
                 "risk_tier": None, "termino": None, "detail": emergency["group_id"]}
 
+    # Memoria del portador (FR-13): se lee cada turno para personalizar.
+    from especialista import memory
+
+    try:
+        history = memory.get_profile(user_id).get("consultations", [])
+    except Exception:
+        history = []
+    history_text = _format_history(history)
+
+    # Pregunta sobre su propio historial → responder desde la memoria, SIN recuperar.
+    if _is_memory_question(clean_message):
+        return _memory_answer(clean_message, history_text, user_id)
+
     # 3) Multi-hop determinista: extraer síntomas → N recuperaciones en paralelo.
     symptoms = extract_symptoms(clean_message)
     if not symptoms:
@@ -244,6 +315,10 @@ def run_deterministic(
             retrieved.extend(res["results"])
 
     if not retrieved:
+        # Pregunta sobre el propio historial (FR-13): responder desde la memoria.
+        if _is_memory_question(clean_message):
+            return _memory_answer(clean_message, history_text, user_id)
+
         audit_mod.audit("chat_sin_cobertura", user_email=user_id, status=200)
         return {"kind": "sin_cobertura", "text": _SIN_COBERTURA, "sources": [],
                 "risk_tier": None, "termino": None, "detail": "sin cobertura"}
@@ -264,8 +339,10 @@ def run_deterministic(
     # 5) Plantilla por risk_tier elegida en backend (FR-05a), nunca por el prompt.
     template = medical_safety.template_for(risk_tier)
 
-    # 6) Síntesis (UNA llamada) con contexto delimitado + instrucción del sistema.
+    # 6) Síntesis (UNA llamada) con contexto delimitado + historial (FR-13).
     context = retrieval.format_for_llm(ordered[:k])
+    if history_text:
+        context = f"<historial>\n{history_text}\n</historial>\n\n" + context
     syn = _synthesize(context, SYSTEM_INSTRUCTION)
 
     # 7) Citación intersectada: slugs usados (del modelo) ∩ recuperados.
@@ -279,8 +356,6 @@ def run_deterministic(
         final_text = text
 
     # 9) Registrar la consulta en el perfil del portador (FR-14/17) y auditar.
-    from especialista import memory
-
     try:
         memory.record_consultation(user_id, symptoms, used_slugs)
     except Exception:

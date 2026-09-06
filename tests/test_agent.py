@@ -63,3 +63,27 @@ def test_strip_sources_line():
     cleaned = agent._strip_sources_line("texto final\nFUENTES: a, b\n")
     assert "FUENTES" not in cleaned
     assert "texto final" in cleaned
+
+
+# ── Memoria (FR-13) ───────────────────────────────────────────────
+def test_memory_question_detected():
+    assert agent._is_memory_question("cuál fue mi última consulta?")
+    assert agent._is_memory_question("¿recuerdas qué enfermedad consulté antes?")
+    assert not agent._is_memory_question("me duele la garganta")
+    assert not agent._is_memory_question("qué acciones comprar hoy")
+
+
+def test_format_history():
+    hist = [
+        {"ts": "2026-09-06T03:13:21Z", "symptom": ["dolor de garganta"],
+         "term": ["garganta-dolores-de"]},
+        {"ts": "2026-09-06T03:32:52Z", "symptom": ["dolor de cabeza"], "term": []},
+    ]
+    out = agent._format_history(hist)
+    assert "dolor de garganta" in out
+    assert "garganta-dolores-de" in out
+    assert "dolor de cabeza" in out
+
+
+def test_format_history_empty():
+    assert agent._format_history([]) == ""
