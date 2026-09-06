@@ -1,0 +1,15 @@
+.venv
+.uv
+.env
+.env.*
+*.env
+data
+outputs
+docs
+harness
+infra
+graphify-out
+__pycache__
+.pytest_cache
+Dockerfile
+docker-compose.yml

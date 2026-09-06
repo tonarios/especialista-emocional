@@ -9,6 +9,7 @@ __pycache__/
 # Secrets — JAMÁS commitear
 .env
 .env.*
+!.env.example
 
 # Índice RAG generado (regenerable con `python -m index`)
 data/index/

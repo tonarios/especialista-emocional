@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ah-emociones-db
+    environment:
+      POSTGRES_USER: emociones
+      POSTGRES_PASSWORD: ${LOCAL_DB_PASSWORD:?Exporta LOCAL_DB_PASSWORD antes de arrancar}
+      POSTGRES_DB: emociones
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U emociones -d emociones"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  app:
+    build: .
+    container_name: ah-emociones-app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Secretos SOLO por variables de entorno del shell anfitrión
+      # (nunca env_file ni .env dentro del contenedor).
+      POSTGRES_DSN: postgresql://emociones:${LOCAL_DB_PASSWORD:?Exporta LOCAL_DB_PASSWORD antes de arrancar}@db:5432/emociones
+      JWT_SECRET: ${JWT_SECRET:-}
+      LLM_MODEL: ${LLM_MODEL:-ollama/gemma4:latest}
+      EMBED_MODEL: ${EMBED_MODEL:-bge-m3}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      INDEX_DIR: data/index
+      ENVIRONMENT: local
+    restart: unless-stopped
+
+volumes:
+  pgdata:
