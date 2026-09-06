@@ -45,7 +45,7 @@ _INJECTION_PATTERNS: list[tuple[re.Pattern[str], int]] = [
     (re.compile(r"(dame|muestra|lista|give\s?me|show|list).{0,40}(datos|conversaciones|sesiones|perfiles?|historial)\s+(de\s+)?(otro|otros|todos\s+los)\s+(usuario|usuarios)", re.I), 4),
     # Petición de prescripción / diagnóstico forzado (fuera del rol, FR-06/07)
     (re.compile(r"(rec[eé]ta(me)?|prescr[ií]be(me)?|dame\s+.*\s+(dosis|medicamento|f[aá]rmaco|antibi[oó]tico))", re.I), 4),
-    (re.compile(r"(diagnost[ií]ca(me)?|hazme\s+un\s+diagn[oó]stico|es\s+una\s+enfermedad\s+grave)", re.I), 4),
+    (re.compile(r"(diagnost[ií]came|hazme\s+un\s+diagn[oó]stico|diagn[oó]sticame)", re.I), 4),
     (re.compile(r"\b(dime|dame)\s+(cu[aá]nto|qu[eé]\s+dosis)", re.I), 4),
 ]
 

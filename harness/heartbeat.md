@@ -16,7 +16,7 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
 | 7 | frontend | **done** | M5 | flujo completo con chips de fuentes + disclaimer | 2026-09-05 | deepseek-v4-pro | commit `58b9331`; `frontend/` vanilla; `/chat` NDJSON; chips `basado en`; disclaimer fijo; 401/403/429 amigables |
 | 8 | docker | **done** | M6 | `make up` + chat + persistencia + non-root | 2026-09-05 | deepseek-v4-pro | commit `05a3890`; imagen 2.7 GB; app+db sanos; chat gemma4 OK; login 200 tras down/up; whoami=appuser |
 | 9 | security-tests | **done** | M7 | pytest verde + secrets_audit limpio | 2026-09-05 | deepseek-v4-pro | commit `55d3618`; 201 passed; 156 términos paramétricos; 6 emergencias sin recuperación; secrets_audit 4/4 limpio |
-| 10 | evidence-eval | pending | M8 | — | — | — | — |
+| 10 | evidence-eval | **done** | M8 | PNGs + PDF + GIFs con métricas | 2026-09-05 | deepseek-v4-pro | commit `TBD`; e2e 52 preguntas; recall single 0.935 / alias 1.0 / multi 0.333; bootstrap seed 42; 4 PNGs + reporte.pdf |
 | 11 | gcp-terraform | pending | M9 | — | — | — | — |
 
 ## Bitácora (cronológica)
@@ -103,3 +103,17 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
    - **`scripts/secrets_audit.sh`:** 4/4 limpio — `.env` fuera de git; 0 literales de secreto en ficheros versionados; 0 `.env*` en la imagen; 0 literales en código Python. Evidencia en `outputs/evidence/secrets_audit.txt`.
    - **`scripts/test.sh`** (wrapper `uv run pytest`). Resultado global: **201 passed**.
    - **Nota:** cubre los 6 grupos (medical-safety añadió `sudden_neurological` sin caso en gold set; su aserción se cierra aquí, como se anticipó en el heartbeat de medical-safety).
+
+- **2026-09-05 — evidence-eval (M8) DONE.** Evidencia + eval end-to-end + reporte. Cumple PRD §13.3/13.4, D8, O8.
+   - **Commit:** `TBD`.
+   - **`eval/questions.json`**: 52 preguntas del dominio (31 single / 15 alias / 6 multi) derivadas del gold set.
+   - **Eval e2e (`scripts/e2e.py`)**: corre `run_deterministic` (pipeline real del chat, gemma4) por pregunta; verificación **determinista** (slugs en `sources[]` ∪ título del término en el texto); latencia por turno. **Métricas por bootstrap (seed=42, 2000 remuestreos)**:
+     - **global 0.885** (IC95 [0.788, 0.962]) · **single 0.935** (29/31) · **alias 1.000** (15/15) · **multi 0.333** (2/6).
+     - Latencia media/mediana: single 6.19/6.36 s, alias 7.51/7.11 s, multi 9.40/9.89 s.
+   - **Capturas (`scripts/capture_evidence.py`, Chrome CDP sin Playwright)**: `register.png`, `rag_sources.png` (con 5 chips de fuentes), `profiles.png`, `sessions.png` — datos reales (usuario registrado, consulta persistida, sesión ADK).
+   - **Reporte (`scripts/report.py`)**: HTML autocontenido → **PDF vía Chrome headless** (`outputs/reporte.pdf`, 697 KB). Incluye método, decisiones con datos (k=5, τ = match nominal título/alias, peso RRF+léxico), tabla de recuperación §13.0, métricas e2e con IC95%, guardarraíles médicos (156 términos / 6 emergencias) y riesgos/mitigaciones (§14). **Compila y embebe las 4 capturas.**
+   - **Bug corregido en el camino:** el nuevo patrón `diagnost[ií]ca(me)?` producía un falso positivo que bloqueaba «me diagnosticaron Crohn» (reporte de diagnóstico propio). Se acotó a `diagnost[ií]came` + test de regresión (`test_reporting_diagnosis_not_blocked`).
+   - **Recuperación §13.0 (referencia):** single 27/31, alias 13/15, risk_tier 9/10, multi 5/6, out_of_domain 13/13, emergency 5/5.
+   - **Multi-hop es el punto débil (0.333):** citar TODOS los síntomas en una síntesis con gemma4 local + el hueco de sinonimia `pelo→alopecia`. Documentado como riesgo en el reporte.
+   - **GIFs:** omitidos (sin `ffmpeg` en el host); el exit criteria de M8 solo exige PNGs + PDF.
+   - **Verificación:** `pytest` → **203 passed**; `scripts/evidence.sh` orquesta e2e→capturas→reporte; artefactos en `outputs/`.

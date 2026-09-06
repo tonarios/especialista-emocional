@@ -1,0 +1,477 @@
+{
+  "_description": "Preguntas del dominio (single/alias/multi) derivadas del gold set para el eval e2e de M8. Cada pregunta se verifica de forma determinista contra la respuesta del agente.",
+  "_counts": {
+    "single": 31,
+    "alias": 15,
+    "multi": 6
+  },
+  "questions": [
+    {
+      "id": "g001",
+      "type": "single",
+      "query": "me duele la garganta muy seguido",
+      "expected": [
+        "garganta-dolores-de",
+        "garganta-en-general"
+      ]
+    },
+    {
+      "id": "g002",
+      "type": "single",
+      "query": "siento un nudo en la garganta cuando me estreso",
+      "expected": [
+        "garganta-apretada",
+        "garganta-en-general"
+      ]
+    },
+    {
+      "id": "g003",
+      "type": "single",
+      "query": "me quedé sin voz de repente",
+      "expected": [
+        "afonia-o-extincion-de-voz",
+        "garganta-laringitis"
+      ]
+    },
+    {
+      "id": "g004",
+      "type": "single",
+      "query": "tengo acidez estomacal después de comer",
+      "expected": [
+        "estomago-acidez-ardores-pirosis"
+      ]
+    },
+    {
+      "id": "g005",
+      "type": "single",
+      "query": "me arde el estómago y ando muy tenso",
+      "expected": [
+        "estomago-gastritis",
+        "estomago-acidez-ardores-pirosis",
+        "estomago-dolores-de"
+      ]
+    },
+    {
+      "id": "g006",
+      "type": "alias",
+      "query": "dolor de panza constante",
+      "expected": [
+        "estomago-dolores-de",
+        "barriga-dolor-de-ver-estomago-dolores-de"
+      ]
+    },
+    {
+      "id": "g007",
+      "type": "single",
+      "query": "me dan migrañas cada semana",
+      "expected": [
+        "cabeza-migranas"
+      ]
+    },
+    {
+      "id": "g008",
+      "type": "single",
+      "query": "dolor de cabeza cuando tengo mucha presión en el trabajo",
+      "expected": [
+        "cabeza-dolores-de",
+        "cabeza-migranas"
+      ]
+    },
+    {
+      "id": "g009",
+      "type": "single",
+      "query": "me duele la espalda baja",
+      "expected": [
+        "espalda-dolor-de-parte-inferior",
+        "rinones-dolor-de-cintura-lumbago"
+      ]
+    },
+    {
+      "id": "g010",
+      "type": "single",
+      "query": "cargo mucho peso emocional y me duele la parte alta de la espalda",
+      "expected": [
+        "espalda-dolor-de-parte-superior-7-vertebras-cervicales",
+        "espalda-en-general"
+      ]
+    },
+    {
+      "id": "g011",
+      "type": "single",
+      "query": "amanecí con el cuello trabado",
+      "expected": [
+        "cuello-torticolis",
+        "cuello-en-general"
+      ]
+    },
+    {
+      "id": "g012",
+      "type": "single",
+      "query": "me salen granos en la cara",
+      "expected": [
+        "piel-acne",
+        "piel-brote-de-granos",
+        "piel-acne-rosacea"
+      ]
+    },
+    {
+      "id": "g013",
+      "type": "single",
+      "query": "tengo la piel irritada y me rasco mucho",
+      "expected": [
+        "piel-eczema-dermatitis-atopica",
+        "piel-comezon-prurito",
+        "piel-en-general"
+      ]
+    },
+    {
+      "id": "g014",
+      "type": "alias",
+      "query": "se me está cayendo el pelo",
+      "expected": [
+        "cabellos-perdida-de-ver-alopecia",
+        "alopecia",
+        "cabellos-enfermedades-de-los"
+      ]
+    },
+    {
+      "id": "g015",
+      "type": "single",
+      "query": "ando estreñido desde hace semanas",
+      "expected": [
+        "intestinos-estrenimiento"
+      ]
+    },
+    {
+      "id": "g016",
+      "type": "single",
+      "query": "tengo diarrea cada vez que me pongo nervioso",
+      "expected": [
+        "intestinos-diarrea"
+      ]
+    },
+    {
+      "id": "g017",
+      "type": "single",
+      "query": "me dan cólicos intestinales",
+      "expected": [
+        "intestinos-colico",
+        "intestinos-dolores-de-los"
+      ]
+    },
+    {
+      "id": "g018",
+      "type": "single",
+      "query": "problemas de hígado",
+      "expected": [
+        "higado-dolores-de",
+        "higado-crisis-de"
+      ]
+    },
+    {
+      "id": "g019",
+      "type": "single",
+      "query": "me cuesta respirar cuando me angustio",
+      "expected": [
+        "pulmones-en-general",
+        "disnea",
+        "asma-grito-silencioso"
+      ]
+    },
+    {
+      "id": "g020",
+      "type": "single",
+      "query": "tengo asma desde niño",
+      "expected": [
+        "asma-grito-silencioso",
+        "asma-del-bebe"
+      ]
+    },
+    {
+      "id": "g021",
+      "type": "single",
+      "query": "me duelen las rodillas al caminar",
+      "expected": [
+        "rodillas-dolores-de",
+        "rodillas-en-general"
+      ]
+    },
+    {
+      "id": "g022",
+      "type": "single",
+      "query": "no puedo dormir en toda la noche",
+      "expected": [
+        "insomnio"
+      ]
+    },
+    {
+      "id": "g023",
+      "type": "single",
+      "query": "vivo con ansiedad todo el tiempo",
+      "expected": [
+        "ansiedad",
+        "angustia"
+      ]
+    },
+    {
+      "id": "g024",
+      "type": "single",
+      "query": "me siento agotado todo el día, sin energía",
+      "expected": [
+        "agotamiento-o-burnout",
+        "burnout",
+        "cansancio-fatiga-en-general"
+      ]
+    },
+    {
+      "id": "g025",
+      "type": "single",
+      "query": "rechino los dientes mientras duermo",
+      "expected": [
+        "dientes-chirrido-de-bruxismo"
+      ]
+    },
+    {
+      "id": "g026",
+      "type": "alias",
+      "query": "me duele una muela",
+      "expected": [
+        "dientes-dolor-de-o-de-muelas",
+        "dolor-de-muelas-ver-dientes-dolores-de"
+      ]
+    },
+    {
+      "id": "g027",
+      "type": "alias",
+      "query": "tengo mal aliento",
+      "expected": [
+        "halitosis-ver-boca-aliento-mal",
+        "boca-mal-aliento-ver-halitosis"
+      ]
+    },
+    {
+      "id": "g028",
+      "type": "single",
+      "query": "me arden los ojos y veo borroso",
+      "expected": [
+        "ojos-en-general",
+        "ojos-presbicia",
+        "ojos-conjuntivitis"
+      ]
+    },
+    {
+      "id": "g029",
+      "type": "single",
+      "query": "escucho un zumbido en el oído",
+      "expected": [
+        "orejas-oidos-acufeno-tinnitus",
+        "oidos-problemas-en-los"
+      ]
+    },
+    {
+      "id": "g030",
+      "type": "single",
+      "query": "me dan infecciones urinarias seguido",
+      "expected": [
+        "vejiga-cistitis",
+        "vejiga-dolores-de"
+      ]
+    },
+    {
+      "id": "g031",
+      "type": "single",
+      "query": "tengo las manos frías y me sudan",
+      "expected": [
+        "manos-en-general"
+      ]
+    },
+    {
+      "id": "g032",
+      "type": "single",
+      "query": "se me duermen los pies",
+      "expected": [
+        "adormecimiento-torpor",
+        "pies-en-general"
+      ]
+    },
+    {
+      "id": "g033",
+      "type": "single",
+      "query": "tengo várices en las piernas",
+      "expected": [
+        "sangre-varices",
+        "piernas-en-general"
+      ]
+    },
+    {
+      "id": "g034",
+      "type": "single",
+      "query": "me da colitis cuando estoy bajo presión",
+      "expected": [
+        "intestinos-colitis-mucosidad-del-colon"
+      ]
+    },
+    {
+      "id": "g035",
+      "type": "alias",
+      "query": "tengo hongos en los pies",
+      "expected": [
+        "pies-micosis-o-infecciones-por-hongos",
+        "pie-de-atleta-tinea-pedis-ver-pies-micosis"
+      ]
+    },
+    {
+      "id": "g036",
+      "type": "alias",
+      "query": "subí mucho de peso y no puedo bajar",
+      "expected": [
+        "obesidad",
+        "peso-exceso-de-ver-obesidad"
+      ]
+    },
+    {
+      "id": "g037",
+      "type": "single",
+      "query": "me salió un fuego en el labio",
+      "expected": [
+        "herpes-bucal-herpes-labial",
+        "boca-en-general",
+        "labio"
+      ]
+    },
+    {
+      "id": "g041",
+      "type": "multi",
+      "query": "me duele la garganta y también el estómago",
+      "expected": [
+        "garganta-dolores-de",
+        "estomago-dolores-de"
+      ]
+    },
+    {
+      "id": "g042",
+      "type": "multi",
+      "query": "tengo insomnio, dolor de cabeza y ando muy irritable",
+      "expected": [
+        "insomnio",
+        "cabeza-dolores-de"
+      ]
+    },
+    {
+      "id": "g043",
+      "type": "multi",
+      "query": "se me cae el pelo y me salen granos desde que cambié de trabajo",
+      "expected": [
+        "alopecia",
+        "piel-acne"
+      ]
+    },
+    {
+      "id": "g044",
+      "type": "multi",
+      "query": "ando estreñido y con dolor de espalda baja",
+      "expected": [
+        "intestinos-estrenimiento",
+        "espalda-dolor-de-parte-inferior"
+      ]
+    },
+    {
+      "id": "g045",
+      "type": "multi",
+      "query": "me duelen las rodillas, tengo várices y siempre estoy cansada",
+      "expected": [
+        "rodillas-dolores-de",
+        "sangre-varices",
+        "agotamiento-o-burnout"
+      ]
+    },
+    {
+      "id": "g046",
+      "type": "multi",
+      "query": "acidez, colitis y ansiedad al mismo tiempo",
+      "expected": [
+        "estomago-acidez-ardores-pirosis",
+        "intestinos-colitis-mucosidad-del-colon",
+        "ansiedad"
+      ]
+    },
+    {
+      "id": "g067",
+      "type": "alias",
+      "query": "tengo osteoporosis",
+      "expected": [
+        "huesos-en-general"
+      ]
+    },
+    {
+      "id": "g068",
+      "type": "alias",
+      "query": "me fracturé un hueso",
+      "expected": [
+        "huesos-en-general",
+        "clavicula-dolor-en-la-fractura-de-la"
+      ]
+    },
+    {
+      "id": "g069",
+      "type": "alias",
+      "query": "tengo estrabismo",
+      "expected": [
+        "ojos-estrabismo-en-general",
+        "ojos-estrabismo-convergente"
+      ]
+    },
+    {
+      "id": "g070",
+      "type": "alias",
+      "query": "me diagnosticaron Crohn",
+      "expected": [
+        "intestinos-crohn-enfermedad-de",
+        "enfermedad-de-crohn"
+      ]
+    },
+    {
+      "id": "g071",
+      "type": "alias",
+      "query": "tengo Parkinson",
+      "expected": [
+        "cerebro-parkinson-enfermedad-de",
+        "parkinson-enfermedad-de"
+      ]
+    },
+    {
+      "id": "g072",
+      "type": "alias",
+      "query": "tengo fibromialgia",
+      "expected": [
+        "cansancio-fatiga-en-general",
+        "encefalomielitis-fibromialgia"
+      ]
+    },
+    {
+      "id": "g073",
+      "type": "alias",
+      "query": "sufro de fiebre del heno",
+      "expected": [
+        "alergia-a-la-fiebre-del-heno-rinitis-alergica"
+      ]
+    },
+    {
+      "id": "g074",
+      "type": "alias",
+      "query": "tengo piedras en los riñones",
+      "expected": [
+        "calculos-renales-o-litiasis-urinaria",
+        "calculos-en-general"
+      ]
+    },
+    {
+      "id": "g075",
+      "type": "alias",
+      "query": "tengo la enfermedad de Dupuytren",
+      "expected": [
+        "manos-contractura-de-depuytren"
+      ]
+    }
+  ]
+}

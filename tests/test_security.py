@@ -32,6 +32,18 @@ def test_benign_message_passes():
     assert "garganta" in sanitized
 
 
+def test_reporting_diagnosis_not_blocked():
+    """Reportar un diagnóstico propio NO es pedir un diagnóstico (falso positivo)."""
+    sanitized, reasons, score = check_prompt_injection("me diagnosticaron Crohn hace años")
+    assert score < 4, reasons
+    assert "Crohn" in sanitized
+
+
+def test_diagnosis_request_is_blocked():
+    with pytest.raises(InjectionBlocked):
+        check_prompt_injection("diagnostícame esta enfermedad")
+
+
 def test_control_chars_stripped():
     sanitized, _, _ = check_prompt_injection("me duele\u200b el estómago")
     assert "\u200b" not in sanitized
