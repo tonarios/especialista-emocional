@@ -83,6 +83,7 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
    - **Errores amigables:** 401 → redirige a login con aviso; 403 → «mensaje bloqueado»; 429 → «espera un minuto»; la respuesta de emergencia se renderiza resaltada.
    - **`/chat` ahora es streaming NDJSON** (evento `status` + evento final `{session_id, kind, done, text, risk_tier, sources[]}`); el 403 por injection se devuelve antes de emitir el stream.
    - **IDs estables para `evidence-eval`:** `#login-view`, `#chat-view`, `#email`, `#password`, `#login-btn`, `#register-btn`, `#chat-input`, `#send-btn`, `#messages`, `.message`, `.chips`, `#disclaimer`.
+   - **Rediseño (2026-09-05):** estética **Liquid Glass de iOS** — vidrio translúcido con `backdrop-filter: blur+saturate`, destellos especulares (`::after`), botones/píldoras de vidrio y fondo **aurora** animado. Se conservan todos los IDs/selectores estables de `evidence-eval`.
    - **Verificación:** `/`, `/app.js`, `/styles.css` → 200; `/chat` NDJSON con `done` event + `sources`; 403 injection; `app.js` sintaxis OK (node --check); `pytest` → **27 passed**. Captura visual formal la aporta `evidence-eval` (M8).
 
 - **2026-09-05 — docker (M6) DONE.** Dockerfile (imagen única back+front, non-root) + docker-compose (db `postgres:16-alpine` + app) + Makefile SOLO con targets Docker. Cumple §7/§11, D9, NFR-04/06.

@@ -7,9 +7,18 @@
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
+  <!-- Fondo aurora (refractado por el vidrio) -->
+  <div class="bg" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="orb orb-4"></div>
+    <div class="sheen"></div>
+  </div>
+
   <!-- Vista de acceso -->
   <main id="login-view" class="view">
-    <section class="card" id="auth-card">
+    <section class="card glass" id="auth-card">
       <div class="brand">
         <span class="brand-mark" aria-hidden="true">◍</span>
         <h1 id="app-title">Tu espacio emocional</h1>
@@ -18,14 +27,18 @@
 
       <form id="auth-form" autocomplete="off">
         <label for="email" class="field-label">Correo electrónico</label>
-        <input id="email" name="email" type="email" placeholder="tu@correo.com" required />
+        <div class="input-shell glass-soft">
+          <input id="email" name="email" type="email" placeholder="tu@correo.com" required />
+        </div>
 
         <label for="password" class="field-label">Contraseña</label>
-        <input id="password" name="password" type="password" placeholder="Mínimo 8 caracteres" minlength="8" required />
+        <div class="input-shell glass-soft">
+          <input id="password" name="password" type="password" placeholder="Mínimo 8 caracteres" minlength="8" required />
+        </div>
 
         <div id="auth-error" class="auth-error" role="alert" hidden></div>
 
-        <button type="submit" id="login-btn" class="btn btn-primary">Entrar</button>
+        <button type="submit" id="login-btn" class="btn btn-primary glass-pill">Entrar</button>
         <button type="button" id="register-btn" class="btn btn-ghost">Crear cuenta</button>
       </form>
 
@@ -36,7 +49,7 @@
 
   <!-- Vista de chat -->
   <main id="chat-view" class="view" hidden>
-    <header class="chat-header">
+    <header class="chat-header glass">
       <div class="brand-inline">
         <span class="brand-mark" aria-hidden="true">◍</span>
         <div>
@@ -44,10 +57,10 @@
           <span id="user-email" class="user-email"></span>
         </div>
       </div>
-      <button id="logout-btn" class="btn btn-ghost btn-small">Salir</button>
+      <button id="logout-btn" class="btn btn-ghost glass-pill">Salir</button>
     </header>
 
-    <div id="disclaimer" class="disclaimer" role="note">
+    <div id="disclaimer" class="disclaimer glass-tint" role="note">
       <strong>Aviso importante:</strong> este espacio ofrece una interpretación emocional desde un
       diccionario de autoconocimiento. No es consejo ni diagnóstico médico; ante dudas de salud
       consulta a un profesional sanitario.
@@ -55,9 +68,11 @@
 
     <div id="messages" class="messages" aria-live="polite"></div>
 
-    <form id="chat-form" class="chat-form">
-      <textarea id="chat-input" rows="1" placeholder="Cuéntame qué sientes…" required></textarea>
-      <button type="submit" id="send-btn" class="btn btn-primary btn-send">Enviar</button>
+    <form id="chat-form" class="chat-form glass">
+      <div class="input-shell glass-soft grow">
+        <textarea id="chat-input" rows="1" placeholder="Cuéntame qué sientes…" required></textarea>
+      </div>
+      <button type="submit" id="send-btn" class="btn btn-primary glass-pill">Enviar</button>
     </form>
   </main>
 
