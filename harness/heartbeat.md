@@ -15,7 +15,7 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
 | 6 | auth-memory | **done** | M4 | aislamiento por usuario + persistencia + delete | 2026-09-05 | deepseek-v4-pro | commit `1a1a3ca`; register/login/JWT; perfil por portador; sesiones ADK en Postgres; record/clear consultations; rate-limit; 27 pytest passed |
 | 7 | frontend | **done** | M5 | flujo completo con chips de fuentes + disclaimer | 2026-09-05 | deepseek-v4-pro | commit `58b9331`; `frontend/` vanilla; `/chat` NDJSON; chips `basado en`; disclaimer fijo; 401/403/429 amigables |
 | 8 | docker | **done** | M6 | `make up` + chat + persistencia + non-root | 2026-09-05 | deepseek-v4-pro | commit `05a3890`; imagen 2.7 GB; app+db sanos; chat gemma4 OK; login 200 tras down/up; whoami=appuser |
-| 9 | security-tests | **done** | M7 | pytest verde + secrets_audit limpio | 2026-09-05 | deepseek-v4-pro | commit `TBD`; 201 passed; 156 términos paramétricos; 6 emergencias sin recuperación; secrets_audit 4/4 limpio |
+| 9 | security-tests | **done** | M7 | pytest verde + secrets_audit limpio | 2026-09-05 | deepseek-v4-pro | commit `55d3618`; 201 passed; 156 términos paramétricos; 6 emergencias sin recuperación; secrets_audit 4/4 limpio |
 | 10 | evidence-eval | pending | M8 | — | — | — | — |
 | 11 | gcp-terraform | pending | M9 | — | — | — | — |
 
@@ -95,7 +95,7 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
    - **Verificación:** `make up` → `/health` 200 + `POST /chat` responde con gemma4 (garganta → respuesta con 5 sources) ✓; `make down`+`make up` → login 200 (persistencia en volumen `pgdata`) ✓; `docker compose exec app whoami` → `appuser` ✓.
 
 - **2026-09-05 — security-tests (M7) DONE.** Guardrails extendidos al dominio + `tests/test_medical_safety.py` + `scripts/{test.sh,secrets_audit.sh}`. Cumple NFR-01..07, FR-05a/05b/06/09b/14b, PRD §13.1/13.2.
-   - **Commit:** `TBD`.
+   - **Commit:** `55d3618`.
    - **Guardrails nuevos (dominio):** petición de prescripción (`recétame`, `prescríbeme`, `dame la dosis`, `antibiótico`), diagnóstico forzado (`diagnostícame`, `hazme un diagnóstico`, `es una enfermedad grave`) → bloqueo 403.
    - **`tests/test_medical_safety.py` (173 tests):** cobertura **paramétrica de los 156 términos** elevados (cada uno → plantilla de derivación ≠ estándar); **0 patrones causales** en las 8 plantillas + respuestas de emergencia + sin-cobertura; **6 grupos de emergencia** con monkeypatch de `retrieval.search` que **falla si se llama** (corte antes de recuperar, NFR-02b); los 4 huecos (`osteomielitis`, `empiema`, `irritabilidad`, `sudoración`) con `_lexical_hits == {}`.
    - **Cabeceras (NFR-06):** test `nosniff` + `DENY` en `/health`.
