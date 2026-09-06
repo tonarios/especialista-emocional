@@ -91,25 +91,31 @@ def search_dictionary(query: str, k: int = 5) -> str:
 
 
 def get_user_profile(tool_context=None) -> str:
-    """Historial de consultas del usuario (stub hasta `auth-memory` — M4)."""
-    # Contrato: `auth-memory` inyectará el user_id real vía ToolContext/state.
+    """Historial de consultas del usuario (FR-13/17)."""
+    from especialista import memory
+
     user_id = _user_id_from(tool_context)
     try:
-        from especialista import memory
-
         profile = memory.get_profile(user_id)
         consultations = profile["consultations"]
         if not consultations:
             return "Sin historial de consultas previas."
-        lines = [f"- {c.get('fecha', '?')}: {c.get('sintomas', [])}" for c in consultations[-10:]]
+        lines = [f"- {c.get('ts', '?')}: {c.get('symptom', [])} -> {c.get('term', [])}" for c in consultations[-10:]]
         return "Historial de consultas:\n" + "\n".join(lines)
     except Exception:
         return "Sin historial de consultas previas."
 
 
 def record_consultation(symptoms: list[str], terms: list[str], tool_context=None) -> str:
-    """Persiste la consulta en el perfil (no-op hasta `auth-memory` — M4)."""
-    return "ok"
+    """Persiste la consulta en el perfil del portador (FR-14/17)."""
+    from especialista import memory
+
+    user_id = _user_id_from(tool_context)
+    try:
+        memory.record_consultation(user_id, symptoms, terms)
+        return "ok"
+    except Exception as exc:
+        return f"error: {exc}"
 
 
 def _user_id_from(tool_context) -> str:
@@ -272,9 +278,11 @@ def run_deterministic(
     except KeyError:
         final_text = text
 
-    # 9) Registrar (no-op hasta auth-memory) y auditar.
+    # 9) Registrar la consulta en el perfil del portador (FR-14/17) y auditar.
+    from especialista import memory
+
     try:
-        record_consultation([s[0] for s in symptoms], used_slugs)
+        memory.record_consultation(user_id, symptoms, used_slugs)
     except Exception:
         pass
     audit_mod.audit("chat", user_email=user_id, status=200,
@@ -324,4 +332,19 @@ def _dedupe(items: list[str]) -> list[str]:
     for it in items:
         if it not in out:
             out.append(it)
+    return out
+
+
+def source_objects(slugs: list[str]) -> list[dict]:
+    """Slugs usados → `[{title, slug}]` para la UI (FR-03/§10)."""
+    meta = retrieval._meta()
+    sid = meta["slug_to_id"]
+    docs = meta["docs"]
+    out: list[dict] = []
+    for slug in slugs:
+        idx = sid.get(slug)
+        if idx is None:
+            out.append({"title": slug, "slug": slug})
+        else:
+            out.append({"title": docs[idx]["title"], "slug": slug})
     return out

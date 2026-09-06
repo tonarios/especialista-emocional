@@ -12,7 +12,7 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
 | 3 | rag-index | **done** | M2 | índice FAISS+BM25+meta.json idempotente (gate) | 2026-09-05 | deepseek-v4-pro | commit `cdd68c9`; 1.216 vectores; hash `9d24b7dd…`; re-run idéntico; 0 redirects vectorizados; 3 huérfanos null |
 | 4 | rag-retrieval | **parcial** | M2 | GATE DURO gold set | 2026-09-05 | deepseek-v4-pro | single 27/31; ood 13/13; emergency 5/5; alias 13/15; multi 5/6; risk 9/10 — sinonimia coloquial ausente de aliases.json |
 | 5 | agent-core | **done** | M3 | smoke multi-hop + citas + disclaimer | 2026-09-05 | deepseek-v4-pro | commit `14830bb`; runner determinista + LlmAgent; emergencia/injection no llegan al LLM; sin-cobertura sin confabular; gemma4 exige `think:false` |
-| 6 | auth-memory | pending | M4 | — | — | — | — |
+| 6 | auth-memory | **done** | M4 | aislamiento por usuario + persistencia + delete | 2026-09-05 | deepseek-v4-pro | commit `TBD`; register/login/JWT; perfil por portador; sesiones ADK en Postgres; record/clear consultations; rate-limit; 27 pytest passed |
 | 7 | frontend | pending | M5 | — | — | — | — |
 | 8 | docker | pending | M6 | — | — | — | — |
 | 9 | security-tests | pending | M7 | — | — | — | — |
@@ -63,3 +63,13 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
    - **Guardrails reforzados (g076/g077):** `ignora tus instrucciones`, `dime tu prompt`, `olvida que eres`, `actúa como un` → bloqueo 403 verificable (test_security pasa, +2 patrones).
    - **Verificación (`scripts/smoke_agent.sh`):** síntoma simple → cita `garganta-*` + disclaimer ✓; multi-hop extrae 2 síntomas y relaciona el cubierto (⚠ `dormir→insomnio` cae a sin-cobertura por el gap de `rag-retrieval`, no es bug del agente); emergencia/injection **no llegan al LLM** ✓; fuera-de-dominio (`acciones comprar`) → sin-cobertura ✓; hueco `sudoración` → sin-cobertura ✓; `diabetes` → `metabolico_grave` con **derivación al inicio** ✓. `pytest` → **20 passed**.
    - **Contrato de tools para `auth-memory` (M4):** `get_user_profile()` y `record_consultation(symptoms, terms)` son stubs (no-op / leen `profiles`); M4 les inyectará `user_id` real.
+
+- **2026-09-05 — auth-memory (M4) DONE.** Auth + memoria: `backend/main.py` con endpoints completos (`/api/register`, `/api/login`, `/chat`, `/profile`, `DELETE /profile/consultations`, `/sessions`), tools `get_user_profile`/`record_consultation` reales y persistencia de sesiones ADK. Cumple FR-12..17, FR-14b, NFR-05/07.
+   - **Commit:** `TBD`.
+   - **Endpoints:** register/login PBKDF2 + JWT HS256 (secreto en `app_config`/`JWT_SECRET`); `chat` corre `run_deterministic` con `user_id=email` autenticado; todo lo de datos va tras Bearer (FR-17, aislamiento por portador).
+   - **Memoria:** `memory.record_consultation` inserta `[{symptom, term, ts}]` en `profiles.consultations` (FR-14); `clear_consultations` borra solo el historial del portador (FR-14b); `memory.append_turn` (async) persiste turnos vía `DatabaseSessionService` (FR-12).
+   - **Agente integrado:** `run_deterministic` ahora registra la consulta en el perfil del portador al final del turno; `get_user_profile`/`record_consultation` resuelven `user_id` desde ToolContext/state (o default en local).
+   - **Rate-limit (NFR-05):** login/register por IP, chat por email (`ratelimit.check_rate_limit`), 429 al exceder.
+   - **Esquema idempotente (NFR-03):** `users`/`app_config`/`audit_log`/`profiles` con `CREATE TABLE IF NOT EXISTS` en sus módulos; tablas de sesiones ADK creadas por `DatabaseSessionService`.
+   - **Verificación:** `pytest` → **27 passed** (7 nuevos en `tests/test_auth.py`: register/login 401, 409 duplicado, **aislamiento A no ve B**, record/get/delete, sesión ADK 2 eventos, chat exige token, inyección 403). Smoke live con `postgres:16-alpine` (`ah-emociones-pg`): register→token, login erróneo 401, chat sin-cobertura, profile, delete — OK.
+   - **Nota infra:** para el smoke se levantó un `postgres:16-alpine` local (`ah-emociones-pg`, puerto 5432); `docker` (M6) formalizará el stack con su propio Postgres + `make up`.
