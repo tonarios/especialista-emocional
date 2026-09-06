@@ -1,0 +1,101 @@
+{
+  "_generated_by": "harness/skills/medical-safety (curado a mano)",
+  "_description": "Disparadores de escalamiento de emergencia (FR-06, NFR-02b). detect_emergency evalúa estos patrones de forma DETERMINISTA sobre el mensaje del usuario ANTES de cualquier recuperación del RAG. Ante un match, NO se recupera ni se interpreta emocionalmente: se responde con la derivación a servicios de salud del grupo correspondiente.",
+  "_normalization": "Los patrones se normalizan antes de comparar: minúsculas + sin tildes (NFKD). Por claridad se escriben en ASCII; 'niño' debe escribirse 'nino', 'daño' -> 'dano', etc.",
+  "groups": [
+    {
+      "id": "suicidal_ideation",
+      "name": "Ideación suicida",
+      "gold_case": "g055",
+      "patterns": [
+        "\\bsuicid",
+        "quiero\\s+(terminar|acabar)\\s+con\\s+(todo|mi\\s+vida|todo\\s+esto)",
+        "quiero\\s+(quitarme|terminar\\s+con|acabar\\s+con)\\s+la\\s+vida",
+        "(me\\s+quiero|quiero)\\s+(morir|matar|matarme)",
+        "no\\s+le\\s+veo\\s+sentido\\s+a\\s+(nada|la\\s+vida|todo)",
+        "no\\s+(le\\s+)?veo\\s+sentido\\s+a\\s+nada",
+        "no\\s+quiero\\s+(seguir\\s+)?vivir",
+        "no\\s+tiene\\s+sentido\\s+(seguir|vivir)",
+        "acabar\\s+con\\s+(mi\\s+vida|migo)",
+        "(terminar|acabar)\\s+conmigo",
+        "pensamientos?\\s+(suicidas?|de\\s+muerte)",
+        "me\\s+quiero\\s+quitar\\s+la\\s+vida"
+      ],
+      "response": "Detecto que estás pasando por un momento muy difícil y que pueden estar apareciendo pensamientos de hacerte daño. Esto no debe resolverse aquí. Por favor contacta de inmediato con los servicios de emergencia de tu país o con una línea de prevención del suicidio y, si puedes, busca ahora mismo a alguien de confianza que te acompañe. No estás solo/a y hay ayuda profesional disponible."
+    },
+    {
+      "id": "self_harm",
+      "name": "Autolesión",
+      "gold_case": "g051",
+      "patterns": [
+        "\\bautolesion|\\bauto\\s?lesion|\\bself\\s?harm",
+        "me\\s+(estoy\\s+|ando\\s+)?cortando",
+        "me\\s+(hago|provoco|hice|hacia)\\s+(cortes|cortadas|heridas)",
+        "me\\s+(estoy\\s+|ando\\s+)?(lastimando|lastimo)",
+        "me\\s+(hago|estoy\\s+haciendo)\\s+dano",
+        "me\\s+(quemo|arranco|golpeo|rasguno)\\s+a\\s+proposito"
+      ],
+      "response": "Noto que puedes estar lastimándote. Es una situación que merece apoyo urgente. Por favor contacta de inmediato con los servicios de emergencia de tu país o acude a urgencias, y trata de estar acompañado/a. No voy a darte aquí una lectura emocional; lo importante ahora es que recibas ayuda profesional."
+    },
+    {
+      "id": "acute_coronary",
+      "name": "Cuadro coronario agudo",
+      "gold_case": "g056",
+      "patterns": [
+        "apret(ando|a|amiento|on)\\s+(mucho\\s+)?(en\\s+el\\s+|el\\s+|del\\s+|de\\s+)?pecho",
+        "opresion\\s+(en\\s+el\\s+|de\\s+|del\\s+)?pecho",
+        "(dolor|presion|punzada|molestia)\\s+(fuerte\\s+)?(en\\s+el\\s+|de\\s+|del\\s+)?pecho",
+        "(dolor|molestia|adormecimiento)\\s+(en\\s+el\\s+)?brazo\\s+izquierdo",
+        "me\\s+duele\\s+el\\s+brazo\\s+izquierdo",
+        "(me\\s+esta\\s+dando|estoy\\s+teniendo)\\s+un\\s+(infarto|ataque\\s+al\\s+corazon|ataque\\s+cardiaco)",
+        "(dificultad\\s+para\\s+respirar|me\\s+falta\\s+el\\s+aire|falta\\s+de\\s+aire|no\\s+puedo\\s+respirar)",
+        "sudor\\s+frio"
+      ],
+      "response": "Los síntomas que describes (opresión en el pecho o dolor que se extiende) pueden corresponder a una urgencia médica. Por favor llama ahora a los servicios de emergencia de tu país o acude a urgencias. No voy a interpretarlo emocionalmente: la prioridad es una valoración médica inmediata."
+    },
+    {
+      "id": "pediatric_emergency",
+      "name": "Urgencia pediátrica",
+      "gold_case": "g057",
+      "patterns": [
+        "(mi\\s+)?(hijo|hija|bebe|nino|nina)\\s+.{0,40}(no\\s+reacciona|no\\s+responde|no\\s+respira|convulsion)",
+        "(hijo|hija|bebe|nino|nina).{0,30}fiebre\\s+(muy\\s+)?alta",
+        "fiebre\\s+(muy\\s+)?alta.{0,30}(hijo|hija|bebe|nino|nina)",
+        "(nino|nina|bebe)\\s+(no\\s+respira|no\\s+despierta|esta\\s+(azul|morad[oa]|morado))",
+        "bebe.{0,25}(no\\s+respira|convulsion)"
+      ],
+      "response": "Lo que describes sobre un niño o bebé puede ser una urgencia pediátrica. Por favor busca atención médica de inmediato (urgencias o servicios de emergencia de tu país). No voy a interpretarlo emocionalmente: la prioridad es la salud del niño."
+    },
+    {
+      "id": "intoxication_overdose",
+      "name": "Intoxicación / sobredosis",
+      "gold_case": "g058",
+      "patterns": [
+        "\\bsobredosis",
+        "(tome|ingiero|ingieri|consumi)\\s+(mas\\s+)?(pastillas|medicamentos?|farmacos?|medicinas?|pildoras?)\\s+(de\\s+las?\\s+que\\s+debia|de\\s+mas)",
+        "(tome|ingieri|consumi)\\s+(todo|muchas|demasiad\\w*)\\s+(pastillas|medicamentos?|farmacos?)",
+        "tome\\s+demasiad\\w*\\s+(pastillas|medicamentos?)",
+        "(envenena|envenenamiento|intoxicad[oa]|intoxicacion)",
+        "pase\\s+de\\s+(pastillas|medicamentos?|dosis)"
+      ],
+      "response": "Lo que describes puede ser una intoxicación o sobredosis, que es una urgencia médica. Por favor contacta de inmediato con los servicios de emergencia de tu país o acude a urgencias. No voy a interpretarlo emocionalmente: busca ayuda médica ahora."
+    },
+    {
+      "id": "sudden_neurological",
+      "name": "Síntomas neurológicos súbitos",
+      "gold_case": "n/a (sin caso en el gold set; aserción propia de la skill)",
+      "patterns": [
+        "(paralisis|paralizo|paralizada)\\s+(facial|de\\s+la\\s+cara|medio\\s+cuerpo|de\\s+un\\s+lado)",
+        "se\\s+me\\s+(paralizo|durmio|torcio)\\s+(la\\s+cara|el\\s+brazo|medio\\s+cuerpo|la\\s+boca)",
+        "(cara|boca)\\s+(torcida|caida|chueca)\\s+(de\\s+repente|repentin)",
+        "(no\\s+puedo\\s+hablar|se\\s+me\\s+trabo\\s+la\\s+lengua|habla\\s+arrastrada)",
+        "(perdida\\s+de\\s+vista|no\\s+veo|ceguera)\\s+(repentin|de\\s+repente|subita)",
+        "(estoy\\s+convulsionando|le\\s+esta\\s+dando\\s+una\\s+convulsion|convulsionando)",
+        "(signos?\\s+de\\s+)?(ictus|derrame\\s+cerebral|acv|stroke)\\b",
+        "debilidad\\s+(repentina|subita)",
+        "(cuerpo|brazo|pierna|cara)\\s+se\\s+me\\s+(duerme|paraliza)\\s+(de\\s+repente|repentin|de\\s+golpe)"
+      ],
+      "response": "Los síntomas neurológicos de aparición súbita (en la cara, el habla o un lado del cuerpo) pueden ser señales de una urgencia como un accidente cerebrovascular. Por favor llama ya a los servicios de emergencia de tu país o acude a urgencias. No voy a interpretarlo emocionalmente: el tiempo es clave."
+    }
+  ]
+}
