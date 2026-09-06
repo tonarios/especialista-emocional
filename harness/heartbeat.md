@@ -13,7 +13,7 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
 | 4 | rag-retrieval | **parcial** | M2 | GATE DURO gold set | 2026-09-05 | deepseek-v4-pro | single 27/31; ood 13/13; emergency 5/5; alias 13/15; multi 5/6; risk 9/10 — sinonimia coloquial ausente de aliases.json |
 | 5 | agent-core | **done** | M3 | smoke multi-hop + citas + disclaimer | 2026-09-05 | deepseek-v4-pro | commit `14830bb`; runner determinista + LlmAgent; emergencia/injection no llegan al LLM; sin-cobertura sin confabular; gemma4 exige `think:false` |
 | 6 | auth-memory | **done** | M4 | aislamiento por usuario + persistencia + delete | 2026-09-05 | deepseek-v4-pro | commit `1a1a3ca`; register/login/JWT; perfil por portador; sesiones ADK en Postgres; record/clear consultations; rate-limit; 27 pytest passed |
-| 7 | frontend | pending | M5 | — | — | — | — |
+| 7 | frontend | **done** | M5 | flujo completo con chips de fuentes + disclaimer | 2026-09-05 | deepseek-v4-pro | commit `TBD`; `frontend/` vanilla; `/chat` NDJSON; chips `basado en`; disclaimer fijo; 401/403/429 amigables |
 | 8 | docker | pending | M6 | — | — | — | — |
 | 9 | security-tests | pending | M7 | — | — | — | — |
 | 10 | evidence-eval | pending | M8 | — | — | — | — |
@@ -73,3 +73,14 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
    - **Esquema idempotente (NFR-03):** `users`/`app_config`/`audit_log`/`profiles` con `CREATE TABLE IF NOT EXISTS` en sus módulos; tablas de sesiones ADK creadas por `DatabaseSessionService`.
    - **Verificación:** `pytest` → **27 passed** (7 nuevos en `tests/test_auth.py`: register/login 401, 409 duplicado, **aislamiento A no ve B**, record/get/delete, sesión ADK 2 eventos, chat exige token, inyección 403). Smoke live con `postgres:16-alpine` (`ah-emociones-pg`): register→token, login erróneo 401, chat sin-cobertura, profile, delete — OK.
    - **Nota infra:** para el smoke se levantó un `postgres:16-alpine` local (`ah-emociones-pg`, puerto 5432); `docker` (M6) formalizará el stack con su propio Postgres + `make up`.
+
+- **2026-09-05 — frontend (M5) DONE.** UI vanilla sin build: `frontend/{index.html, styles.css, app.js}` servido por FastAPI en `/`. Cumple FR-18/19/20.
+   - **Commit:** `TBD`.
+   - **Pantallas:** login/registro (email+clave) → guarda token en `localStorage` → chat multi-turno (`session_id` persistente); refresh mantiene sesión (token + session_id en localStorage).
+   - **Chips de fuentes (FR-19):** bajo cada respuesta se renderizan `basado en: <título>` desde `sources[]` del evento final.
+   - **Disclaimer (FR-20):** nota fija y visible antes del primer mensaje (div `#disclaimer`), no solo al pie.
+   - **Estética propia (FR-18):** paleta calma (salvia/arcilla/arena), tipografía clara, sin build (HTML+CSS+JS vanilla). Distinta del tutor de álgebra.
+   - **Errores amigables:** 401 → redirige a login con aviso; 403 → «mensaje bloqueado»; 429 → «espera un minuto»; la respuesta de emergencia se renderiza resaltada.
+   - **`/chat` ahora es streaming NDJSON** (evento `status` + evento final `{session_id, kind, done, text, risk_tier, sources[]}`); el 403 por injection se devuelve antes de emitir el stream.
+   - **IDs estables para `evidence-eval`:** `#login-view`, `#chat-view`, `#email`, `#password`, `#login-btn`, `#register-btn`, `#chat-input`, `#send-btn`, `#messages`, `.message`, `.chips`, `#disclaimer`.
+   - **Verificación:** `/`, `/app.js`, `/styles.css` → 200; `/chat` NDJSON con `done` event + `sources`; 403 injection; `app.js` sintaxis OK (node --check); `pytest` → **27 passed**. Captura visual formal la aporta `evidence-eval` (M8).

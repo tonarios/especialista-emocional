@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Especialista en enfermedades emocionales</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <!-- Vista de acceso -->
+  <main id="login-view" class="view">
+    <section class="card" id="auth-card">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">◍</span>
+        <h1 id="app-title">Tu espacio emocional</h1>
+        <p id="app-subtitle">Interpretación simbólica de tus síntomas, para reflexionar y conocerte.</p>
+      </div>
+
+      <form id="auth-form" autocomplete="off">
+        <label for="email" class="field-label">Correo electrónico</label>
+        <input id="email" name="email" type="email" placeholder="tu@correo.com" required />
+
+        <label for="password" class="field-label">Contraseña</label>
+        <input id="password" name="password" type="password" placeholder="Mínimo 8 caracteres" minlength="8" required />
+
+        <div id="auth-error" class="auth-error" role="alert" hidden></div>
+
+        <button type="submit" id="login-btn" class="btn btn-primary">Entrar</button>
+        <button type="button" id="register-btn" class="btn btn-ghost">Crear cuenta</button>
+      </form>
+
+      <p class="auth-note">Al registrarte guardamos tu historial de consultas de forma privada.
+      Puedes borrarlo cuando quieras desde tu perfil.</p>
+    </section>
+  </main>
+
+  <!-- Vista de chat -->
+  <main id="chat-view" class="view" hidden>
+    <header class="chat-header">
+      <div class="brand-inline">
+        <span class="brand-mark" aria-hidden="true">◍</span>
+        <div>
+          <h1 id="chat-title">Tu espacio emocional</h1>
+          <span id="user-email" class="user-email"></span>
+        </div>
+      </div>
+      <button id="logout-btn" class="btn btn-ghost btn-small">Salir</button>
+    </header>
+
+    <div id="disclaimer" class="disclaimer" role="note">
+      <strong>Aviso importante:</strong> este espacio ofrece una interpretación emocional desde un
+      diccionario de autoconocimiento. No es consejo ni diagnóstico médico; ante dudas de salud
+      consulta a un profesional sanitario.
+    </div>
+
+    <div id="messages" class="messages" aria-live="polite"></div>
+
+    <form id="chat-form" class="chat-form">
+      <textarea id="chat-input" rows="1" placeholder="Cuéntame qué sientes…" required></textarea>
+      <button type="submit" id="send-btn" class="btn btn-primary btn-send">Enviar</button>
+    </form>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

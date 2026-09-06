@@ -9,11 +9,16 @@ Usuario ADK = email autenticado (FR-17, aislamiento). SQL siempre parametrizado
 """
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi.responses import StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from especialista import agent, audit, auth, memory, ratelimit
-from especialista.config import settings
+from especialista.config import ROOT, settings
 
 app = FastAPI(
     title="Especialista en enfermedades emocionales",
@@ -23,6 +28,7 @@ app = FastAPI(
 )
 
 MIN_PASSWORD_LEN = 8
+FRONTEND_DIR = Path(ROOT) / "frontend"
 
 
 @app.middleware("http")
@@ -136,6 +142,12 @@ async def chat(body: ChatBody, authorization: str | None = Header(default=None))
     text = result["text"]
     sources = agent.source_objects(result["sources"])
 
+    # Inyección bloqueada se devuelve como 403 ANTES de emitir stream (NFR-01).
+    if kind == "blocked":
+        audit.audit("chat_blocked_injection", user_email=email, status=403,
+                    detail={"detail": result.get("detail")})
+        raise HTTPException(status_code=403, detail=result.get("detail", "prompt injection"))
+
     # FR-12: persiste el turno en la sesión ADK (sobrevive reinicios).
     if kind in ("respuesta", "sin_cobertura", "emergency"):
         try:
@@ -144,10 +156,7 @@ async def chat(body: ChatBody, authorization: str | None = Header(default=None))
         except Exception:
             pass
 
-    if kind == "blocked":
-        raise HTTPException(status_code=403, detail=result.get("detail", "prompt injection"))
-
-    return {
+    final_event = {
         "session_id": session_id,
         "kind": kind,
         "done": True,
@@ -155,3 +164,16 @@ async def chat(body: ChatBody, authorization: str | None = Header(default=None))
         "risk_tier": result["risk_tier"],
         "sources": sources,
     }
+
+    async def gen():
+        # Evento inicial de estado, y el evento final con la respuesta (§10 NDJSON).
+        yield json.dumps({"session_id": session_id, "kind": "status", "done": False,
+                          "text": ""}) + "\n"
+        yield json.dumps(final_event, ensure_ascii=False) + "\n"
+
+    return StreamingResponse(gen(), media_type="application/x-ndjson")
+
+
+# ── Frontend estático (FR-18/19/20) ──────────────────────────────
+if FRONTEND_DIR.exists():
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
