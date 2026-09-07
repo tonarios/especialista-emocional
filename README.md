@@ -110,11 +110,21 @@ sin LLM-as-judge. Métricas por bootstrap con seed fijo.
 `gemma4` no es determinista: entre corridas se ha observado 0.865–0.885 global. Lo
 reproducible es el procedimiento, no la cifra.
 
-**Con Vertex (`gemini-2.5-flash-lite` + `gemini-embedding-001` a 3072 dims) la recuperación
-mejora y cierra el gate duro de M2**: alias sube de 0.867 a **0.933** (≥0.90 por primera vez)
-y single a 0.903, manteniendo precisión fuera de dominio 1.0. La latencia baja de 8,5 s a
-**2,2 s** por turno. Requirió recalibrar el umbral de cobertura, que estaba fijado para el
-espacio de `bge-m3`. Comparativa completa en [`docs/migration.md`](docs/migration.md) §4.
+**Con Vertex las cifras son las mejores del proyecto:**
+
+| Métrica | local (gemma4) | producción (Vertex) |
+|---|---|---|
+| Global | 0.865 | **0.923** |
+| single | 0.903 | **0.935** |
+| alias | 1.000 | 1.000 |
+| multi | 0.333 | **0.667** |
+| Latencia | 8,5 s | **2,1 s** |
+
+La recuperación también **cierra el gate duro de M2**: alias sube de 0.867 a 0.933 (≥0.90 por
+primera vez), manteniendo precisión fuera de dominio 1.0. Dos cosas hicieron falta y ninguna
+era obvia: recalibrar el umbral de cobertura (estaba fijado para el espacio de `bge-m3`) y
+corregir que flash-lite envuelve el JSON de extracción en un bloque markdown, lo que tenía el
+multi-hop degradado en silencio. Detalle en [`docs/migration.md`](docs/migration.md) §4 y §7.
 
 **Dos cosas honestas sobre estos números:**
 
@@ -124,8 +134,8 @@ espacio de `bge-m3`. Comparativa completa en [`docs/migration.md`](docs/migratio
    El precio son 8 fallos de sinonimia coloquial (*panza→estómago*, *dormir→insomnio*)
    ausentes de `aliases.json`. En salud, inventar una interpretación es peor que admitir que
    no hay cobertura.
-2. **Multi-hop 0.333 es el punto débil real.** Citar *todos* los síntomas en una síntesis
-   cohesiva con un modelo local, más el mismo hueco de sinonimia.
+2. **Multi-hop es el punto débil real** (0.333 local, 0.667 en producción). Citar *todos* los
+   síntomas en una síntesis cohesiva es lo más difícil, y arrastra el mismo hueco de sinonimia.
 
 Detalle: [`docs/QA_report.md`](docs/QA_report.md) · razonamiento de diseño:
 [`docs/QA_reasoning.md`](docs/QA_reasoning.md) · reporte formal: `outputs/reporte.pdf`.
@@ -170,17 +180,22 @@ Lo que la suite garantiza, más allá del conteo:
   validadas por mutación (inyectar `roles/owner` o un campo de texto libre en BigQuery hace
   fallar la corrida).
 
-## Despliegue en GCP
+## En producción
 
-Terraform escrito, `validate` en verde y **`plan` ejecutado contra el proyecto real: 37
-recursos a crear**. Nada aplicado. El código ya conmuta entre local y nube
-(`STORAGE_BACKEND`, `LLM_PROVIDER`) y **el camino de nube está validado contra Vertex**.
+**Vivo en https://emociones-app-zxzgilzqfq-uc.a.run.app** — 37 recursos aplicados con
+Terraform en GCP.
 
 Cloud Run escalando a cero · Firestore · Vertex (`gemini-2.5-flash-lite` +
 `gemini-embedding-001`) · BigQuery para analítica · **sin Cloud SQL, sin VPC Connector, sin
 servicio de vectores**: el índice FAISS va horneado en la imagen.
 
-Piso de costo con cero uso: **USD 0.13/mes**; con 500 turnos, ~$0.39.
+Piso de costo real: **USD 0.12/mes** con cero uso (la imagen quedó en 147 MB comprimidos,
+bajo el free tier de Artifact Registry); ~$0.38 con 500 turnos.
+
+Verificado contra el servicio vivo: RAG con Vertex, los tres guardarraíles, memoria en
+Firestore, aislamiento entre portadores y analítica en BigQuery. Un dato que salió solo de la
+telemetría: **una emergencia se resuelve en 57 ms frente a 1.799 ms de una consulta normal** —
+la diferencia es exactamente la recuperación y el LLM que el guardarraíl se salta.
 
 - [`docs/presupuesto-gcp.md`](docs/presupuesto-gcp.md) — presupuesto con precios consultados y
   consumo medido, y las alternativas que se descartaron.

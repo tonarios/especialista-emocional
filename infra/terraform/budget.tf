@@ -9,13 +9,14 @@
 # hay que ponerlo a mano en la consola: no dejar el proyecto sin alerta).
 
 resource "google_billing_budget" "monthly" {
-  count = var.billing_account != "" ? 1 : 0
+  provider = google.billing
+  count    = var.billing_account != "" ? 1 : 0
 
   billing_account = var.billing_account
   display_name    = "Presupuesto ${var.service_name}"
 
   budget_filter {
-    projects               = ["projects/${var.project_id}"]
+    projects               = ["projects/${data.google_project.this.number}"]
     calendar_period        = "MONTH"
     credit_types_treatment = "INCLUDE_ALL_CREDITS"
   }

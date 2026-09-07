@@ -36,6 +36,19 @@ provider "google" {
   region  = var.region
 }
 
+# Alias solo para Billing Budgets. Esa API exige un "quota project" explícito y,
+# con Application Default Credentials de usuario, el provider por defecto no lo
+# envía: falla con SERVICE_DISABLED aunque la API esté habilitada.
+# `user_project_override` hace que la cuota se impute a nuestro proyecto.
+# Se aísla en un alias para no cambiar el comportamiento del resto de recursos.
+provider "google" {
+  alias                 = "billing"
+  project               = var.project_id
+  region                = var.region
+  billing_project       = var.project_id
+  user_project_override = true
+}
+
 # ── APIs necesarias ────────────────────────────────────────────────────────
 # Ya activas en el proyecto: aiplatform, bigquery, storage.
 # `disable_on_destroy = false`: apagar una API al destruir puede romper otros
@@ -55,4 +68,10 @@ resource "google_project_service" "services" {
   project            = var.project_id
   service            = each.value
   disable_on_destroy = false
+}
+
+# El número del proyecto: la API de Billing Budgets identifica los proyectos por
+# número, no por id (con "projects/<id>" devuelve 400 invalid argument).
+data "google_project" "this" {
+  project_id = var.project_id
 }

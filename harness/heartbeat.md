@@ -1,6 +1,6 @@
 # heartbeat — estado del proceso (ah-emociones)
 
-Última actualización: 2026-09-06
+Última actualización: 2026-09-07
 LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutadas)
 
 ## Resumen por skill
@@ -17,7 +17,7 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
 | 8 | docker | **done** | M6 | `make up` + chat + persistencia + non-root | 2026-09-05 | deepseek-v4-pro | commit `05a3890`; imagen 2.7 GB; app+db sanos; chat gemma4 OK; login 200 tras down/up; whoami=appuser |
 | 9 | security-tests | **done** | M7 | pytest verde + secrets_audit limpio | 2026-09-05 | deepseek-v4-pro | commit `55d3618`; 201 passed; 156 términos paramétricos; 6 emergencias sin recuperación; secrets_audit 4/4 limpio |
 | 10 | evidence-eval | **done** | M8 | PNGs + PDF + GIFs con métricas | 2026-09-06 | opus-5 (regenerado) | e2e 52 preguntas; recall single 0.935 / alias 1.0 / multi 0.333; bootstrap seed 42; **8 PNGs + 5 GIFs + reporte.pdf + docs/QA_report.md** sobre la UI Liquid Glass |
-| 11 | gcp-terraform | **done** (sin `apply`) | M9 | `validate`/`plan` válido + doc de migración | 2026-09-07 | opus-5 | rama `m9-gcp-terraform`; `plan` real 37 add / 0 change / 0 destroy; 17 tests de infra + 18 de backend de nube; imagen 2,7 GB → 582 MB; código migrado a Firestore/Vertex y **gold set revalidado: alias 0.933 cierra el gate duro de M2** |
+| 11 | gcp-terraform | **done — DESPLEGADO** | M9 | `validate`/`plan` válido + doc de migración | 2026-09-07 | opus-5 | **vivo en https://emociones-app-zxzgilzqfq-uc.a.run.app**; 37 recursos aplicados; 12 comprobaciones en producción OK; imagen 147 MB; piso real $0.12/mes; **pendiente: alerta de presupuesto a mano** (la API la rechaza en esta cuenta) |
 
 ## Bitácora (cronológica)
 
@@ -117,6 +117,52 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
    - **Multi-hop es el punto débil (0.333):** citar TODOS los síntomas en una síntesis con gemma4 local + el hueco de sinonimia `pelo→alopecia`. Documentado como riesgo en el reporte.
    - **GIFs:** omitidos (sin `ffmpeg` en el host); el exit criteria de M8 solo exige PNGs + PDF.
    - **Verificación:** `pytest` → **203 passed**; `scripts/evidence.sh` orquesta e2e→capturas→reporte; artefactos en `outputs/`.
+
+- **2026-09-07 — M9 APLICADO: el sistema vive en Cloud Run.** `terraform apply` con visto
+  bueno explícito del owner. 37 recursos, 0 destruidos.
+  **https://emociones-app-zxzgilzqfq-uc.a.run.app**
+   - **12 comprobaciones contra el servicio vivo, todas OK:** health y frontend 200; registro
+     y login reales; consulta con RAG+Vertex (3 fuentes, 5,8 s); emergencia (0 fuentes,
+     derivación); injection → 403; fuera de dominio → sin_cobertura; perfil y sesiones ADK
+     persistidos en Firestore; **aislamiento verificado** (usuario B ve 0 y 0); memoria FR-13
+     respondiendo desde el historial; BigQuery con filas; `minScale = 0`.
+   - **Evidencia inesperada de NFR-02b en la telemetría:** una emergencia se resuelve en
+     **57 ms** frente a **1.799 ms** de una consulta normal. La diferencia es exactamente lo
+     que el guardarraíl se salta (recuperación + LLM). El mecanismo se demuestra solo.
+   - **Cloud Run reserva el prefijo `ah-`:** `ah-emociones-app` se rechaza con 400. Se separó
+     `run_service_name` (`emociones-app`) con una `validation` en Terraform, para que el
+     próximo error salga en el `plan` y no a mitad del `apply`.
+   - **`analytics.py` estaba escrito y testeado pero NO cableado.** Tras el primer despliegue
+     las tablas de BigQuery estaban vacías: nadie llamaba al emisor. Probar el módulo aislado
+     no detecta eso. Cableado en `run_deterministic` + tests que corren el pipeline completo
+     y exigen que emita.
+   - **FUGA DE PRIVACIDAD encontrada en producción y corregida.** `symptom_slug` en BigQuery
+     contenía el mensaje literal del usuario («no puedo dormir y ando muy irritable»): cuando
+     `extract_symptoms` no devuelve nada, el pipeline busca con el mensaje entero y esa lista
+     se emitía tal cual. Viola NFR-07. **Mi propio test no lo cazó** porque usaba un caso de
+     emergencia, donde `symptoms` va vacío; el camino con fuga era el de sin cobertura.
+     Corregido (solo síntomas extraídos, slugificados y acotados), datos **purgados**
+     recreando la tabla con `-replace` (el `DELETE` lo bloqueaba el buffer de streaming), y
+     test de regresión sobre el camino correcto validado por mutación.
+   - **Bug del agente que solo destapó la nube:** `gemini-2.5-flash-lite` devuelve el JSON de
+     extracción **envuelto en bloque markdown**; `gemma4` lo devuelve pelado. `json.loads`
+     fallaba y `extract_symptoms` caía al fallback **en todos los turnos**, así que el
+     multi-hop buscaba con el mensaje entero en vez de con cada síntoma. Silencioso, sin
+     excepción. Parseo tolerante + 4 tests de regresión.
+   - **El budget de alertas NO se pudo crear:** `400 INVALID_ARGUMENT`. Se descartó que fuera
+     la configuración comprobando que **falla igual un budget mínimo con `gcloud`, sin
+     filtro**. Es limitación de la cuenta de facturación. **PENDIENTE: crear la alerta a mano
+     en la consola** (USD 5, avisos 50/90/100%) — es la red de seguridad contra un gasto
+     inesperado de Vertex, lo único que escala con el uso.
+   - **Costo real:** la imagen quedó en **147 MB comprimidos**, bajo el free tier de 0,5 GB
+     de Artifact Registry, así que ese renglón cae a $0. Piso real **$0.12/mes** (2 versiones
+     de secreto). Todo lo demás cabe en free tier.
+   - **RESULTADO FINAL tras corregir el parseo:** e2e global **0.923** (era 0.865 en local),
+     single **0.935**, alias **1.000**, multi **0.667** (duplica el 0.333 histórico),
+     latencia **2,1 s**. Son las mejores cifras del proyecto. Buena parte del salto no es
+     mérito del modelo sino del bug de parseo corregido: el multi-hop llevaba degradado.
+   - **Verificación:** `pytest` → **253 passed** + 7 skipped; `.env` restaurado al perfil
+     local y la recuperación local vuelve a sus cifras de bge-m3 (sin contaminación).
 
 - **2026-09-07 — M9, migración de código a Firestore + Vertex, VALIDADA.** Completa lo que
   el heartbeat anterior dejaba pendiente. La app ya conmuta entre local y nube.

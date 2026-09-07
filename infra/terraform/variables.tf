@@ -26,8 +26,25 @@ variable "bigquery_location" {
 }
 
 variable "service_name" {
-  type    = string
-  default = "ah-emociones"
+  type        = string
+  description = "Prefijo de recursos (registry, service account, secretos)."
+  default     = "ah-emociones"
+}
+
+variable "run_service_name" {
+  type        = string
+  description = <<-EOT
+    Nombre del servicio de Cloud Run. Va aparte de `service_name` porque
+    Cloud Run RESERVA los prefijos 'ah-' y 'aef-' para uso interno y rechaza
+    la creación con un 400. Los demás recursos sí admiten el prefijo del
+    proyecto, así que solo este cambia.
+  EOT
+  default     = "emociones-app"
+
+  validation {
+    condition     = !startswith(var.run_service_name, "ah-") && !startswith(var.run_service_name, "aef-")
+    error_message = "Cloud Run rechaza los nombres que empiezan por 'ah-' o 'aef-' (prefijos reservados)."
+  }
 }
 
 variable "image" {

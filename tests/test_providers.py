@@ -147,3 +147,39 @@ def test_backend_desconocido_falla_claro(monkeypatch):
     with pytest.raises(ValueError, match="STORAGE_BACKEND desconocido"):
         stores.get_store()
     stores.reset_store()
+
+
+# ── Parseo del JSON de extracción ─────────────────────────────────
+#
+# Regresión de un bug real: `gemini-2.5-flash-lite` envuelve el array en un
+# bloque markdown y `gemma4` no. Sin tolerar ambos, la extracción caía al
+# fallback en TODOS los turnos con Vertex y el multi-hop se degradaba en
+# silencio — se buscaba con el mensaje entero en vez de con cada síntoma.
+
+def test_parseo_tolera_bloque_markdown():
+    from especialista.agent import _parse_json_array
+
+    assert _parse_json_array('```json\n[\n  "caída del pelo",\n  "granos"\n]\n```') == [
+        "caída del pelo", "granos",
+    ]
+
+
+def test_parseo_acepta_json_pelado():
+    from especialista.agent import _parse_json_array
+
+    assert _parse_json_array('["dolor de garganta"]') == ["dolor de garganta"]
+
+
+def test_parseo_rescata_un_array_con_texto_alrededor():
+    from especialista.agent import _parse_json_array
+
+    assert _parse_json_array('Claro:\n["insomnio", "ansiedad"]\nEspero que ayude.') == [
+        "insomnio", "ansiedad",
+    ]
+
+
+def test_parseo_devuelve_none_si_no_hay_array():
+    from especialista.agent import _parse_json_array
+
+    assert _parse_json_array("no encontré síntomas") is None
+    assert _parse_json_array('{"a": 1}') is None

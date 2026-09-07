@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -145,15 +146,44 @@ _EXTRACT_PROMPT = (
 )
 
 
+_FENCE_RE = re.compile(r"^\s*```(?:json)?\s*(.*?)\s*```\s*$", re.DOTALL)
+
+
+def _parse_json_array(raw: str) -> list | None:
+    """Parsea un array JSON tolerando cómo lo envuelve cada modelo.
+
+    `gemini-2.5-flash-lite` devuelve el JSON dentro de un bloque markdown
+    (```json … ```), que `json.loads` no acepta; `gemma4` lo devuelve pelado.
+    Sin esto, la extracción de síntomas caía al fallback en TODOS los turnos con
+    Vertex y el multi-hop se degradaba en silencio: se buscaba con el mensaje
+    entero en vez de con cada síntoma por separado.
+    """
+    texto = raw.strip()
+    m = _FENCE_RE.match(texto)
+    if m:
+        texto = m.group(1).strip()
+    try:
+        parsed = json.loads(texto)
+    except json.JSONDecodeError:
+        # Último recurso: el primer array que aparezca en el texto.
+        inicio, fin = texto.find("["), texto.rfind("]")
+        if inicio == -1 or fin <= inicio:
+            return None
+        try:
+            parsed = json.loads(texto[inicio : fin + 1])
+        except json.JSONDecodeError:
+            return None
+    return parsed if isinstance(parsed, list) else None
+
+
 def extract_symptoms(message: str) -> list[str]:
     """Una llamada de salida estructurada para partir la consulta (FR-04)."""
     raw = _complete(_EXTRACT_PROMPT, message, max_tokens=200, temperature=0.0)
-    try:
-        parsed = json.loads(raw)
-        if isinstance(parsed, list):
-            return [str(s).strip() for s in parsed if str(s).strip()][:4]
-    except json.JSONDecodeError:
-        pass
+    parsed = _parse_json_array(raw)
+    if parsed is not None:
+        limpio = [str(s).strip() for s in parsed if str(s).strip()][:4]
+        if limpio:
+            return limpio
     # fallback determinista: el mensaje completo como una sola consulta
     return [message.strip()]
 
@@ -245,15 +275,17 @@ def run_deterministic(
     `audit_action`. `kind` ∈ {emergency, blocked, sin_cobertura, respuesta}.
     """
     user_id = user_id or "default"
+    _t0 = time.perf_counter()
 
     # 1) Prompt injection ANTES del LLM (NFR-01).
-    from especialista import guardrails
+    from especialista import analytics, guardrails
 
     try:
         clean_message, reasons, score = guardrails.check_prompt_injection(message)
     except guardrails.InjectionBlocked as exc:
         audit_mod.audit("chat_blocked_injection", user_email=user_id, status=403,
                         detail={"reasons": exc.reasons, "score": exc.score})
+        analytics.guardarrail(tipo="injection", email=user_id)
         return {"kind": "blocked", "text": "", "sources": [], "risk_tier": None,
                 "termino": None, "detail": "prompt injection"}
 
@@ -262,6 +294,10 @@ def run_deterministic(
     if emergency is not None:
         audit_mod.audit("chat_emergency", user_email=user_id, status=200,
                         detail={"group_id": emergency["group_id"]})
+        analytics.guardarrail(tipo="emergencia", grupo=emergency["group_id"], email=user_id)
+        analytics.consulta(email=user_id, session_id=session_id, symptoms=[], terms=[],
+                           risk_tier=None, kind="emergency",
+                           latency_ms=int((time.perf_counter() - _t0) * 1000))
         return {"kind": "emergency", "text": emergency["response"], "sources": [],
                 "risk_tier": None, "termino": None, "detail": emergency["group_id"]}
 
@@ -280,6 +316,10 @@ def run_deterministic(
 
     # 3) Multi-hop determinista: extraer síntomas → N recuperaciones en paralelo.
     symptoms = extract_symptoms(clean_message)
+    # Si la extracción no devuelve nada se busca con el mensaje entero, pero eso
+    # NO es un síntoma: es texto libre del usuario y no puede salir a analítica
+    # (NFR-07). Se recuerda el origen para no confundirlos.
+    extraidos = list(symptoms)
     if not symptoms:
         symptoms = [clean_message]
 
@@ -292,7 +332,15 @@ def run_deterministic(
 
     # 4) Agregación: SOLO cuentan las búsquedas con cobertura (FR-09b).
     retrieved: list[dict] = []
-    for _, res in searches:
+    for q, res in searches:
+        # Diagnóstico del RAG en producción: por qué una consulta queda sin
+        # cobertura. Va el HASH de la consulta, nunca su texto (NFR-07).
+        analytics.recuperacion(
+            query=q, k=k,
+            hit_lexico=res.get("best_strength", 0.0) >= 1.0,
+            sin_cobertura=not res["covered"],
+            top_slugs=[r["slug"] for r in res.get("results", [])[:3]],
+        )
         if res["covered"]:
             retrieved.extend(res["results"])
 
@@ -302,6 +350,10 @@ def run_deterministic(
             return _memory_answer(clean_message, history_text, user_id)
 
         audit_mod.audit("chat_sin_cobertura", user_email=user_id, status=200)
+        analytics.consulta(email=user_id, session_id=session_id,
+                           symptoms=_symptom_slugs(extraidos),
+                           terms=[], risk_tier=None, kind="sin_cobertura",
+                           latency_ms=int((time.perf_counter() - _t0) * 1000))
         return {"kind": "sin_cobertura", "text": _SIN_COBERTURA, "sources": [],
                 "risk_tier": None, "termino": None, "detail": "sin cobertura"}
 
@@ -347,8 +399,32 @@ def run_deterministic(
                             "sources": used_slugs,
                             "session_id": session_id})
 
+    # Analítica (solo metadatos; el mensaje NUNCA sale de aquí, NFR-07).
+    analytics.consulta(email=user_id, session_id=session_id, symptoms=_symptom_slugs(extraidos),
+                       terms=used_slugs, risk_tier=risk_tier, kind="respuesta",
+                       latency_ms=int((time.perf_counter() - _t0) * 1000))
+
     return {"kind": "respuesta", "text": final_text, "sources": used_slugs,
             "risk_tier": risk_tier, "termino": termino, "detail": ""}
+
+
+def _symptom_slugs(symptoms: list[str]) -> list[str]:
+    """Síntomas normalizados a slug para la analítica.
+
+    NUNCA debe salir texto libre del usuario a BigQuery (NFR-07). Solo se
+    emiten los síntomas que el extractor devolvió como frases cortas —si la
+    extracción falló, el pipeline busca con el mensaje entero y ese caso emite
+    lista vacía— y aun así se slugifican y se acotan en longitud.
+    """
+    from especialista.index import slugify
+
+    out = []
+    for s in symptoms:
+        slug = slugify(s)[:60]
+        # Una frase larga no es un síntoma extraído: es el mensaje colándose.
+        if slug and slug.count("-") <= 4:
+            out.append(slug)
+    return out
 
 
 def _extract_used_slugs(syn: str, retrieved: list[dict]) -> list[str]:

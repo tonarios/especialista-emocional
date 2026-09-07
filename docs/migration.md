@@ -1,12 +1,12 @@
 # Migración a GCP — M9
 
-Estado: **Terraform escrito, `fmt`/`validate` en verde y `plan` ejecutado contra el proyecto
-real `diplomado-499206` — 37 recursos a crear, 0 a cambiar, 0 a destruir. No se ha aplicado
-nada.** El `apply` requiere visto bueno explícito del owner (política heredada del repo base).
+Estado: **APLICADO Y VIVO.** 37 recursos en `diplomado-499206`, servicio corriendo en
 
-La migración de código **está hecha y validada contra Vertex** (§4): la recuperación con
-`gemini-embedding-001` mejora sobre `bge-m3` y cierra el gate duro de M2 que llevaba
-pendiente. Falta construir y subir la imagen antes de aplicar.
+**https://emociones-app-zxzgilzqfq-uc.a.run.app**
+
+El `apply` se hizo con visto bueno explícito del owner. Verificado en producción: RAG con
+Vertex, los tres guardarraíles, memoria en Firestore, aislamiento entre portadores y
+analítica en BigQuery. Detalle en §7.
 
 Costos y las alternativas que se descartaron: [`presupuesto-gcp.md`](presupuesto-gcp.md).
 
@@ -158,22 +158,23 @@ modelo, y un modelo desconocido recibe el valor más estricto.
 
 | Métrica | gemma4 local | Vertex flash-lite |
 |---|---|---|
-| Global | 0.865 | 0.846 |
-| single | 0.903 | 0.839 |
+| Global | 0.865 | **0.923** |
+| single | 0.903 | **0.935** |
 | alias | 1.000 | 1.000 |
-| multi | 0.333 | **0.500** |
-| **Latencia media** | 8.5 s | **2.2 s** |
+| multi | 0.333 | **0.667** |
+| **Latencia media** | 8.5 s | **2.1 s** |
 
-**La bajada de `single` es el sistema volviéndose más honesto, no peor.** De los
-tres casos que cambian a fallo, dos (`g019` «me cuesta respirar cuando me angustio»
-y `g022` «no puedo dormir en toda la noche») son exactamente los huecos de sinonimia
-conocidos: con el umbral 0.70 recibían cobertura por el respaldo denso y la prosa del
-modelo mencionaba el término de pasada, lo que el verificador contaba como acierto.
-Con 0.75 el sistema responde **«sin cobertura»**, que es la verdad. Solo `g013` es una
-regresión real de ranking.
+Son las mejores cifras del proyecto. `multi` **duplica** el 0.333 histórico y el global sube
+a 0.923. Buena parte del salto no es mérito del modelo sino de un bug corregido: flash-lite
+envolvía el JSON de extracción en un bloque markdown y el multi-hop llevaba corriendo
+degradado (§7.3).
 
-Se descartó explícitamente la explicación fácil: no es que flash-lite cite menos.
-Las citas por turno son 4,42 (gemma4) frente a 4,46 (Vertex) — prácticamente iguales.
+**Nota sobre una medición intermedia.** Antes de corregir el parseo, esta misma tabla daba
+global 0.846 y single 0.839. Se investigó en vez de aceptarlo: no era que flash-lite citara
+menos (4,42 citas/turno con gemma4 frente a 4,46 con Vertex, prácticamente iguales), sino que
+el umbral recalibrado hacía que dos huecos de sinonimia conocidos (`g019` respirar→disnea,
+`g022` dormir→insomnio) respondieran honestamente «sin cobertura» en vez de recibirla por el
+respaldo denso. Al corregir además el parseo del JSON, el resultado final supera a ambos.
 
 Datos crudos: `outputs/evidence/e2e_results_vertex.json`. La corrida de referencia
 del sistema local sigue en `e2e_results.json`; **no se mezclan**, porque las cifras
@@ -226,3 +227,97 @@ puede acotarse con `-target=google_artifact_registry_repository.docker`.
 El último punto es una desviación consciente del PRD: NFR-10 se escribió pensando en Cloud
 SQL. Firestore no tiene "IP privada" porque no tiene IP: el control es IAM, que para este
 caso es una garantía más fuerte que una regla de red, y sin el costo del VPC Connector.
+
+## 7. Despliegue real — verificación en producción
+
+`terraform apply` ejecutado el **2026-09-07**. 37 recursos creados, 0 destruidos.
+Servicio: **https://emociones-app-zxzgilzqfq-uc.a.run.app**
+
+### 7.1 Lo verificado contra el servicio vivo
+
+| # | Qué | Resultado |
+|---|---|---|
+| 1 | `/health` y frontend | 200 |
+| 2 | Registro y login reales | JWT emitido |
+| 3 | Consulta con RAG + Vertex | `respuesta`, 3 fuentes citadas, 5,8 s |
+| 4 | Emergencia (FR-06) | `emergency`, 0 fuentes, derivación pediátrica |
+| 5 | Prompt injection (NFR-01) | **HTTP 403** |
+| 6 | Fuera de dominio | `sin_cobertura` |
+| 7 | Perfil persistido en Firestore (FR-14) | 1 consulta guardada |
+| 8 | Sesiones ADK en Firestore (FR-12) | 1 sesión, 6 eventos |
+| 9 | Aislamiento entre portadores (FR-17) | usuario B ve 0 perfiles y 0 sesiones |
+| 10 | Memoria (FR-13) | «Tu última consulta registrada fue sobre el dolor de garganta» |
+| 11 | Analítica en BigQuery | filas en `consultas`, `guardarrailes` y `recuperacion` |
+| 12 | Escala a cero | `minScale = 0` |
+
+**Evidencia inesperada de NFR-02b en los datos de latencia:** una emergencia se
+resuelve en **57 ms** frente a **1.799 ms** de una consulta normal. La diferencia
+es exactamente lo que se corta: recuperación y LLM. El guardarraíl no es una
+instrucción al modelo, y la telemetría lo demuestra sin necesidad de un test.
+
+### 7.2 Tres problemas reales que solo aparecieron al desplegar
+
+**1. Cloud Run reserva el prefijo `ah-`.** `ah-emociones-app` se rechaza con un 400
+(«must not begin with reserved keyword 'aef-' or 'ah-'»). El resto de recursos sí
+admite el prefijo. Se separó `run_service_name` (`emociones-app`) con una
+`validation` en Terraform para que el error salga en el `plan` y no en el `apply`.
+
+**2. `analytics.py` estaba escrito y testeado pero no cableado.** Las tablas de
+BigQuery quedaron vacías tras el primer despliegue: nadie llamaba al emisor. Probar
+el módulo aisladamente no detecta eso — hay que probar el pipeline. Se cableó en
+`run_deterministic` y se añadieron tests que corren el pipeline completo y exigen
+que emita.
+
+**3. Fuga de privacidad: el mensaje del usuario llegó a BigQuery.** Cuando
+`extract_symptoms` no devuelve nada, el pipeline busca con el mensaje entero
+(`symptoms = [clean_message]`) y esa lista se emitía tal cual a `symptom_slug`. Se
+encontró inspeccionando las filas reales: contenían *«no puedo dormir y ando muy
+irritable»*. Viola NFR-07 de forma directa.
+
+- El test que escribí **no lo cazó** porque usaba un caso de emergencia, donde
+  `symptoms` va vacío. El camino con fuga era el de sin cobertura.
+- **Corregido**: solo se emiten los síntomas realmente extraídos, slugificados y con
+  tope de longitud; si la extracción falló, va lista vacía.
+- **Datos purgados**: el `DELETE` lo bloqueaba el buffer de streaming, así que la
+  tabla se recreó con `terraform apply -replace`.
+- **Test de regresión** sobre el camino correcto, validado por mutación: al
+  reintroducir la fuga, falla.
+
+### 7.3 Un bug que la nube destapó en el propio agente
+
+`gemini-2.5-flash-lite` devuelve el JSON de extracción **envuelto en un bloque
+markdown** (` ```json … ``` `); `gemma4` lo devuelve pelado. `json.loads` fallaba y
+`extract_symptoms` caía al fallback **en todos los turnos**, así que el multi-hop
+buscaba con el mensaje entero en vez de con cada síntoma por separado. No lanzaba
+ninguna excepción: se degradaba en silencio.
+
+Corregido con un parseo tolerante (bloque markdown, JSON pelado, o rescate del
+primer array del texto) y cuatro tests de regresión.
+
+### 7.4 El presupuesto de alertas NO se pudo crear
+
+`google_billing_budget` falla con `400 INVALID_ARGUMENT`. **No es la configuración**:
+se comprobó que falla igual un budget mínimo creado con `gcloud`, sin filtro de
+proyecto. Es una limitación de la cuenta de facturación (habitual en cuentas de
+prueba), no del código.
+
+El recurso queda escrito y se crea solo si se pasa `billing_account`. **Hay que
+crear la alerta a mano en la consola** (Facturación → Presupuestos y alertas, USD 5
+con avisos al 50/90/100%): es la red de seguridad contra un gasto inesperado de
+Vertex, que es lo único que escala con el uso.
+
+### 7.5 Costo real observado
+
+La imagen quedó en **147 MB comprimidos**, por debajo del free tier de 0,5 GB de
+Artifact Registry, así que ese renglón cae de $0.22 a **$0**. El piso mensual real
+es de **$0.12** (dos versiones de secreto en Secret Manager). Todo lo demás —Cloud
+Run, Firestore, BigQuery, GCS— cabe en el free tier con este volumen.
+
+### 7.6 Para desmontarlo
+
+```bash
+terraform -chdir=infra/terraform destroy
+```
+
+Nada corre 24/7, así que dejarlo encendido cuesta ~$0.12/mes. El `destroy` es para
+liberar el proyecto, no para ahorrar.

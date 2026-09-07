@@ -1,12 +1,12 @@
 # Cloud Run — contenedor único (back + front), escala a cero.
 #
 # `min_instance_count = 0` es la restricción que fijó el owner: sin tráfico no
-# se paga compute. El precio de eso es el arranque en frío, que con la imagen
-# actual (2,7 GB) es notable — de ahí `startup_cpu_boost` y la recomendación de
-# adelgazar la imagen (docs/migration.md).
+# se paga compute. El precio de eso es el arranque en frío; por eso la imagen se
+# adelgazó a 147 MB comprimidos (docs/migration.md) y se activa startup_cpu_boost.
 
 resource "google_cloud_run_v2_service" "app" {
-  name     = "${var.service_name}-app"
+  # Ojo: Cloud Run reserva los prefijos "ah-" y "aef-" (ver variables.tf).
+  name     = var.run_service_name
   location = var.region
 
   deletion_protection = false

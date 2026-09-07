@@ -12,12 +12,12 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 10.053,
+      "latency_s": 3.039,
       "source_slugs": [
         "garganta-dolores-de",
+        "garganta-en-general",
         "garganta-apretada",
         "garganta-faringe",
-        "garganta-en-general",
         "garganta-faringitis"
       ]
     },
@@ -31,13 +31,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.763,
+      "latency_s": 2.568,
       "source_slugs": [
         "garganta-apretada",
+        "estres",
         "garganta-en-general",
         "garganta-dolores-de",
-        "garganta-laringitis",
-        "garganta-faringe"
+        "garganta-laringe"
       ]
     },
     {
@@ -49,14 +49,14 @@
         "garganta-laringitis"
       ],
       "kind": "respuesta",
-      "hit": true,
-      "latency_s": 2.048,
+      "hit": false,
+      "latency_s": 2.156,
       "source_slugs": [
         "voz-ronquera",
-        "garganta-laringitis",
-        "ronquera",
-        "afonia-o-extincion-de-voz",
-        "cancer-de-la-laringe"
+        "audicion-perdida-de",
+        "cerebro-equilibrio-perdida-de-o-aturdimientos",
+        "apetito-perdida-de",
+        "cabellos-perdida-de-ver-alopecia"
       ]
     },
     {
@@ -68,12 +68,12 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.584,
+      "latency_s": 2.277,
       "source_slugs": [
         "ardores-de-estomago-acidez-estomacal",
         "estomago-acidez-ardores-pirosis",
         "hernia-de-hiato-acidez-de-estomago",
-        "regurgitacion",
+        "estomago-en-general",
         "sistema-digestivo"
       ]
     },
@@ -88,13 +88,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 1.922,
+      "latency_s": 2.176,
       "source_slugs": [
-        "estomago-dolores-de",
-        "barriga-dolor-de-ver-estomago-dolores-de",
-        "gastritis-ver-estomago-gastritis",
         "estomago-acidez-ardores-pirosis",
-        "estomago-en-general"
+        "estomago-dolores-de",
+        "estomago-gastritis",
+        "gastritis-ver-estomago-gastritis",
+        "ardores-de-estomago-acidez-estomacal"
       ]
     },
     {
@@ -107,7 +107,7 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.241,
+      "latency_s": 1.75,
       "source_slugs": [
         "dolor-de-vientre",
         "barriga-dolor-de-ver-estomago-dolores-de",
@@ -125,13 +125,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.163,
+      "latency_s": 1.985,
       "source_slugs": [
-        "cabeza-migranas",
         "cerebro-dolencias-del",
-        "calambres",
-        "raquis-dorsal-y-lumbar",
-        "bruxismo"
+        "neurologias",
+        "otalgia",
+        "orejas-oidos-dolores-de",
+        "cabeza-migranas"
       ]
     },
     {
@@ -144,13 +144,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.868,
+      "latency_s": 2.253,
       "source_slugs": [
         "cabeza-dolores-de",
-        "cabeza-migranas",
         "cabeza-en-general",
-        "espalda-dolor-de-parte-superior-7-vertebras-cervicales",
-        "tension-arterial-hipertension-presion-arterial-alta"
+        "cabeza-migranas",
+        "dolor-repentino",
+        "espalda-dolor-de-parte-superior-7-vertebras-cervicales"
       ]
     },
     {
@@ -163,12 +163,11 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.252,
+      "latency_s": 2.329,
       "source_slugs": [
-        "espalda-dolor-de-parte-inferior",
-        "vertebras-lumbares-ver-tambien-espalda-parte-inferior",
-        "espalda-dolor-de-parte-central-12-vertebras-dorsales",
         "espalda-en-general",
+        "espalda-dolor-de-parte-inferior",
+        "espalda-dolor-de-parte-central-12-vertebras-dorsales",
         "espalda-dolor-de-parte-superior-7-vertebras-cervicales"
       ]
     },
@@ -182,12 +181,11 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 1.946,
+      "latency_s": 2.52,
       "source_slugs": [
+        "espalda-en-general",
         "espalda-dolor-de-parte-central-12-vertebras-dorsales",
         "espalda-dolor-de-parte-superior-7-vertebras-cervicales",
-        "espalda-en-general",
-        "hombros-encorvados-espalda-inclinada",
         "espalda-dolor-de-parte-inferior"
       ]
     },
@@ -201,10 +199,10 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 1.79,
+      "latency_s": 2.049,
       "source_slugs": [
-        "cuello-en-general",
         "cuello-torticolis",
+        "cuello-en-general",
         "cuello-de-utero-cervix",
         "cancer-de-utero-cuello-uterino",
         "artrosis-cervical"
@@ -221,13 +219,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.101,
+      "latency_s": 1.744,
       "source_slugs": [
         "piel-granos-acne",
         "piel-brote-de-granos",
         "problemas-faciales",
-        "piel-acne",
-        "rostro"
+        "rostro",
+        "piel-acne"
       ]
     },
     {
@@ -240,13 +238,13 @@
         "piel-en-general"
       ],
       "kind": "respuesta",
-      "hit": false,
-      "latency_s": 2.253,
+      "hit": true,
+      "latency_s": 1.942,
       "source_slugs": [
-        "piel-rugosa",
+        "comezones-vaginales-picazon-vaginal",
         "piel-epidermitis",
         "piel-dermatitis",
-        "piel-urticaria-sarpullido-o-ronchas"
+        "piel-eczema-dermatitis-atopica"
       ]
     },
     {
@@ -260,13 +258,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.596,
+      "latency_s": 2.521,
       "source_slugs": [
         "pelo",
         "micosis-del-cuero-cabelludo-pelos-y-unas",
-        "cabello-en-general",
-        "cabellos-perdida-de-ver-alopecia",
-        "cabellos-quebradizo"
+        "prostata-caida-de-disfuncion-prostatica",
+        "prolapso-caida-de-matriz-de-organo",
+        "cabellos-perdida-de-ver-alopecia"
       ]
     },
     {
@@ -278,13 +276,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 1.887,
+      "latency_s": 2.255,
       "source_slugs": [
+        "sistema-digestivo",
         "intestinos-estrenimiento",
-        "barriga-dolor-de-ver-estomago-dolores-de",
-        "mastoiditis",
-        "piernas-pesadas",
-        "diverticulo-de-zenker"
+        "sigmoide",
+        "intestinos-dolores-de-los",
+        "oliguria"
       ]
     },
     {
@@ -296,13 +294,11 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.072,
+      "latency_s": 1.84,
       "source_slugs": [
         "intestinos-diarrea",
         "disenteria-ver-intestinos-diarrea",
-        "sistema-digestivo",
-        "intestinos-gastro-enteritis",
-        "estres"
+        "intestinos-gastro-enteritis"
       ]
     },
     {
@@ -315,12 +311,12 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 1.681,
+      "latency_s": 1.6,
       "source_slugs": [
-        "intestinos-colico",
+        "ano-rectocolitis-colitis-ulcerosa-dolores-anales",
         "colico",
         "colico-nefritico",
-        "ano-rectocolitis-colitis-ulcerosa-dolores-anales",
+        "intestinos-colico",
         "intestinos-dolores-de-los"
       ]
     },
@@ -334,7 +330,7 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 1.855,
+      "latency_s": 1.987,
       "source_slugs": [
         "higado-dolores-de",
         "higado-crisis-de",
@@ -352,10 +348,16 @@
         "disnea",
         "asma-grito-silencioso"
       ],
-      "kind": "sin_cobertura",
-      "hit": false,
-      "latency_s": 0.662,
-      "source_slugs": []
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.151,
+      "source_slugs": [
+        "angustia",
+        "disnea",
+        "garganta-apretada",
+        "respiracion-ahogos",
+        "enfisema-pulmonar"
+      ]
     },
     {
       "id": "g020",
@@ -367,13 +369,12 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.187,
+      "latency_s": 2.241,
       "source_slugs": [
-        "asma-del-bebe",
         "asma-grito-silencioso",
-        "bebe-azul-ver-nino-azul",
-        "nino-azul-cianosis",
-        "nino-accidente"
+        "ojos-astigmatismo",
+        "opresion-pulmonar",
+        "piel-melanoma-maligno"
       ]
     },
     {
@@ -386,13 +387,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.277,
+      "latency_s": 2.059,
       "source_slugs": [
         "rodillas-dolores-de",
         "rodillas-en-general",
-        "punta-de-los-pies-caminar",
+        "dolor-en-reumatologia",
         "meseta-tibial-rodilla",
-        "rotula"
+        "punta-de-los-pies-caminar"
       ]
     },
     {
@@ -402,10 +403,13 @@
       "expected": [
         "insomnio"
       ],
-      "kind": "sin_cobertura",
-      "hit": false,
-      "latency_s": 0.559,
-      "source_slugs": []
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.303,
+      "source_slugs": [
+        "insomnio",
+        "inquietud"
+      ]
     },
     {
       "id": "g023",
@@ -417,12 +421,12 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 1.661,
+      "latency_s": 1.843,
       "source_slugs": [
         "ansiedad",
-        "estres",
-        "glandulas-suprarrenales",
-        "feocromocitoma"
+        "trastornos-de-ansiedad-social-tas",
+        "nervios-en-general",
+        "problemas-de-palpitaciones"
       ]
     },
     {
@@ -436,13 +440,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.195,
+      "latency_s": 2.49,
       "source_slugs": [
         "agotamiento-o-burnout",
-        "neurastenia",
-        "cansancio-fatiga-en-general",
         "vitalidad-falta",
-        "medula-osea"
+        "calcio-falta-de",
+        "lagrimas-falta-de-sindrome-del-ojo-seco",
+        "faltas-de-lagrimas-secuencia-ocular-hipolacrimea"
       ]
     },
     {
@@ -454,11 +458,11 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.382,
+      "latency_s": 1.853,
       "source_slugs": [
         "dientes-chirrido-de-bruxismo",
-        "dientes-en-general",
         "dientes-dolor-de-o-de-muelas",
+        "dientes-en-general",
         "dientes-protesis-dentales-o-dientes-postizos",
         "pesadillas"
       ]
@@ -473,13 +477,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.087,
+      "latency_s": 1.789,
       "source_slugs": [
-        "boca-aftas",
-        "boca-dolor-de",
         "dientes-dolor-de-o-de-muelas",
         "mejilla-dolor-en-la",
-        "pena"
+        "dolor-repentino",
+        "boca-dolor-de",
+        "dolor"
       ]
     },
     {
@@ -492,11 +496,12 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.011,
+      "latency_s": 1.864,
       "source_slugs": [
         "boca-mal-aliento-ver-halitosis",
+        "halitosis-ver-boca-aliento-mal",
         "bromhidrosis",
-        "respiracion-dolores-de"
+        "filetes-olfatorios"
       ]
     },
     {
@@ -510,12 +515,11 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 1.739,
+      "latency_s": 1.879,
       "source_slugs": [
-        "ojos-miopia",
         "ojos-conjuntivitis",
-        "ojos-dolencias-en",
-        "ojos-en-general"
+        "ardores-de-estomago-acidez-estomacal",
+        "vision-perdida"
       ]
     },
     {
@@ -528,13 +532,12 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.71,
+      "latency_s": 2.195,
       "source_slugs": [
         "orejas-zumbido-de-los-oidos-acufenos",
-        "orejas-oidos-acufeno-tinnitus",
         "oido-medio",
         "sindrome-de-meniere-oido-interno",
-        "oidos-problemas-en-los"
+        "oido-interno"
       ]
     },
     {
@@ -547,12 +550,12 @@
       ],
       "kind": "respuesta",
       "hit": false,
-      "latency_s": 2.141,
+      "latency_s": 1.781,
       "source_slugs": [
         "orina-infecciones-urinarias-cistitis",
         "infecciones-en-general",
-        "incontinencia-fecal-urinaria",
         "oxiuriasis-infeccion-por-oxiuros-o-lombrices-intestinales",
+        "incontinencia-fecal-urinaria",
         "sistema-urinario"
       ]
     },
@@ -565,12 +568,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.137,
+      "latency_s": 2.458,
       "source_slugs": [
+        "manos-en-general",
         "manos-contractura-de-depuytren",
         "extremidades-frias",
         "sindrome-del-tunel-carpiano-stc",
-        "panadizo-felon"
+        "callos-en-los-pies-o-en-las-manos"
       ]
     },
     {
@@ -582,13 +586,14 @@
         "pies-en-general"
       ],
       "kind": "respuesta",
-      "hit": false,
-      "latency_s": 2.126,
+      "hit": true,
+      "latency_s": 2.048,
       "source_slugs": [
+        "pies-frios",
         "pies-huecos-o-cavos",
-        "pies-callosidades-o-callos-en-los-pies",
+        "pies-en-general",
         "pies-calientes",
-        "pies-frios"
+        "pies-callosidades-o-callos-en-los-pies"
       ]
     },
     {
@@ -601,12 +606,11 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.047,
+      "latency_s": 1.536,
       "source_slugs": [
         "piernas-varices",
         "sangre-varices",
-        "piernas-pesadas",
-        "piernas-en-general"
+        "piernas-pesadas"
       ]
     },
     {
@@ -618,13 +622,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.198,
+      "latency_s": 2.377,
       "source_slugs": [
         "colitis-hemorragica",
         "intestinos-colitis-mucosidad-del-colon",
         "colitis-ulcerosa",
-        "presion-alta",
-        "ano-rectocolitis-colitis-ulcerosa-dolores-anales"
+        "ano-rectocolitis-colitis-ulcerosa-dolores-anales",
+        "sigmoide"
       ]
     },
     {
@@ -637,13 +641,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.512,
+      "latency_s": 2.186,
       "source_slugs": [
         "pies-micosis-o-infecciones-por-hongos",
         "pies-en-general",
+        "pies-callosidades-o-callos-en-los-pies",
         "pies-huecos-o-cavos",
-        "pies-frios",
-        "pies-callosidades-o-callos-en-los-pies"
+        "pies-frios"
       ]
     },
     {
@@ -656,13 +660,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.474,
+      "latency_s": 2.673,
       "source_slugs": [
         "obesidad",
         "sobrepeso",
-        "pesares",
-        "pesadez-de-estomago",
-        "retencion-de-liquidos-en-piernas"
+        "retencion-del-agua",
+        "retencion-de-liquidos-en-piernas",
+        "pesares"
       ]
     },
     {
@@ -676,11 +680,12 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.339,
+      "latency_s": 1.699,
       "source_slugs": [
-        "fuego-fiebre-o-calentura-labial",
         "labios-secos",
-        "ulcera-esofagica"
+        "fuego-fiebre-o-calentura-labial",
+        "fiebre-en-general",
+        "labio-leporino"
       ]
     },
     {
@@ -693,10 +698,11 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 1.554,
+      "latency_s": 1.655,
       "source_slugs": [
         "garganta-dolores-de",
-        "estomago-dolores-de"
+        "estomago-dolores-de",
+        "barriga-dolor-de-ver-estomago-dolores-de"
       ]
     },
     {
@@ -709,12 +715,11 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.44,
+      "latency_s": 2.108,
       "source_slugs": [
-        "cabeza-migranas",
         "insomnio",
         "cabeza-dolores-de",
-        "cabeza-en-general",
+        "cabeza-migranas",
         "dolor-repentino"
       ]
     },
@@ -728,13 +733,13 @@
       ],
       "kind": "respuesta",
       "hit": false,
-      "latency_s": 2.052,
+      "latency_s": 1.962,
       "source_slugs": [
         "piel-granos-acne",
-        "pelo",
         "piel-brote-de-granos",
+        "pelo",
         "micosis-del-cuero-cabelludo-pelos-y-unas",
-        "cabello-en-general"
+        "prostata-caida-de-disfuncion-prostatica"
       ]
     },
     {
@@ -746,12 +751,14 @@
         "espalda-dolor-de-parte-inferior"
       ],
       "kind": "respuesta",
-      "hit": false,
-      "latency_s": 2.276,
+      "hit": true,
+      "latency_s": 2.235,
       "source_slugs": [
-        "espalda-dolor-de-parte-superior-7-vertebras-cervicales",
+        "espalda-en-general",
+        "espalda-dolor-de-parte-inferior",
         "espalda-dolor-de-parte-central-12-vertebras-dorsales",
-        "espalda-dolor-de-parte-inferior"
+        "vertebras-lumbares-ver-tambien-espalda-parte-inferior",
+        "intestinos-estrenimiento"
       ]
     },
     {
@@ -765,12 +772,12 @@
       ],
       "kind": "respuesta",
       "hit": false,
-      "latency_s": 1.488,
+      "latency_s": 2.561,
       "source_slugs": [
-        "piernas-varices",
-        "sangre-varices",
-        "sangre-varices-faringeas",
         "rodillas-dolores-de",
+        "piernas-varices",
+        "cansancio-fatiga-en-general",
+        "cansancio-cronico-sindrome-de-fatiga-cronica-fatiga-cronica",
         "rodillas-en-general"
       ]
     },
@@ -785,13 +792,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.531,
+      "latency_s": 2.561,
       "source_slugs": [
         "estomago-acidez-ardores-pirosis",
+        "ansiedad",
+        "colitis-hemorragica",
         "intestinos-colitis-mucosidad-del-colon",
-        "ardores-de-estomago-acidez-estomacal",
-        "hernia-de-hiato-acidez-de-estomago",
-        "ano-rectocolitis-colitis-ulcerosa-dolores-anales"
+        "ardores-de-estomago-acidez-estomacal"
       ]
     },
     {
@@ -803,13 +810,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 1.788,
+      "latency_s": 2.15,
       "source_slugs": [
         "huesos-en-general#osteoporosis",
-        "hueso-dental",
-        "calcio-falta-de",
-        "raquis-dorsal-y-lumbar",
-        "periostio"
+        "osteolisis",
+        "oniquia",
+        "osteocondritis-disecante-de-cadera",
+        "paget-enfermedad-osea-de-osteitis-deformante"
       ]
     },
     {
@@ -822,13 +829,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 1.945,
+      "latency_s": 2.006,
       "source_slugs": [
-        "huesos-en-general",
         "huesos-en-general#fractura",
+        "espalda-fractura-de-las-vertebras",
         "huesos-dolores-de-los",
-        "hueso-dental",
-        "pubis-hueso-del"
+        "clavicula-dolor-en-la-fractura-de-la",
+        "hueso-dental"
       ]
     },
     {
@@ -841,12 +848,12 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.439,
+      "latency_s": 1.926,
       "source_slugs": [
         "ojos-estrabismo-convergente",
         "ojos-estrabismo-divergente-exotropia",
-        "ptosis",
-        "geno-valgo"
+        "ojos-nistagmo",
+        "ojos-miopia"
       ]
     },
     {
@@ -859,13 +866,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 1.761,
+      "latency_s": 1.965,
       "source_slugs": [
-        "intestinos-crohn-enfermedad-de",
         "crohn-enfermedad-de",
-        "ileon-intestino-delgado-inferior",
-        "intestinos-colico",
-        "intestinos-diverticulitis"
+        "intestinos-crohn-enfermedad-de",
+        "osteocondritis-disecante-de-cadera",
+        "osler-enfermedad-de",
+        "oxiuriasis-infeccion-por-oxiuros-o-lombrices-intestinales"
       ]
     },
     {
@@ -878,13 +885,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.317,
+      "latency_s": 1.577,
       "source_slugs": [
         "cerebro-parkinson-enfermedad-de",
         "nistagmos-parkinson-ocular",
-        "tetania",
-        "temblores",
-        "razon-tengo"
+        "abasia",
+        "ojos-nistagmo",
+        "neurologias"
       ]
     },
     {
@@ -897,13 +904,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 1.88,
+      "latency_s": 2.047,
       "source_slugs": [
-        "espalda-dolor-de-parte-inferior",
         "fibromialgia",
         "cansancio-cronico-sindrome-de-fatiga-cronica-fatiga-cronica",
-        "razon-tengo",
-        "sindrome-de-sobre-utilizacion"
+        "otalgia",
+        "osteolisis",
+        "osteocondritis-disecante-de-cadera"
       ]
     },
     {
@@ -915,13 +922,13 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.866,
+      "latency_s": 2.564,
       "source_slugs": [
+        "alergia-a-la-fiebre-del-heno-rinitis-alergica",
         "fiebre-en-general",
         "fiebre-botones-de-herpes-labial",
-        "fuego-fiebre-o-calentura-labial",
         "tifoidea-fiebre",
-        "alergia-a-la-fiebre-del-heno-rinitis-alergica"
+        "fuego-fiebre-o-calentura-labial"
       ]
     },
     {
@@ -934,11 +941,12 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 1.947,
+      "latency_s": 2.529,
       "source_slugs": [
         "calculos-renales-o-litiasis-urinaria",
         "rinones-nefritis",
-        "rinones-anuria"
+        "rinones-anuria",
+        "rinones-problemas-renales"
       ]
     },
     {
@@ -950,40 +958,39 @@
       ],
       "kind": "respuesta",
       "hit": true,
-      "latency_s": 2.253,
+      "latency_s": 1.771,
       "source_slugs": [
         "manos-contractura-de-depuytren",
-        "raynaud-enfermedad-de",
-        "marfan-enfermedad-de",
-        "paget-enfermedad-de",
-        "enfermedad-cronica"
+        "enfermedad-de-raynaud",
+        "enfermedad-cronica",
+        "marfan-enfermedad-de"
       ]
     }
   ],
   "metrics": {
     "overall_accuracy": {
-      "mean": 0.8461538461538461,
+      "mean": 0.9230769230769231,
       "median": 1.0,
-      "std": 0.36080121229410994,
-      "ci95_low": 0.7307692307692307,
-      "ci95_high": 0.9423076923076923
+      "std": 0.2664693550105965,
+      "ci95_low": 0.8461538461538461,
+      "ci95_high": 0.9807692307692307
     },
     "n": 52,
     "single": {
       "n": 31,
       "recall": {
-        "mean": 0.8387096774193549,
+        "mean": 0.9354838709677419,
         "median": 1.0,
-        "std": 0.3677985242255284,
-        "ci95_low": 0.7096774193548387,
-        "ci95_high": 0.967741935483871
+        "std": 0.2456701001891583,
+        "ci95_low": 0.8387096774193549,
+        "ci95_high": 1.0
       },
       "latency_s": {
-        "mean": 2.3096129032258066,
-        "median": 2.137,
-        "std": 1.4916606177489515,
-        "ci95_low": 1.9200612903225802,
-        "ci95_high": 2.9255556451612903
+        "mean": 2.084935483870968,
+        "median": 2.059,
+        "std": 0.3451400777322505,
+        "ci95_low": 1.9681508064516129,
+        "ci95_high": 2.2038072580645167
       }
     },
     "alias": {
@@ -996,28 +1003,28 @@
         "ci95_high": 1.0
       },
       "latency_s": {
-        "mean": 2.2078,
-        "median": 2.241,
-        "std": 0.3151262604100141,
-        "ci95_low": 2.052985,
-        "ci95_high": 2.37474
+        "mean": 2.0878666666666663,
+        "median": 2.006,
+        "std": 0.3295884032479838,
+        "ci95_low": 1.9246649999999998,
+        "ci95_high": 2.267028333333333
       }
     },
     "multi": {
       "n": 6,
       "recall": {
-        "mean": 0.5,
-        "median": 0.5,
-        "std": 0.5,
-        "ci95_low": 0.16666666666666666,
-        "ci95_high": 0.8333333333333334
+        "mean": 0.6666666666666666,
+        "median": 1.0,
+        "std": 0.4714045207910317,
+        "ci95_low": 0.3333333333333333,
+        "ci95_high": 1.0
       },
       "latency_s": {
-        "mean": 2.056833333333333,
-        "median": 2.1639999999999997,
-        "std": 0.40745568947910016,
-        "ci95_low": 1.724333333333333,
-        "ci95_high": 2.3631666666666664
+        "mean": 2.180333333333333,
+        "median": 2.1715,
+        "std": 0.321890077856125,
+        "ci95_low": 1.9083333333333332,
+        "ci95_high": 2.4311666666666665
       }
     }
   },
