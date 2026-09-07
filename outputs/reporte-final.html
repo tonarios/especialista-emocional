@@ -93,6 +93,33 @@ figure{margin:16px 0}
 figcaption{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
 .chart{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:14px 0}
 
+/* ---------- Conversación ---------- */
+.chat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin:16px 0}
+.turn{margin:0 0 20px;padding-bottom:18px;border-bottom:1px dashed var(--line)}
+.turn:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.bub{border-radius:14px;padding:11px 15px;margin:6px 0;max-width:82%;font-size:13.5px;line-height:1.5}
+.bub.u{background:var(--ink);color:#f2f2f0;margin-left:auto;border-bottom-right-radius:4px}
+.bub.a{background:var(--paper2);border:1px solid var(--line);border-bottom-left-radius:4px}
+.cites{margin:7px 0 0}
+.cite{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:20px;
+  background:#fff;border:1px solid var(--line);color:var(--muted);margin:2px 3px 0 0}
+.inner{display:flex;gap:10px;flex-wrap:wrap;margin-top:9px;font-family:var(--mono);font-size:10.5px;
+  color:var(--muted);align-items:center}
+.inner b{color:var(--ink)}
+.pill{background:var(--paper2);border-radius:20px;padding:2px 9px;border:1px solid var(--line)}
+.pill.a{background:#fdf1f1;border-color:#f4c9c9;color:var(--accent2)}
+.pill.g{background:#eef8f0;border-color:#c6e6cd;color:#3f8f4f}
+.turnnote{font-size:12px;color:var(--muted);font-style:italic;margin:0 0 8px}
+
+/* ---------- Ciclo de vida ---------- */
+.life{display:grid;grid-template-columns:150px 1fr;gap:0;margin:16px 0;font-size:13px}
+.life .lb{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--accent);padding:12px 12px 12px 0;border-right:2px solid var(--line);text-align:right}
+.life .lc{padding:12px 0 12px 18px;border-left:0;position:relative}
+.life .lc::before{content:"";position:absolute;left:-6px;top:17px;width:10px;height:10px;
+  border-radius:50%;background:var(--accent);border:2px solid var(--paper)}
+.life .lr{display:contents}
+
 .flow{display:flex;align-items:stretch;gap:0;margin:18px 0;flex-wrap:wrap}
 .node{flex:1;min-width:78px;text-align:center;padding:11px 6px;border-radius:10px;
   border:1px solid var(--line);background:#fff;font-size:11.5px;line-height:1.35}
@@ -171,7 +198,178 @@ derivar. Cada etapa crítica se resuelve en el backend, y las dos primeras corta
 </div>
 
 <p class="small">En producción: <a href="https://emociones-app-zxzgilzqfq-uc.a.run.app">https://emociones-app-zxzgilzqfq-uc.a.run.app</a></p>
-</div></section><section class=''><div class='wrap'><p class='eyebrow'>02 · El hallazgo</p><h2 class='big'>El guardarraíl se demuestra solo</h2>
+</div></section><section class=''><div class='wrap'><p class='eyebrow'>02 · Cómo funciona</p><h2 class='big'>Una conversación real, turno a turno</h2>
+<p>Esta es una conversación capturada <b>en el servicio desplegado</b>, no un ejemplo
+inventado. Bajo cada respuesta se muestra lo que ocurrió por dentro: qué camino tomó el turno,
+qué citó, cuánto tardó y <b>cómo quedó la memoria después</b>.</p>
+
+<div class="chat"><div class='turn'><p class='turnnote'>Turno 1 — Primera consulta. El agente extrae el síntoma, recupera del diccionario y cita solo lo que recuperó.</p><div class='bub u'>me duele la garganta muy seguido y me cuesta decir lo que pienso</div><div class='bub a'>Los síntomas relacionados con la garganta, en sus diversas manifestaciones como dolor, laringitis o problemas en la faringe, suelen asociarse a conflictos profundos con la expresión de uno mismo y la comunicación. El diccionario sugiere que la garganta es el centro de nuestra capacidad para comunicarnos, para expresar quiénes somos y para establecer límites, y cuando surgen dificultades en esta área, puede reflejar un bloqueo en la autoexpresión.
+
+Una lectura posible es que existe una furia o un miedo tan intensos que paralizan la voz, impidiendo decir lo que se quiere o se piensa. Esto puede manifestarse como la sensación de que "es mejor callar porque si hablo será peor", especialmente cuando se percibe una amenaza a la propia autoridad o territorio y no se puede defender verbalmente. A menudo, estos problemas surgen de la dificultad para expresar emociones, pensamientos o necesidades, generando una sensación de "atragantamiento" emocional.
+
+El miedo a ser juzgado, al rechazo, a la crítica o al conflicto puede llevar a reprimir la propia voz, sintiendo que no se tiene derecho a expresar opiniones o emociones. Esto se relaciona con conflictos de comunicación en las relaciones interpersonales, donde la falta de claridad y honestidad genera malentendidos. El diccionario también señala que el dolor de garganta puede ser una señal de ira reprimida y palabras no dichas, simbolizando la dificultad para expresar lo que se siente o para "tragar" una situación dolorosa o injusta.
+
+En esencia, estos síntomas pueden ser una invitación a trabajar en la expresión honesta de las emociones y en la capacidad de "hacerse oír" en el entorno. La laringe, en particular, se vincula directamente al miedo visceral, a un susto repentino o a una situación de pánico que deja sin palabras, así como a la incapacidad de expresar la verdad profunda por temor a las consecuencias. La faringe, como puente entre lo que entra y lo que sale, simboliza el procesamiento de experiencias y emociones, y sus bloqueos pueden reflejar conflictos relacionados con la autenticidad, la vulnerabilidad o la resistencia a enfrentar desafíos.
+
+Recuerda: este contenido es una interpretación emocional desde el diccionario y tiene fines de autoconocimiento y reflexión. No es consejo ni diagnóstico médico; ante dudas de salud, consulta a un profesional sanitario.<div class='cites'><span class='cite'>GARGANTA (en general)</span><span class='cite'>GARGANTA – LARINGITIS</span><span class='cite'>GARGANTA (dolores de…)</span><span class='cite'>GARGANTA – LARINGE</span><span class='cite'>GARGANTA – FARINGE</span></div></div><div class='inner'><span class='pill'>respuesta</span><span class='pill'>riesgo: estandar</span><span class='pill'>5 fuentes</span><span class='pill'>5.0 s</span><span class='pill g'>memoria: 1 consultas · 2 eventos</span></div></div><div class='turn'><p class='turnnote'>Turno 2 — Segunda consulta, misma sesión. El historial del turno anterior ya viaja en el contexto de la síntesis.</p><div class='bub u'>también he tenido dolores de espalda baja estas semanas</div><div class='bub a'>El dolor en la parte superior de la espalda se asocia con la comunicación y la rigidez mental, sugiriendo una posible dificultad para expresar lo que se piensa o siente, así como una tendencia a asumir demasiada responsabilidad o a intentar controlar las situaciones de forma intelectual. La zona central de la espalda, por su parte, se relaciona con la carencia afectiva y la culpa, indicando sentimientos de soledad en las cargas emocionales o la sensación de no dar o recibir suficiente amor. En conjunto, estos dolores podrían reflejar un patrón de sentirse sin el apoyo emocional necesario y una carga de responsabilidades que dificulta la expresión y la conexión afectiva.
+
+Recuerda: este contenido es una interpretación emocional desde el diccionario y tiene fines de autoconocimiento y reflexión. No es consejo ni diagnóstico médico; ante dudas de salud, consulta a un profesional sanitario.<div class='cites'><span class='cite'>ESPALDA (dolor de…) PARTE SUPERIOR (7 vértebras cervicales)</span><span class='cite'>ESPALDA (dolor de…) PARTE CENTRAL (12 vértebras dorsales)</span></div></div><div class='inner'><span class='pill'>respuesta</span><span class='pill'>riesgo: estandar</span><span class='pill'>2 fuentes</span><span class='pill'>2.4 s</span><span class='pill g'>memoria: 2 consultas · 4 eventos</span></div></div><div class='turn'><p class='turnnote'>Turno 3 — Pregunta sobre la propia memoria. No se recupera del diccionario: se responde desde el historial persistido del portador.</p><div class='bub u'>¿cuál fue mi última consulta?</div><div class='bub a'>Tu última consulta fue el 7 de septiembre de 2026, donde preguntaste sobre el dolor de garganta frecuente y la dificultad para expresar tus pensamientos, así como sobre los dolores de espalda baja.</div><div class='inner'><span class='pill'>respuesta</span><span class='pill'>0 fuentes</span><span class='pill'>1.2 s</span><span class='pill g'>memoria: 2 consultas · 6 eventos</span></div></div></div>
+
+<p>Lo importante está en el tercer turno: <b>0 fuentes y 1.2 s</b>. No
+recuperó nada del diccionario porque no hacía falta — la pregunta era sobre el propio
+historial, y eso se responde desde la memoria del portador. Un sistema sin memoria habría
+buscado «última consulta» en el diccionario y devuelto cualquier cosa.</p>
+
+<div class="callout">
+  <h4>Y una imperfección honesta, visible en el turno 2</h4>
+  <p>La persona dijo «espalda <b>baja</b>» y el agente citó <i>parte superior (7 vértebras
+  cervicales)</i> y <i>parte central (12 dorsales)</i> — no la parte inferior. Es un fallo de
+  ranking real, del tipo que la métrica <code>multi</code> 0.667 recoge. Se deja a la vista
+  porque un reporte que solo muestra los turnos que salen bien no informa de nada.</p>
+</div>
+</div></section><section class=''><div class='wrap'><p class='eyebrow'>03 · Identidad y memoria</p><h2 class='big'>Cómo el login sostiene todo lo demás</h2>
+<p>No hay «sesión de usuario» en el backend: hay un <b>token</b>, y de él se deriva todo. El
+correo autenticado <em>es</em> la clave de partición de cada dato del sistema.</p>
+
+<div class="life">
+  <div class="lr"><div class="lb">1 · Registro</div><div class="lc">
+    La contraseña se guarda con <b>PBKDF2-HMAC-SHA256</b> y sal por usuario. Nunca en claro.
+    Se emite un <b>JWT HS256</b> cuyo <code>sub</code> es el correo.
+    <span class="small">En la captura: HTTP 200, token
+    <code>eyJhbGciOiAiSFMyNTYiLC…</code></span>
+  </div></div>
+  <div class="lr"><div class="lb">2 · Cada petición</div><div class="lc">
+    El frontend manda <code>Authorization: Bearer …</code>. El backend verifica la firma y la
+    expiración y extrae el correo. <b>Si no hay token válido, no hay dato</b>:
+    <code>/profile</code> sin cabecera responde <b>HTTP 401</b>.
+  </div></div>
+  <div class="lr"><div class="lb">3 · Identidad única</div><div class="lc">
+    Ese correo se usa <b>sin traducción</b> como <code>user_id</code> de ADK, como id del
+    documento de perfil en Firestore y como clave de la sesión. No hay forma de pedir los datos
+    de otro: el identificador no viaja en el cuerpo de la petición, se deriva del token firmado.
+  </div></div>
+  <div class="lr"><div class="lb">4 · Se escribe</div><div class="lc">
+    Al cerrar el turno se añade la consulta al perfil y los dos eventos (usuario y modelo) a la
+    sesión ADK. En la captura, el contador sube <b>1→2→2</b> consultas y <b>2→4→6</b> eventos.
+  </div></div>
+  <div class="lr"><div class="lb">5 · Se lee</div><div class="lc">
+    En el turno siguiente el historial se inyecta en el contexto de la síntesis, y si la
+    pregunta es sobre la propia memoria se responde directamente desde él.
+  </div></div>
+  <div class="lr"><div class="lb">6 · Se borra</div><div class="lc">
+    <code>DELETE /profile/consultations</code> vacía el historial <b>del portador y solo del
+    suyo</b>. El derecho a olvidar es parte del diseño, no un extra.
+  </div></div>
+</div>
+
+<h3>Dos memorias, con propósitos distintos</h3>
+<div class="grid2">
+  <div class="card">
+    <h4>Sesión ADK — la conversación</h4>
+    <p class="small">Los eventos de cada turno, en orden, en Firestore. Sobreviven a reinicios
+    del contenedor y a que Cloud Run escale a cero. Es lo que permite retomar un hilo.</p>
+    <p class="small"><b>Por qué en documentos separados:</b> Firestore limita cada documento a
+    1 MiB. La sesión y sus eventos van aparte, con ids secuenciales rellenados
+    (<code>000001</code>) para que el orden alfabético <i>sea</i> el cronológico y no haga falta
+    un índice compuesto.</p>
+  </div>
+  <div class="card">
+    <h4>Perfil — el historial de consultas</h4>
+    <p class="small">Una entrada por consulta con el síntoma, los términos citados y la fecha.
+    Es lo que el agente lee para personalizar y lo que responde una pregunta de memoria.</p>
+    <div class="term" style="margin-top:8px"><div class="bar"><b>última entrada del perfil</b></div>
+    <pre>{
+  "term": [
+    "espalda-dolor-de-parte-superior-7-vertebras-cervicales",
+    "espalda-dolor-de-parte-central-12-vertebras-dorsales"
+  ],
+  "symptom": [
+    "también he tenido dolores de espalda baja estas semanas"
+  ],
+  "ts": "2026-09-07T07:24:40.448614+00:00"
+}</pre></div>
+  </div>
+</div>
+
+<div class="callout">
+  <h4>Dónde sí va el texto del usuario, y dónde nunca</h4>
+  <p>El perfil <b>sí</b> guarda lo que la persona escribió: son sus propios datos, en su propio
+  documento, y solo alcanzables con su token — es literalmente la función que pidió. El almacén
+  <b>analítico</b> es lo contrario: ahí no entra jamás una palabra de la conversación, solo
+  slugs, niveles de riesgo y un hash con sal del correo. Son dos almacenes con dos contratos de
+  privacidad distintos, y confundirlos fue precisamente el bug de §14.</p>
+</div>
+
+<h3>El aislamiento, comprobado en la misma captura</h3>
+<p>Un segundo usuario (<code>otra-704339@ejemplo.co</code>) se registró justo después y consultó
+sus propios endpoints: ve <b>0 consultas</b> y
+<b>0 sesiones</b>. No hay filtrado en la capa de presentación — la
+consulta a Firestore se construye con el correo del token, así que los datos ajenos nunca
+llegan a salir de la base.</p>
+</div></section><section class=''><div class='wrap'><p class='eyebrow'>04 · Anatomía de un turno</p><h2 class='big'>Qué pasa entre que escribes y respondo</h2>
+<p>Cada mensaje recorre siempre las mismas seis etapas, en el mismo orden. El modelo
+<b>no decide</b> cuáles se ejecutan: el backend las orquesta. Tomando el primer turno de la
+conversación anterior como ejemplo:</p>
+
+<div class="life">
+  <div class="lr"><div class="lb">1 · Injection</div><div class="lc">
+    <code>check_prompt_injection</code> compara contra patrones de inyección y de dominio
+    (pedir prescripción, forzar diagnóstico). Si dispara, <b>403 y se acabó</b>: el mensaje no
+    llega al modelo y queda en la auditoría.
+  </div></div>
+  <div class="lr"><div class="lb">2 · Emergencia</div><div class="lc">
+    <code>detect_emergency</code> evalúa 6 grupos de patrones deterministas
+    <b>antes de recuperar nada</b>. Si hay señal de urgencia, devuelve la derivación tal cual
+    está escrita en <code>emergency_patterns.json</code> — sin interpretación emocional y sin
+    pasar por el LLM. Es el camino de <b>56 ms</b> de §05.
+  </div></div>
+  <div class="lr"><div class="lb">3 · Síntomas</div><div class="lc">
+    Una llamada estructurada parte la consulta en frases cortas de búsqueda. Del mensaje del
+    ejemplo salió el síntoma de garganta; una consulta con dos dolencias produce dos.
+  </div></div>
+  <div class="lr"><div class="lb">4 · Recuperación</div><div class="lc">
+    Una búsqueda <b>por síntoma, en paralelo</b>. Cada una decide si hay cobertura; las que no
+    la tienen se descartan. Si ninguna la tiene, la respuesta es «sin cobertura» y no se
+    inventa nada. Aquí recuperó <b>5 términos</b>.
+  </div></div>
+  <div class="lr"><div class="lb">5 · Plantilla</div><div class="lc">
+    El <b>backend</b> —no el modelo— mira el nivel de riesgo de lo recuperado y elige la
+    plantilla. Si algún término está en los 156 de riesgo elevado, la respuesta
+    <b>encabeza con la derivación médica</b>. Este turno fue
+    <code>estandar</code>, así que usó la plantilla estándar.
+  </div></div>
+  <div class="lr"><div class="lb">6 · Síntesis</div><div class="lc">
+    Una sola llamada al modelo con el contexto recuperado <b>más el historial del portador</b>.
+    El modelo devuelve la lectura y una línea <code>FUENTES: slug…</code>, que el backend
+    <b>intersecta con lo que realmente recuperó</b>: cualquier slug inventado se descarta antes
+    de llegar al usuario.
+  </div></div>
+</div>
+
+<div class="callout key">
+  <h4>Por qué determinista y no tool-calling</h4>
+  <p>ADK permite darle herramientas al modelo y dejar que decida cuándo buscar. Se probó y se
+  descartó: con un modelo local el bucle era poco fiable y no acotado, y <b>cada iteración es
+  una oportunidad de saltarse un guardarraíl</b>. Un pipeline fijo es auditable, su costo es
+  predecible y las etapas 1 y 2 son inevitables por construcción. El camino con herramientas
+  quedó implementado como alternativa, pero no es el que corre.</p>
+</div>
+
+<h3>Qué ve el usuario, y qué garantiza</h3>
+<table>
+<tr><th>En pantalla</th><th>Qué garantiza por debajo</th></tr>
+<tr><td>Los <b>chips de fuentes</b> bajo cada respuesta</td>
+    <td>Solo aparecen términos que se recuperaron de verdad. El modelo no puede citar lo que no se le dio.</td></tr>
+<tr><td>El <b>aviso fijo</b> antes del primer mensaje</td>
+    <td>La interpretación es simbólica y no sustituye a un profesional — visible antes de escribir, no en letra pequeña al pie.</td></tr>
+<tr><td>Una respuesta <b>resaltada en rojo</b> sin fuentes</td>
+    <td>Se detectó una urgencia: el mensaje nunca llegó al modelo y la derivación es literal.</td></tr>
+<tr><td>«Tu mensaje fue bloqueado por seguridad»</td>
+    <td>Saltó un guardarraíl. No se dice cuál: decir qué patrón saltó facilita evadirlo.</td></tr>
+<tr><td>«No tengo cobertura para eso»</td>
+    <td>Ningún término superó el umbral. El sistema prefiere admitirlo a inventar una lectura.</td></tr>
+</table>
+</div></section><section class=''><div class='wrap'><p class='eyebrow'>05 · El hallazgo</p><h2 class='big'>El guardarraíl se demuestra solo</h2>
 <p>La analítica de producción registra la latencia de cada turno. Al agrupar por tipo aparece
 algo que ningún test tenía que buscar:</p>
 <div class="chart"><svg viewBox='0 0 720 260' width='100%'><text x='54' y='16' font-size='11.5' font-weight='700' fill='#141414'>Latencia media por tipo de turno, medida en producción (ms)</text><line x1='54' y1='214.0' x2='704' y2='214.0' stroke='#ececea'/><text x='47' y='217.0' text-anchor='end' font-size='9' fill='#7a7a78'>0</text><line x1='54' y1='168.0' x2='704' y2='168.0' stroke='#ececea'/><text x='47' y='171.0' text-anchor='end' font-size='9' fill='#7a7a78'>835</text><line x1='54' y1='122.0' x2='704' y2='122.0' stroke='#ececea'/><text x='47' y='125.0' text-anchor='end' font-size='9' fill='#7a7a78'>1669</text><line x1='54' y1='76.0' x2='704' y2='76.0' stroke='#ececea'/><text x='47' y='79.0' text-anchor='end' font-size='9' fill='#7a7a78'>2504</text><line x1='54' y1='30.0' x2='704' y2='30.0' stroke='#ececea'/><text x='47' y='33.0' text-anchor='end' font-size='9' fill='#7a7a78'>3338</text><rect x='101.7' y='210.9' width='121.3' height='3.1' rx='3' fill='#5fbf6f'/><text x='162.3' y='205.9' text-anchor='middle' font-size='10.5' font-weight='700' fill='#141414'>56</text><text x='162.3' y='229.0' text-anchor='middle' font-size='9.5' fill='#7a7a78'>Emergencia</text><text x='162.3' y='240.0' text-anchor='middle' font-size='9.5' fill='#7a7a78'>(corta antes)</text><rect x='318.3' y='177.8' width='121.3' height='36.2' rx='3' fill='#8a8a8a'/><text x='379.0' y='172.8' text-anchor='middle' font-size='10.5' font-weight='700' fill='#141414'>656</text><text x='379.0' y='229.0' text-anchor='middle' font-size='9.5' fill='#7a7a78'>Sin cobertura</text><rect x='535.0' y='55.4' width='121.3' height='158.6' rx='3' fill='#141414'/><text x='595.7' y='50.4' text-anchor='middle' font-size='10.5' font-weight='700' fill='#141414'>2878</text><text x='595.7' y='229.0' text-anchor='middle' font-size='9.5' fill='#7a7a78'>Respuesta completa</text></svg></div>
@@ -181,7 +379,7 @@ y el modelo. Si la derivación fuera una instrucción en el prompt, ambos númer
 iguales.</p>
 <p class="small">Datos reales de BigQuery. Es la comprobación empírica de NFR-02b: el
 mecanismo no puede ser evadido porque el mensaje nunca llega al LLM.</p>
-</div></section><section class=''><div class='wrap'><p class='eyebrow'>03 · Dominio y riesgo</p><h2 class='big'>Por qué este dominio es distinto</h2>
+</div></section><section class=''><div class='wrap'><p class='eyebrow'>06 · Dominio y riesgo</p><h2 class='big'>Por qué este dominio es distinto</h2>
 <p>El corpus es un diccionario de significados emocionales: 1.265 términos que asocian un
 síntoma físico con un conflicto emocional. Eso plantea tres riesgos que no existen en un
 chatbot cualquiera.</p>
@@ -209,7 +407,7 @@ chatbot cualquiera.</p>
   <b>precisión fuera de dominio = 1.0</b> por encima del recall: en salud, inventar una
   interpretación es peor que admitir que no se sabe.</p>
 </div>
-</div></section><section class=''><div class='wrap'><p class='eyebrow'>04 · Recuperación híbrida</p><h2 class='big'>Cómo se decide qué es relevante</h2>
+</div></section><section class=''><div class='wrap'><p class='eyebrow'>07 · Recuperación híbrida</p><h2 class='big'>Cómo se decide qué es relevante</h2>
 <p>El corpus es un diccionario, y en un diccionario <b>el título es la señal fiable</b>: la
 prosa emocional de dos términos distintos es casi idéntica, así que el embedding denso por sí
 solo no discrimina. De ahí el diseño:</p>
@@ -231,7 +429,7 @@ stemming</i> (plurales y deverbales) y stopwords. Ese match <i>es</i> el umbral.
   desde el segundo milestone. Los tres criterios del gate —single ≥0.85, alias ≥0.90 y
   precisión fuera de dominio 1.0— se cumplen ahora <b>simultáneamente</b>.</p>
 </div>
-</div></section><section class=''><div class='wrap'><p class='eyebrow'>05 · Calibración</p><h2 class='big'>Un umbral correcto que se vuelve bug</h2>
+</div></section><section class=''><div class='wrap'><p class='eyebrow'>08 · Calibración</p><h2 class='big'>Un umbral correcto que se vuelve bug</h2>
 <p>La cobertura tiene un respaldo: si no hay match nominal pero el coseno denso es muy alto, se
 acepta. Ese umbral valía <code>0.70</code>, fijado con datos… <b>para <code>bge-m3</code></b>.</p>
 <p>Al migrar a Vertex, la consulta «¿qué significa emocionalmente el cuerpo?» puntuaba
@@ -247,7 +445,7 @@ calibrar recibe el valor más estricto.</p>
   <b>no falla ruidosamente</b>: simplemente empieza a inventar interpretaciones para consultas
   que no cubre. En este dominio, ese silencio es el peor modo de fallo posible.</p>
 </div>
-</div></section><section class='pbreak'><div class='wrap'><p class='eyebrow'>06 · Infraestructura</p><h2 class='big'>37 recursos, todo como código</h2>
+</div></section><section class='pbreak'><div class='wrap'><p class='eyebrow'>09 · Infraestructura</p><h2 class='big'>37 recursos, todo como código</h2>
 
 <div class="flow">
   <div class="node d"><div class="n">Cloud Run</div>min=0 · max=3<br>back + front</div><div class="arw">→</div>
@@ -278,7 +476,7 @@ deliberadamente <b>no hay Cloud SQL ni VPC Connector</b>: son justo los componen
 
 <p><b>Vertex se autentica por service account, no por clave de API.</b> Eso elimina un secreto
 entero del sistema: uno menos que rotar y que filtrar.</p>
-</div></section><section class=''><div class='wrap'><p class='eyebrow'>07 · Costo</p><h2 class='big'>El presupuesto se hizo antes de crear nada</h2>
+</div></section><section class=''><div class='wrap'><p class='eyebrow'>10 · Costo</p><h2 class='big'>El presupuesto se hizo antes de crear nada</h2>
 <p>Los precios se consultaron y el consumo se <b>midió sobre el propio repo</b>: 3.400 tokens
 de entrada y 450 de salida por turno = <b>$0.00052</b>, o $0.52 por cada 1.000 turnos.
 Reindexar el corpus completo costó <b>$0.09</b>, una vez.</p>
@@ -313,7 +511,7 @@ de copiar.</li>
 </ul>
 <p class="small">El beneficio que más importa no es el costo sino el <b>arranque en frío</b>,
 que es el precio real de escalar a cero.</p>
-</div></section><section class='pbreak'><div class='wrap'><p class='eyebrow'>08 · Resultados</p><h2 class='big'>Qué tan bien funciona</h2>
+</div></section><section class='pbreak'><div class='wrap'><p class='eyebrow'>11 · Resultados</p><h2 class='big'>Qué tan bien funciona</h2>
 <p>52 preguntas derivadas del gold set, corridas por el <b>pipeline real del chat</b>. La
 verificación es <b>determinista</b>: acierta si cita el slug esperado o contiene el término.
 Sin LLM como juez. Métricas por bootstrap con seed fijo (42, 2.000 remuestreos).</p>
@@ -346,9 +544,9 @@ una síntesis cohesiva es lo más difícil, y arrastra el mismo hueco.</li>
 <li><b>El LLM no es determinista.</b> Entre corridas locales se observó 0.865–0.885. Lo
 reproducible es el <i>procedimiento</i>, no la cifra exacta.</li>
 <li><b>Buena parte del salto de multi-hop no es mérito del modelo</b>, sino de un bug corregido
-—ver §11.</li>
+—ver §14.</li>
 </ol>
-</div></section><section class=''><div class='wrap'><p class='eyebrow'>09 · Seguridad verificada</p><h2 class='big'>Tests que pueden fallar</h2>
+</div></section><section class=''><div class='wrap'><p class='eyebrow'>12 · Seguridad verificada</p><h2 class='big'>Tests que pueden fallar</h2>
 <div class="chart"><svg viewBox='0 0 720 222' width='100%'><text x='6' y='16' font-size='11.5' font-weight='700' fill='#141414'>260 tests por área</text><rect x='200' y='28.0' width='437.7' height='16.1' rx='3' fill='#ff5a5f'/><text x='192' y='40.9' text-anchor='end' font-size='10' fill='#141414'>Seguridad médica</text><text x='643.7' y='40.9' font-size='10' font-weight='700' fill='#141414'>173</text><rect x='200' y='54.0' width='58.2' height='16.1' rx='3' fill='#141414'/><text x='192' y='66.9' text-anchor='end' font-size='10' fill='#141414'>Backend de nube</text><text x='264.2' y='66.9' font-size='10' font-weight='700' fill='#141414'>23</text><rect x='200' y='80.0' width='43.0' height='16.1' rx='3' fill='#141414'/><text x='192' y='92.9' text-anchor='end' font-size='10' fill='#141414'>Infra (sobre el plan)</text><text x='249.0' y='92.9' font-size='10' font-weight='700' fill='#141414'>17</text><rect x='200' y='106.0' width='43.0' height='16.1' rx='3' fill='#ff5a5f'/><text x='192' y='118.9' text-anchor='end' font-size='10' fill='#141414'>Guardarraíles / injection</text><text x='249.0' y='118.9' font-size='10' font-weight='700' fill='#141414'>17</text><rect x='200' y='132.0' width='35.4' height='16.1' rx='3' fill='#8a8a8a'/><text x='192' y='144.9' text-anchor='end' font-size='10' fill='#141414'>Proveedores</text><text x='241.4' y='144.9' font-size='10' font-weight='700' fill='#141414'>14</text><rect x='200' y='158.0' width='22.8' height='16.1' rx='3' fill='#8a8a8a'/><text x='192' y='170.9' text-anchor='end' font-size='10' fill='#141414'>Agente</text><text x='228.8' y='170.9' font-size='10' font-weight='700' fill='#141414'>9</text><rect x='200' y='184.0' width='17.7' height='16.1' rx='3' fill='#8a8a8a'/><text x='192' y='196.9' text-anchor='end' font-size='10' fill='#141414'>Auth y memoria</text><text x='223.7' y='196.9' font-size='10' font-weight='700' fill='#141414'>7</text></svg></div>
 <p class="small">253 passed + 7 skipped. Los saltados necesitan un Postgres alcanzable desde el
 host y cubren aislamiento, persistencia y borrado en el backend local.</p>
@@ -387,7 +585,7 @@ host y cubren aislamiento, persistencia y borrado en el backend local.</p>
 <span class="g">✅</span> sin secretos en claro en los .tf
 <span class="g">✅</span> no se crean claves de service account
 <span class="g">✅</span> el plan no expone valores sensibles</pre></div>
-</div></section><section class='pbreak'><div class='wrap'><p class='eyebrow'>10 · Evidencia</p><h2 class='big'>Pruebas de uso en producción — 16/16</h2>
+</div></section><section class='pbreak'><div class='wrap'><p class='eyebrow'>13 · Evidencia</p><h2 class='big'>Pruebas de uso en producción — 16/16</h2>
 <p>Ejecutadas contra el servicio vivo con <code>scripts/prod_smoke.py</code>. <b>Cada caso
 lleva su aserción</b>: si una falla, la corrida falla. La evidencia no puede decir «OK» sin
 haberlo comprobado.</p>
@@ -425,7 +623,7 @@ correo.</p>
 <tr><td><code>guardarrailes</code></td><td>cuántas veces dispara cada guardarraíl, y cuál</td></tr>
 <tr><td><code>eval</code></td><td>serie histórica de las corridas: si el recall se degrada entre versiones, se ve</td></tr>
 </table>
-</div></section><section class=''><div class='wrap'><p class='eyebrow'>11 · Postmortem</p><h2 class='big'>Lo que solo apareció al desplegar</h2>
+</div></section><section class=''><div class='wrap'><p class='eyebrow'>14 · Postmortem</p><h2 class='big'>Lo que solo apareció al desplegar</h2>
 <p>El despliegue real destapó cuatro cosas que ninguna suite local había detectado. Vale la
 pena contarlas: son el resultado más útil del proyecto.</p>
 
@@ -459,7 +657,7 @@ próximo error salga en el <code>plan</code> y no a mitad del despliegue.</p>
 <p>El emisor de analítica existía y tenía tests verdes, pero <b>nadie lo invocaba</b>: las
 tablas quedaron vacías tras el primer despliegue. Probar un módulo aisladamente no detecta que
 esté desconectado. Ahora hay tests que corren el <b>pipeline completo</b> y exigen que emita.</p>
-</div></section><section class=''><div class='wrap'><p class='eyebrow'>12 · Cierre</p><h2 class='big'>Deuda abierta y cómo reproducirlo</h2>
+</div></section><section class=''><div class='wrap'><p class='eyebrow'>15 · Cierre</p><h2 class='big'>Deuda abierta y cómo reproducirlo</h2>
 <h3>Lo que queda abierto, declarado</h3>
 <ul>
 <li><b>Sinonimia coloquial</b> ausente del fichero de alias, congelado desde el inicio.

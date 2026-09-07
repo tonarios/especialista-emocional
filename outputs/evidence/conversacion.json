@@ -1,0 +1,121 @@
+{
+  "url": "https://emociones-app-zxzgilzqfq-uc.a.run.app",
+  "ts": "2026-09-07T07:24:44Z",
+  "usuario": "demo-b9a9cc@ejemplo.co",
+  "session_id": "conv-31d728",
+  "registro": {
+    "http": 200,
+    "latencia_s": 11.69,
+    "token_prefijo": "eyJhbGciOiAiSFMyNTYiLC…"
+  },
+  "turnos": [
+    {
+      "usuario": "me duele la garganta muy seguido y me cuesta decir lo que pienso",
+      "nota": "Primera consulta. El agente extrae el síntoma, recupera del diccionario y cita solo lo que recuperó.",
+      "kind": "respuesta",
+      "risk_tier": "estandar",
+      "respuesta": "Los síntomas relacionados con la garganta, en sus diversas manifestaciones como dolor, laringitis o problemas en la faringe, suelen asociarse a conflictos profundos con la expresión de uno mismo y la comunicación. El diccionario sugiere que la garganta es el centro de nuestra capacidad para comunicarnos, para expresar quiénes somos y para establecer límites, y cuando surgen dificultades en esta área, puede reflejar un bloqueo en la autoexpresión.\n\nUna lectura posible es que existe una furia o un miedo tan intensos que paralizan la voz, impidiendo decir lo que se quiere o se piensa. Esto puede manifestarse como la sensación de que \"es mejor callar porque si hablo será peor\", especialmente cuando se percibe una amenaza a la propia autoridad o territorio y no se puede defender verbalmente. A menudo, estos problemas surgen de la dificultad para expresar emociones, pensamientos o necesidades, generando una sensación de \"atragantamiento\" emocional.\n\nEl miedo a ser juzgado, al rechazo, a la crítica o al conflicto puede llevar a reprimir la propia voz, sintiendo que no se tiene derecho a expresar opiniones o emociones. Esto se relaciona con conflictos de comunicación en las relaciones interpersonales, donde la falta de claridad y honestidad genera malentendidos. El diccionario también señala que el dolor de garganta puede ser una señal de ira reprimida y palabras no dichas, simbolizando la dificultad para expresar lo que se siente o para \"tragar\" una situación dolorosa o injusta.\n\nEn esencia, estos síntomas pueden ser una invitación a trabajar en la expresión honesta de las emociones y en la capacidad de \"hacerse oír\" en el entorno. La laringe, en particular, se vincula directamente al miedo visceral, a un susto repentino o a una situación de pánico que deja sin palabras, así como a la incapacidad de expresar la verdad profunda por temor a las consecuencias. La faringe, como puente entre lo que entra y lo que sale, simboliza el procesamiento de experiencias y emociones, y sus bloqueos pueden reflejar conflictos relacionados con la autenticidad, la vulnerabilidad o la resistencia a enfrentar desafíos.\n\nRecuerda: este contenido es una interpretación emocional desde el diccionario y tiene fines de autoconocimiento y reflexión. No es consejo ni diagnóstico médico; ante dudas de salud, consulta a un profesional sanitario.",
+      "fuentes": [
+        {
+          "slug": "garganta-en-general",
+          "title": "GARGANTA (en general)"
+        },
+        {
+          "slug": "garganta-laringitis",
+          "title": "GARGANTA – LARINGITIS"
+        },
+        {
+          "slug": "garganta-dolores-de",
+          "title": "GARGANTA (dolores de…)"
+        },
+        {
+          "slug": "garganta-laringe",
+          "title": "GARGANTA – LARINGE"
+        },
+        {
+          "slug": "garganta-faringe",
+          "title": "GARGANTA – FARINGE"
+        }
+      ],
+      "latencia_s": 5.03,
+      "memoria_despues": {
+        "consultas_en_perfil": 1,
+        "eventos_en_sesion": 2,
+        "ultima_entrada": {
+          "term": [
+            "garganta-en-general",
+            "garganta-laringitis",
+            "garganta-dolores-de",
+            "garganta-laringe",
+            "garganta-faringe"
+          ],
+          "symptom": [
+            "me duele la garganta muy seguido y me cuesta decir lo que pienso"
+          ],
+          "ts": "2026-09-07T07:24:36.940724+00:00"
+        }
+      }
+    },
+    {
+      "usuario": "también he tenido dolores de espalda baja estas semanas",
+      "nota": "Segunda consulta, misma sesión. El historial del turno anterior ya viaja en el contexto de la síntesis.",
+      "kind": "respuesta",
+      "risk_tier": "estandar",
+      "respuesta": "El dolor en la parte superior de la espalda se asocia con la comunicación y la rigidez mental, sugiriendo una posible dificultad para expresar lo que se piensa o siente, así como una tendencia a asumir demasiada responsabilidad o a intentar controlar las situaciones de forma intelectual. La zona central de la espalda, por su parte, se relaciona con la carencia afectiva y la culpa, indicando sentimientos de soledad en las cargas emocionales o la sensación de no dar o recibir suficiente amor. En conjunto, estos dolores podrían reflejar un patrón de sentirse sin el apoyo emocional necesario y una carga de responsabilidades que dificulta la expresión y la conexión afectiva.\n\nRecuerda: este contenido es una interpretación emocional desde el diccionario y tiene fines de autoconocimiento y reflexión. No es consejo ni diagnóstico médico; ante dudas de salud, consulta a un profesional sanitario.",
+      "fuentes": [
+        {
+          "slug": "espalda-dolor-de-parte-superior-7-vertebras-cervicales",
+          "title": "ESPALDA (dolor de…) PARTE SUPERIOR (7 vértebras cervicales)"
+        },
+        {
+          "slug": "espalda-dolor-de-parte-central-12-vertebras-dorsales",
+          "title": "ESPALDA (dolor de…) PARTE CENTRAL (12 vértebras dorsales)"
+        }
+      ],
+      "latencia_s": 2.36,
+      "memoria_despues": {
+        "consultas_en_perfil": 2,
+        "eventos_en_sesion": 4,
+        "ultima_entrada": {
+          "term": [
+            "espalda-dolor-de-parte-superior-7-vertebras-cervicales",
+            "espalda-dolor-de-parte-central-12-vertebras-dorsales"
+          ],
+          "symptom": [
+            "también he tenido dolores de espalda baja estas semanas"
+          ],
+          "ts": "2026-09-07T07:24:40.448614+00:00"
+        }
+      }
+    },
+    {
+      "usuario": "¿cuál fue mi última consulta?",
+      "nota": "Pregunta sobre la propia memoria. No se recupera del diccionario: se responde desde el historial persistido del portador.",
+      "kind": "respuesta",
+      "risk_tier": null,
+      "respuesta": "Tu última consulta fue el 7 de septiembre de 2026, donde preguntaste sobre el dolor de garganta frecuente y la dificultad para expresar tus pensamientos, así como sobre los dolores de espalda baja.",
+      "fuentes": [],
+      "latencia_s": 1.17,
+      "memoria_despues": {
+        "consultas_en_perfil": 2,
+        "eventos_en_sesion": 6,
+        "ultima_entrada": {
+          "term": [
+            "espalda-dolor-de-parte-superior-7-vertebras-cervicales",
+            "espalda-dolor-de-parte-central-12-vertebras-dorsales"
+          ],
+          "symptom": [
+            "también he tenido dolores de espalda baja estas semanas"
+          ],
+          "ts": "2026-09-07T07:24:40.448614+00:00"
+        }
+      }
+    }
+  ],
+  "aislamiento": {
+    "usuario_b": "otra-704339@ejemplo.co",
+    "consultas_visibles": 0,
+    "sesiones_visibles": 0
+  },
+  "sin_token_http": 401
+}

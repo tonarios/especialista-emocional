@@ -235,6 +235,33 @@ figure{margin:16px 0}
 figcaption{font-size:12px;color:var(--muted);margin-top:8px;font-style:italic}
 .chart{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:14px 0}
 
+/* ---------- Conversación ---------- */
+.chat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin:16px 0}
+.turn{margin:0 0 20px;padding-bottom:18px;border-bottom:1px dashed var(--line)}
+.turn:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.bub{border-radius:14px;padding:11px 15px;margin:6px 0;max-width:82%;font-size:13.5px;line-height:1.5}
+.bub.u{background:var(--ink);color:#f2f2f0;margin-left:auto;border-bottom-right-radius:4px}
+.bub.a{background:var(--paper2);border:1px solid var(--line);border-bottom-left-radius:4px}
+.cites{margin:7px 0 0}
+.cite{display:inline-block;font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:20px;
+  background:#fff;border:1px solid var(--line);color:var(--muted);margin:2px 3px 0 0}
+.inner{display:flex;gap:10px;flex-wrap:wrap;margin-top:9px;font-family:var(--mono);font-size:10.5px;
+  color:var(--muted);align-items:center}
+.inner b{color:var(--ink)}
+.pill{background:var(--paper2);border-radius:20px;padding:2px 9px;border:1px solid var(--line)}
+.pill.a{background:#fdf1f1;border-color:#f4c9c9;color:var(--accent2)}
+.pill.g{background:#eef8f0;border-color:#c6e6cd;color:#3f8f4f}
+.turnnote{font-size:12px;color:var(--muted);font-style:italic;margin:0 0 8px}
+
+/* ---------- Ciclo de vida ---------- */
+.life{display:grid;grid-template-columns:150px 1fr;gap:0;margin:16px 0;font-size:13px}
+.life .lb{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--accent);padding:12px 12px 12px 0;border-right:2px solid var(--line);text-align:right}
+.life .lc{padding:12px 0 12px 18px;border-left:0;position:relative}
+.life .lc::before{content:"";position:absolute;left:-6px;top:17px;width:10px;height:10px;
+  border-radius:50%;background:var(--accent);border:2px solid var(--paper)}
+.life .lr{display:contents}
+
 .flow{display:flex;align-items:stretch;gap:0;margin:18px 0;flex-wrap:wrap}
 .node{flex:1;min-width:78px;text-align:center;padding:11px 6px;border-radius:10px;
   border:1px solid var(--line);background:#fff;font-size:11.5px;line-height:1.35}
@@ -260,7 +287,7 @@ footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 """
 
 
-def build(e2e_l: dict, e2e_v: dict, smoke: dict) -> str:
+def build(e2e_l: dict, e2e_v: dict, smoke: dict, conv: dict) -> str:
     ml, mv = e2e_l["metrics"], e2e_v["metrics"]
     o = mv["overall_accuracy"]
     hoy = datetime.date.today().isoformat()
@@ -312,13 +339,200 @@ derivar. Cada etapa crítica se resuelve en el backend, y las dos primeras corta
 <p class="small">En producción: <a href="{URL_PROD}">{URL_PROD}</a></p>
 """)
 
+
+    # ── 02 Cómo funciona: una conversación real ───────────────────
+    def burbujas(t, i):
+        cites = "".join(f"<span class='cite'>{f['title']}</span>" for f in t["fuentes"])
+        pills = [f"<span class='pill'>{t['kind']}</span>"]
+        if t["risk_tier"]:
+            pills.append(f"<span class='pill'>riesgo: {t['risk_tier']}</span>")
+        pills.append(f"<span class='pill'>{len(t['fuentes'])} fuentes</span>")
+        pills.append(f"<span class='pill'>{t['latencia_s']:.1f} s</span>")
+        mem = t["memoria_despues"]
+        pills.append(f"<span class='pill g'>memoria: {mem['consultas_en_perfil']} consultas · "
+                     f"{mem['eventos_en_sesion']} eventos</span>")
+        return (f"<div class='turn'><p class='turnnote'>Turno {i} — {t['nota']}</p>"
+                f"<div class='bub u'>{t['usuario']}</div>"
+                f"<div class='bub a'>{t['respuesta']}"
+                + (f"<div class='cites'>{cites}</div>" if cites else "")
+                + f"</div><div class='inner'>{''.join(pills)}</div></div>")
+
+    turnos_html = "".join(burbujas(t, i) for i, t in enumerate(conv["turnos"], 1))
+    t3 = conv["turnos"][2]
+
+    sec("02", "Cómo funciona", "Una conversación real, turno a turno", f"""
+<p>Esta es una conversación capturada <b>en el servicio desplegado</b>, no un ejemplo
+inventado. Bajo cada respuesta se muestra lo que ocurrió por dentro: qué camino tomó el turno,
+qué citó, cuánto tardó y <b>cómo quedó la memoria después</b>.</p>
+
+<div class="chat">{turnos_html}</div>
+
+<p>Lo importante está en el tercer turno: <b>0 fuentes y {t3['latencia_s']:.1f} s</b>. No
+recuperó nada del diccionario porque no hacía falta — la pregunta era sobre el propio
+historial, y eso se responde desde la memoria del portador. Un sistema sin memoria habría
+buscado «última consulta» en el diccionario y devuelto cualquier cosa.</p>
+
+<div class="callout">
+  <h4>Y una imperfección honesta, visible en el turno 2</h4>
+  <p>La persona dijo «espalda <b>baja</b>» y el agente citó <i>parte superior (7 vértebras
+  cervicales)</i> y <i>parte central (12 dorsales)</i> — no la parte inferior. Es un fallo de
+  ranking real, del tipo que la métrica <code>multi</code> 0.667 recoge. Se deja a la vista
+  porque un reporte que solo muestra los turnos que salen bien no informa de nada.</p>
+</div>
+""")
+
+    # ── 03 Identidad y memoria ────────────────────────────────────
+    ais = conv["aislamiento"]
+    ultima = conv["turnos"][-1]["memoria_despues"]["ultima_entrada"]
+    ejemplo_perfil = json.dumps(ultima, ensure_ascii=False, indent=2)
+
+    sec("03", "Identidad y memoria", "Cómo el login sostiene todo lo demás", f"""
+<p>No hay «sesión de usuario» en el backend: hay un <b>token</b>, y de él se deriva todo. El
+correo autenticado <em>es</em> la clave de partición de cada dato del sistema.</p>
+
+<div class="life">
+  <div class="lr"><div class="lb">1 · Registro</div><div class="lc">
+    La contraseña se guarda con <b>PBKDF2-HMAC-SHA256</b> y sal por usuario. Nunca en claro.
+    Se emite un <b>JWT HS256</b> cuyo <code>sub</code> es el correo.
+    <span class="small">En la captura: HTTP {conv['registro']['http']}, token
+    <code>{conv['registro']['token_prefijo']}</code></span>
+  </div></div>
+  <div class="lr"><div class="lb">2 · Cada petición</div><div class="lc">
+    El frontend manda <code>Authorization: Bearer …</code>. El backend verifica la firma y la
+    expiración y extrae el correo. <b>Si no hay token válido, no hay dato</b>:
+    <code>/profile</code> sin cabecera responde <b>HTTP {conv['sin_token_http']}</b>.
+  </div></div>
+  <div class="lr"><div class="lb">3 · Identidad única</div><div class="lc">
+    Ese correo se usa <b>sin traducción</b> como <code>user_id</code> de ADK, como id del
+    documento de perfil en Firestore y como clave de la sesión. No hay forma de pedir los datos
+    de otro: el identificador no viaja en el cuerpo de la petición, se deriva del token firmado.
+  </div></div>
+  <div class="lr"><div class="lb">4 · Se escribe</div><div class="lc">
+    Al cerrar el turno se añade la consulta al perfil y los dos eventos (usuario y modelo) a la
+    sesión ADK. En la captura, el contador sube <b>1→2→2</b> consultas y <b>2→4→6</b> eventos.
+  </div></div>
+  <div class="lr"><div class="lb">5 · Se lee</div><div class="lc">
+    En el turno siguiente el historial se inyecta en el contexto de la síntesis, y si la
+    pregunta es sobre la propia memoria se responde directamente desde él.
+  </div></div>
+  <div class="lr"><div class="lb">6 · Se borra</div><div class="lc">
+    <code>DELETE /profile/consultations</code> vacía el historial <b>del portador y solo del
+    suyo</b>. El derecho a olvidar es parte del diseño, no un extra.
+  </div></div>
+</div>
+
+<h3>Dos memorias, con propósitos distintos</h3>
+<div class="grid2">
+  <div class="card">
+    <h4>Sesión ADK — la conversación</h4>
+    <p class="small">Los eventos de cada turno, en orden, en Firestore. Sobreviven a reinicios
+    del contenedor y a que Cloud Run escale a cero. Es lo que permite retomar un hilo.</p>
+    <p class="small"><b>Por qué en documentos separados:</b> Firestore limita cada documento a
+    1 MiB. La sesión y sus eventos van aparte, con ids secuenciales rellenados
+    (<code>000001</code>) para que el orden alfabético <i>sea</i> el cronológico y no haga falta
+    un índice compuesto.</p>
+  </div>
+  <div class="card">
+    <h4>Perfil — el historial de consultas</h4>
+    <p class="small">Una entrada por consulta con el síntoma, los términos citados y la fecha.
+    Es lo que el agente lee para personalizar y lo que responde una pregunta de memoria.</p>
+    <div class="term" style="margin-top:8px"><div class="bar"><b>última entrada del perfil</b></div>
+    <pre>{ejemplo_perfil}</pre></div>
+  </div>
+</div>
+
+<div class="callout">
+  <h4>Dónde sí va el texto del usuario, y dónde nunca</h4>
+  <p>El perfil <b>sí</b> guarda lo que la persona escribió: son sus propios datos, en su propio
+  documento, y solo alcanzables con su token — es literalmente la función que pidió. El almacén
+  <b>analítico</b> es lo contrario: ahí no entra jamás una palabra de la conversación, solo
+  slugs, niveles de riesgo y un hash con sal del correo. Son dos almacenes con dos contratos de
+  privacidad distintos, y confundirlos fue precisamente el bug de §14.</p>
+</div>
+
+<h3>El aislamiento, comprobado en la misma captura</h3>
+<p>Un segundo usuario (<code>{ais['usuario_b']}</code>) se registró justo después y consultó
+sus propios endpoints: ve <b>{ais['consultas_visibles']} consultas</b> y
+<b>{ais['sesiones_visibles']} sesiones</b>. No hay filtrado en la capa de presentación — la
+consulta a Firestore se construye con el correo del token, así que los datos ajenos nunca
+llegan a salir de la base.</p>
+""")
+
+
+    # ── 04 Anatomía de un turno ───────────────────────────────────
+    t1 = conv["turnos"][0]
+    sec("04", "Anatomía de un turno", "Qué pasa entre que escribes y respondo", f"""
+<p>Cada mensaje recorre siempre las mismas seis etapas, en el mismo orden. El modelo
+<b>no decide</b> cuáles se ejecutan: el backend las orquesta. Tomando el primer turno de la
+conversación anterior como ejemplo:</p>
+
+<div class="life">
+  <div class="lr"><div class="lb">1 · Injection</div><div class="lc">
+    <code>check_prompt_injection</code> compara contra patrones de inyección y de dominio
+    (pedir prescripción, forzar diagnóstico). Si dispara, <b>403 y se acabó</b>: el mensaje no
+    llega al modelo y queda en la auditoría.
+  </div></div>
+  <div class="lr"><div class="lb">2 · Emergencia</div><div class="lc">
+    <code>detect_emergency</code> evalúa 6 grupos de patrones deterministas
+    <b>antes de recuperar nada</b>. Si hay señal de urgencia, devuelve la derivación tal cual
+    está escrita en <code>emergency_patterns.json</code> — sin interpretación emocional y sin
+    pasar por el LLM. Es el camino de <b>56 ms</b> de §05.
+  </div></div>
+  <div class="lr"><div class="lb">3 · Síntomas</div><div class="lc">
+    Una llamada estructurada parte la consulta en frases cortas de búsqueda. Del mensaje del
+    ejemplo salió el síntoma de garganta; una consulta con dos dolencias produce dos.
+  </div></div>
+  <div class="lr"><div class="lb">4 · Recuperación</div><div class="lc">
+    Una búsqueda <b>por síntoma, en paralelo</b>. Cada una decide si hay cobertura; las que no
+    la tienen se descartan. Si ninguna la tiene, la respuesta es «sin cobertura» y no se
+    inventa nada. Aquí recuperó <b>{len(t1['fuentes'])} términos</b>.
+  </div></div>
+  <div class="lr"><div class="lb">5 · Plantilla</div><div class="lc">
+    El <b>backend</b> —no el modelo— mira el nivel de riesgo de lo recuperado y elige la
+    plantilla. Si algún término está en los 156 de riesgo elevado, la respuesta
+    <b>encabeza con la derivación médica</b>. Este turno fue
+    <code>{t1['risk_tier']}</code>, así que usó la plantilla estándar.
+  </div></div>
+  <div class="lr"><div class="lb">6 · Síntesis</div><div class="lc">
+    Una sola llamada al modelo con el contexto recuperado <b>más el historial del portador</b>.
+    El modelo devuelve la lectura y una línea <code>FUENTES: slug…</code>, que el backend
+    <b>intersecta con lo que realmente recuperó</b>: cualquier slug inventado se descarta antes
+    de llegar al usuario.
+  </div></div>
+</div>
+
+<div class="callout key">
+  <h4>Por qué determinista y no tool-calling</h4>
+  <p>ADK permite darle herramientas al modelo y dejar que decida cuándo buscar. Se probó y se
+  descartó: con un modelo local el bucle era poco fiable y no acotado, y <b>cada iteración es
+  una oportunidad de saltarse un guardarraíl</b>. Un pipeline fijo es auditable, su costo es
+  predecible y las etapas 1 y 2 son inevitables por construcción. El camino con herramientas
+  quedó implementado como alternativa, pero no es el que corre.</p>
+</div>
+
+<h3>Qué ve el usuario, y qué garantiza</h3>
+<table>
+<tr><th>En pantalla</th><th>Qué garantiza por debajo</th></tr>
+<tr><td>Los <b>chips de fuentes</b> bajo cada respuesta</td>
+    <td>Solo aparecen términos que se recuperaron de verdad. El modelo no puede citar lo que no se le dio.</td></tr>
+<tr><td>El <b>aviso fijo</b> antes del primer mensaje</td>
+    <td>La interpretación es simbólica y no sustituye a un profesional — visible antes de escribir, no en letra pequeña al pie.</td></tr>
+<tr><td>Una respuesta <b>resaltada en rojo</b> sin fuentes</td>
+    <td>Se detectó una urgencia: el mensaje nunca llegó al modelo y la derivación es literal.</td></tr>
+<tr><td>«Tu mensaje fue bloqueado por seguridad»</td>
+    <td>Saltó un guardarraíl. No se dice cuál: decir qué patrón saltó facilita evadirlo.</td></tr>
+<tr><td>«No tengo cobertura para eso»</td>
+    <td>Ningún término superó el umbral. El sistema prefiere admitirlo a inventar una lectura.</td></tr>
+</table>
+""")
+
     # ── 02 La tesis, demostrada ───────────────────────────────────
     g_lat = bars(["Emergencia\n(corta antes)", "Sin cobertura", "Respuesta completa"],
                  [56, 656, 2878], colors=["#5fbf6f", "#8a8a8a", INK],
                  title="Latencia media por tipo de turno, medida en producción (ms)",
                  fmt="{:.0f}", height=260)
 
-    sec("02", "El hallazgo", "El guardarraíl se demuestra solo", f"""
+    sec("05", "El hallazgo", "El guardarraíl se demuestra solo", f"""
 <p>La analítica de producción registra la latencia de cada turno. Al agrupar por tipo aparece
 algo que ningún test tenía que buscar:</p>
 <div class="chart">{g_lat}</div>
@@ -331,7 +545,7 @@ mecanismo no puede ser evadido porque el mensaje nunca llega al LLM.</p>
 """)
 
     # ── 03 Dominio ────────────────────────────────────────────────
-    sec("03", "Dominio y riesgo", "Por qué este dominio es distinto", """
+    sec("06", "Dominio y riesgo", "Por qué este dominio es distinto", """
 <p>El corpus es un diccionario de significados emocionales: 1.265 términos que asocian un
 síntoma físico con un conflicto emocional. Eso plantea tres riesgos que no existen en un
 chatbot cualquiera.</p>
@@ -374,7 +588,7 @@ chatbot cualquiera.</p>
         f"<td>{'<span class=ok>✓</span>' if (c/d) >= (0.85 if t=='single' else 0.90 if t=='alias' else 1.0) else 'parcial'}</td></tr>"
         for t, (a, b), (c, d), meta in RETRIEVAL)
 
-    sec("04", "Recuperación híbrida", "Cómo se decide qué es relevante", f"""
+    sec("07", "Recuperación híbrida", "Cómo se decide qué es relevante", f"""
 <p>El corpus es un diccionario, y en un diccionario <b>el título es la señal fiable</b>: la
 prosa emocional de dos términos distintos es casi idéntica, así que el embedding denso por sí
 solo no discrimina. De ahí el diseño:</p>
@@ -404,7 +618,7 @@ stemming</i> (plurales y deverbales) y stopwords. Ese match <i>es</i> el umbral.
                  title="Precisión fuera de dominio según el umbral denso (Vertex)",
                  fmt="{:.0f}", height=230, ymax=13)
 
-    sec("05", "Calibración", "Un umbral correcto que se vuelve bug", f"""
+    sec("08", "Calibración", "Un umbral correcto que se vuelve bug", f"""
 <p>La cobertura tiene un respaldo: si no hay match nominal pero el coseno denso es muy alto, se
 acepta. Ese umbral valía <code>0.70</code>, fijado con datos… <b>para <code>bge-m3</code></b>.</p>
 <p>Al migrar a Vertex, la consulta «¿qué significa emocionalmente el cuerpo?» puntuaba
@@ -431,7 +645,7 @@ calibrar recibe el valor más estricto.</p>
   <div class="node g"><div class="n">BigQuery</div>métricas<br>sin texto</div>
 </div>"""
 
-    sec("06", "Infraestructura", "37 recursos, todo como código", f"""
+    sec("09", "Infraestructura", "37 recursos, todo como código", f"""
 {arq}
 <p>Toda la infraestructura es Terraform: no se creó nada a mano en la consola. El índice FAISS
 (19 MB) va <b>horneado en la imagen</b>, así que <em>no hay servicio de vectores</em>. Y
@@ -466,7 +680,7 @@ entero del sistema: uno menos que rotar y que filtrar.</p>
                  [2700, 894, 582, 147], colors=[CORAL, "#8a8a8a", "#8a8a8a", "#5fbf6f"],
                  title="Tamaño de la imagen Docker (MB)", fmt="{:.0f}", height=230)
 
-    sec("07", "Costo", "El presupuesto se hizo antes de crear nada", f"""
+    sec("10", "Costo", "El presupuesto se hizo antes de crear nada", f"""
 <p>Los precios se consultaron y el consumo se <b>midió sobre el propio repo</b>: 3.400 tokens
 de entrada y 450 de salida por turno = <b>$0.00052</b>, o $0.52 por cada 1.000 turnos.
 Reindexar el corpus completo costó <b>$0.09</b>, una vez.</p>
@@ -519,7 +733,7 @@ que es el precio real de escalar a cero.</p>
                      "local (gemma4)", "producción (Vertex)",
                      title="Latencia por turno — escala relativa", fmt="{:.2f}")
 
-    sec("08", "Resultados", "Qué tan bien funciona", f"""
+    sec("11", "Resultados", "Qué tan bien funciona", f"""
 <p>52 preguntas derivadas del gold set, corridas por el <b>pipeline real del chat</b>. La
 verificación es <b>determinista</b>: acierta si cita el slug esperado o contiene el término.
 Sin LLM como juez. Métricas por bootstrap con seed fijo (42, 2.000 remuestreos).</p>
@@ -552,7 +766,7 @@ una síntesis cohesiva es lo más difícil, y arrastra el mismo hueco.</li>
 <li><b>El LLM no es determinista.</b> Entre corridas locales se observó 0.865–0.885. Lo
 reproducible es el <i>procedimiento</i>, no la cifra exacta.</li>
 <li><b>Buena parte del salto de multi-hop no es mérito del modelo</b>, sino de un bug corregido
-—ver §11.</li>
+—ver §14.</li>
 </ol>
 """, pbreak=True)
 
@@ -563,7 +777,7 @@ reproducible es el <i>procedimiento</i>, no la cifra exacta.</li>
                     colors=[CORAL, INK, INK, CORAL, "#8a8a8a", "#8a8a8a", "#8a8a8a"],
                     title="260 tests por área", fmt="{:.0f}", row_h=26)
 
-    sec("09", "Seguridad verificada", "Tests que pueden fallar", f"""
+    sec("12", "Seguridad verificada", "Tests que pueden fallar", f"""
 <div class="chart">{g_tests}</div>
 <p class="small">253 passed + 7 skipped. Los saltados necesitan un Postgres alcanzable desde el
 host y cubren aislamiento, persistencia y borrado en el backend local.</p>
@@ -610,7 +824,7 @@ host y cubren aislamiento, persistencia y borrado en el backend local.</p>
         f"<td class='{'ok' if c['ok'] else 'bad'}'>{'✓' if c['ok'] else '✗'}</td>"
         f"<td class='small'>{c['detalle']}</td></tr>" for c in smoke["casos"])
 
-    sec("10", "Evidencia", f"Pruebas de uso en producción — {smoke['ok']}/{smoke['total']}", f"""
+    sec("13", "Evidencia", f"Pruebas de uso en producción — {smoke['ok']}/{smoke['total']}", f"""
 <p>Ejecutadas contra el servicio vivo con <code>scripts/prod_smoke.py</code>. <b>Cada caso
 lleva su aserción</b>: si una falla, la corrida falla. La evidencia no puede decir «OK» sin
 haberlo comprobado.</p>
@@ -651,7 +865,7 @@ correo.</p>
 """, pbreak=True)
 
     # ── 11 Lo que falló ───────────────────────────────────────────
-    sec("11", "Postmortem", "Lo que solo apareció al desplegar", f"""
+    sec("14", "Postmortem", "Lo que solo apareció al desplegar", f"""
 <p>El despliegue real destapó cuatro cosas que ninguna suite local había detectado. Vale la
 pena contarlas: son el resultado más útil del proyecto.</p>
 
@@ -688,7 +902,7 @@ esté desconectado. Ahora hay tests que corren el <b>pipeline completo</b> y exi
 """)
 
     # ── 12 Cierre ─────────────────────────────────────────────────
-    sec("12", "Cierre", "Deuda abierta y cómo reproducirlo", f"""
+    sec("15", "Cierre", "Deuda abierta y cómo reproducirlo", f"""
 <h3>Lo que queda abierto, declarado</h3>
 <ul>
 <li><b>Sinonimia coloquial</b> ausente del fichero de alias, congelado desde el inicio.
@@ -764,9 +978,10 @@ def main() -> int:
     e2e_l = _json(EV / "e2e_results.json")
     e2e_v = _json(EV / "e2e_results_vertex.json")
     smoke = _json(EV / "prod_smoke.json")
+    conv = _json(EV / "conversacion.json")
 
     html_path = OUT / "reporte-final.html"
-    html_path.write_text(build(e2e_l, e2e_v, smoke), encoding="utf-8")
+    html_path.write_text(build(e2e_l, e2e_v, smoke, conv), encoding="utf-8")
     print(f"[final-report] {html_path} ({html_path.stat().st_size / 1024:.0f} KB)")
 
     pdf_path = OUT / "reporte-final.pdf"
