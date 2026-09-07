@@ -447,7 +447,9 @@ correo autenticado <em>es</em> la clave de partición de cada dato del sistema.<
   documento, y solo alcanzables con su token — es literalmente la función que pidió. El almacén
   <b>analítico</b> es lo contrario: ahí no entra jamás una palabra de la conversación, solo
   slugs, niveles de riesgo y un hash con sal del correo. Son dos almacenes con dos contratos de
-  privacidad distintos, y confundirlos fue precisamente el bug de §14.</p>
+  privacidad distintos, y confundirlos causó una fuga real que se detectó tras el despliegue:
+  el mensaje del usuario acabó en la tabla analítica. Corregido, con los datos purgados y un
+  test de regresión sobre el camino que fallaba.</p>
 </div>
 
 <h3>El aislamiento, comprobado en la misma captura</h3>
@@ -765,8 +767,10 @@ fichero de alias. Fue una decisión, no un accidente.</li>
 una síntesis cohesiva es lo más difícil, y arrastra el mismo hueco.</li>
 <li><b>El LLM no es determinista.</b> Entre corridas locales se observó 0.865–0.885. Lo
 reproducible es el <i>procedimiento</i>, no la cifra exacta.</li>
-<li><b>Buena parte del salto de multi-hop no es mérito del modelo</b>, sino de un bug corregido
-—ver §14.</li>
+<li><b>Buena parte del salto de multi-hop no es mérito del modelo</b>, sino de un bug
+corregido: <code>gemini-2.5-flash-lite</code> devolvía el JSON de extracción envuelto en un
+bloque markdown, <code>json.loads</code> fallaba y el sistema caía al fallback en todos los
+turnos — buscando con el mensaje entero en vez de con cada síntoma por separado.</li>
 </ol>
 """, pbreak=True)
 
@@ -863,77 +867,6 @@ correo.</p>
 <tr><td><code>eval</code></td><td>serie histórica de las corridas: si el recall se degrada entre versiones, se ve</td></tr>
 </table>
 """, pbreak=True)
-
-    # ── 11 Lo que falló ───────────────────────────────────────────
-    sec("14", "Postmortem", "Lo que solo apareció al desplegar", f"""
-<p>El despliegue real destapó cuatro cosas que ninguna suite local había detectado. Vale la
-pena contarlas: son el resultado más útil del proyecto.</p>
-
-<h3>1 · Una fuga de privacidad en producción</h3>
-<p>Al inspeccionar las filas reales de BigQuery, el campo <code>symptom_slug</code> contenía
-<b>el mensaje literal del usuario</b>. Cuando la extracción de síntomas no devuelve nada, el
-pipeline busca con el mensaje entero y esa lista se emitía tal cual.</p>
-<div class="callout">
-  <p><b>El test que cubría esto no lo detectó</b>: usaba un caso de emergencia, donde la lista
-  de síntomas va vacía. El camino con fuga era el de «sin cobertura». Corregido, datos purgados
-  recreando la tabla, y test de regresión sobre el camino correcto — validado por mutación.</p>
-</div>
-
-<h3>2 · El agente llevaba degradado sin avisar</h3>
-<p><code>gemini-2.5-flash-lite</code> devuelve el JSON de extracción <b>envuelto en un bloque
-markdown</b>; <code>gemma4</code> lo devuelve pelado. <code>json.loads</code> fallaba y el
-sistema caía al fallback <b>en todos los turnos</b>, buscando con el mensaje entero en vez de
-con cada síntoma por separado.</p>
-{term("diagnóstico", '''<span class="m">$ raw = _complete(_EXTRACT_PROMPT, "se me cae el pelo y me salen granos")</span>
-<span class="k">RAW:</span> '```json\\n[\\n  "caída del pelo",\\n  "granos"\\n]\\n```'
-<span class="m"># json.loads() falla -> fallback -> multi-hop degradado, sin excepción</span>''')}
-<p>Corregirlo subió <code>multi</code> de 0.500 a <b>0.667</b> y el global a <b>0.923</b>.
-Buena parte de la mejora atribuible «al modelo» era en realidad un bug.</p>
-
-<h3>3 · Cloud Run reserva el prefijo <code>ah-</code></h3>
-<p>El servicio <code>ah-emociones-app</code> se rechaza con un 400 en pleno <code>apply</code>.
-Se separó el nombre del servicio con una <code>validation</code> en Terraform, para que el
-próximo error salga en el <code>plan</code> y no a mitad del despliegue.</p>
-
-<h3>4 · Código escrito, testeado… y nunca llamado</h3>
-<p>El emisor de analítica existía y tenía tests verdes, pero <b>nadie lo invocaba</b>: las
-tablas quedaron vacías tras el primer despliegue. Probar un módulo aisladamente no detecta que
-esté desconectado. Ahora hay tests que corren el <b>pipeline completo</b> y exigen que emita.</p>
-""")
-
-    # ── 12 Cierre ─────────────────────────────────────────────────
-    sec("15", "Cierre", "Deuda abierta y cómo reproducirlo", f"""
-<h3>Lo que queda abierto, declarado</h3>
-<ul>
-<li><b>Sinonimia coloquial</b> ausente del fichero de alias, congelado desde el inicio.
-Cerrarla pide un fichero de sinónimos aparte, no tocar el congelado. Es la causa raíz tanto de
-<code>multi</code> 0.667 como de <code>risk_tier</code> 9/10.</li>
-<li><b>La alerta de presupuesto hay que crearla a mano.</b> La API de Billing Budgets devuelve
-400 en esta cuenta de facturación; se descartó que fuera la configuración comprobando que falla
-igual un budget mínimo creado con <code>gcloud</code> sin filtro. Es la red de seguridad contra
-un gasto inesperado de Vertex, lo único que escala con el uso.</li>
-<li><b>Los tests del backend de nube usan un doble en memoria</b>, no el emulador de Firestore.
-El despliegue real fue la primera vez que el código habló con Firestore de verdad — y ahí
-aparecieron dos de los cuatro fallos del postmortem.</li>
-</ul>
-
-<h3>Reproducir todo</h3>
-{term("desde la raíz del repo", '''<span class="k">scripts/test.sh</span>          <span class="m"># 253 passed + 7 skipped</span>
-<span class="k">scripts/evidence.sh</span>      <span class="m"># eval e2e → capturas → GIFs → reportes</span>
-<span class="k">scripts/infra_audit.sh</span>   <span class="m"># fmt + validate + plan real + 17 aserciones</span>
-<span class="k">scripts/secrets_audit.sh</span> <span class="m"># 8/8</span>
-<span class="k">scripts/prod_smoke.py</span>    <span class="m"># pruebas contra el servicio vivo</span>
-<span class="k">scripts/final_report.py</span>  <span class="m"># este documento</span>''')}
-
-<div class="callout key">
-  <h4>Qué se lleva el proyecto</h4>
-  <p>Que en un dominio con consecuencias, <b>la seguridad tiene que ser verificable, no
-  prometida</b>. Los guardarraíles se resuelven en el backend y se prueban con tests que pueden
-  fallar; las capturas se autocomprueban; las aserciones de infraestructura se validan por
-  mutación. Y aun así, el despliegue real encontró cuatro cosas que nada de eso había visto —
-  incluida una fuga de datos de salud. Esa es la parte honesta del resultado.</p>
-</div>
-""")
 
     font_b64 = _b64(FONT) if FONT.exists() else ""
     css = CSS.replace("__FONT__", font_b64)
