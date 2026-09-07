@@ -3,7 +3,13 @@
 .env
 .env.*
 *.env
+# El corpus (22 MB de .md) no entra: en runtime solo se usa el índice ya
+# construido, que sí se hornea (§12, para no necesitar servicio de vectores).
 data
+!data/index
+!data/index-vertex
+# La caché de embeddings (20 MB) es un artefacto de construcción.
+data/index*/.embeddings_cache.json
 outputs
 docs
 harness

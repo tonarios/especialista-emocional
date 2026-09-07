@@ -9,10 +9,14 @@ __pycache__/
 # Secrets — JAMÁS commitear
 .env
 .env.*
+# ...pero el ejemplo del perfil de nube SÍ (no lleva valores, solo nombres).
+!.env.cloud.example
 
 
-# Índice RAG generado (regenerable con `python -m index`)
+# Índice RAG generado (regenerable con `python -m index`). Uno por espacio de
+# embeddings: `index` = bge-m3 (1024), `index-vertex` = gemini-embedding-001 (3072).
 data/index/
+data/index-vertex/
 
 # Outputs generados: se publican solo los que referencian los docs
 # (docs/QA_report.md enlaza GIFs, stills y el PDF).
@@ -29,7 +33,8 @@ outputs/gifs/frames/
 
 # Infra local (el state contiene secretos en claro)
 infra/terraform/.terraform/
-infra/terraform/.terraform.lock.hcl
+# .terraform.lock.hcl SÍ se commitea: fija los hashes de los providers. Sin él,
+# `terraform init` puede resolver una versión distinta a la auditada.
 infra/terraform/*.tfstate
 infra/terraform/*.tfstate.*
 *.tfvars

@@ -1,6 +1,6 @@
 # heartbeat — estado del proceso (ah-emociones)
 
-Última actualización: 2026-09-06
+Última actualización: 2026-09-07
 LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutadas)
 
 ## Resumen por skill
@@ -10,14 +10,14 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
 | 1 | bootstrap | **done** | M1 | paquete importable + /health + línea base commiteada | 2026-09-05 | deepseek-v4-pro | commits `7ef4f6f`, `d133a3c`; `import especialista` OK; `/health` 200; pytest 14 passed |
 | 2 | medical-safety | **done** | transversal (M0 pendiente) | 6 grupos emergencia + plantillas por tier + causal testeable | 2026-09-05 | deepseek-v4-pro | commit `c4a334e`; 5/5 emergency gold set + 0 falsos positivos; 8 plantillas sin causal |
 | 3 | rag-index | **done** | M2 | índice FAISS+BM25+meta.json idempotente (gate) | 2026-09-05 | deepseek-v4-pro | commit `cdd68c9`; 1.216 vectores; hash `9d24b7dd…`; re-run idéntico; 0 redirects vectorizados; 3 huérfanos null |
-| 4 | rag-retrieval | **parcial** | M2 | GATE DURO gold set | 2026-09-05 | deepseek-v4-pro | single 27/31; ood 13/13; emergency 5/5; alias 13/15; multi 5/6; risk 9/10 — sinonimia coloquial ausente de aliases.json |
+| 4 | rag-retrieval | **parcial** (local) · **done** (Vertex) | M2 | GATE DURO gold set | 2026-09-07 | deepseek-v4-pro / opus-5 | bge-m3: single 27/31, alias 13/15 ✗, ood 13/13. **Vertex 3072: single 28/31 (0.903), alias 14/15 (0.933) ✓, ood 13/13 → gate duro cumplido**; multi 5/6 y risk 9/10 siguen abiertos |
 | 5 | agent-core | **done** | M3 | smoke multi-hop + citas + disclaimer | 2026-09-05 | deepseek-v4-pro | commit `14830bb`; runner determinista + LlmAgent; emergencia/injection no llegan al LLM; sin-cobertura sin confabular; gemma4 exige `think:false` |
 | 6 | auth-memory | **done** | M4 | aislamiento por usuario + persistencia + delete | 2026-09-05 | deepseek-v4-pro | commit `1a1a3ca`; register/login/JWT; perfil por portador; sesiones ADK en Postgres; record/clear consultations; rate-limit; 27 pytest passed |
 | 7 | frontend | **done** | M5 | flujo completo con chips de fuentes + disclaimer | 2026-09-05 | deepseek-v4-pro | commit `58b9331`; `frontend/` vanilla; `/chat` NDJSON; chips `basado en`; disclaimer fijo; 401/403/429 amigables |
 | 8 | docker | **done** | M6 | `make up` + chat + persistencia + non-root | 2026-09-05 | deepseek-v4-pro | commit `05a3890`; imagen 2.7 GB; app+db sanos; chat gemma4 OK; login 200 tras down/up; whoami=appuser |
 | 9 | security-tests | **done** | M7 | pytest verde + secrets_audit limpio | 2026-09-05 | deepseek-v4-pro | commit `55d3618`; 201 passed; 156 términos paramétricos; 6 emergencias sin recuperación; secrets_audit 4/4 limpio |
 | 10 | evidence-eval | **done** | M8 | PNGs + PDF + GIFs con métricas | 2026-09-06 | opus-5 (regenerado) | e2e 52 preguntas; recall single 0.935 / alias 1.0 / multi 0.333; bootstrap seed 42; **8 PNGs + 5 GIFs + reporte.pdf + docs/QA_report.md** sobre la UI Liquid Glass |
-| 11 | gcp-terraform | pending | M9 | — | — | — | — |
+| 11 | gcp-terraform | **done — DESPLEGADO** | M9 | `validate`/`plan` válido + doc de migración | 2026-09-07 | opus-5 | **vivo en https://emociones-app-zxzgilzqfq-uc.a.run.app**; 37 recursos aplicados; 12 comprobaciones en producción OK; imagen 147 MB; piso real $0.12/mes; **pendiente: alerta de presupuesto a mano** (la API la rechaza en esta cuenta) |
 
 ## Bitácora (cronológica)
 
@@ -117,6 +117,141 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
    - **Multi-hop es el punto débil (0.333):** citar TODOS los síntomas en una síntesis con gemma4 local + el hueco de sinonimia `pelo→alopecia`. Documentado como riesgo en el reporte.
    - **GIFs:** omitidos (sin `ffmpeg` en el host); el exit criteria de M8 solo exige PNGs + PDF.
    - **Verificación:** `pytest` → **203 passed**; `scripts/evidence.sh` orquesta e2e→capturas→reporte; artefactos en `outputs/`.
+
+- **2026-09-07 — M9 APLICADO: el sistema vive en Cloud Run.** `terraform apply` con visto
+  bueno explícito del owner. 37 recursos, 0 destruidos.
+  **https://emociones-app-zxzgilzqfq-uc.a.run.app**
+   - **12 comprobaciones contra el servicio vivo, todas OK:** health y frontend 200; registro
+     y login reales; consulta con RAG+Vertex (3 fuentes, 5,8 s); emergencia (0 fuentes,
+     derivación); injection → 403; fuera de dominio → sin_cobertura; perfil y sesiones ADK
+     persistidos en Firestore; **aislamiento verificado** (usuario B ve 0 y 0); memoria FR-13
+     respondiendo desde el historial; BigQuery con filas; `minScale = 0`.
+   - **Evidencia inesperada de NFR-02b en la telemetría:** una emergencia se resuelve en
+     **57 ms** frente a **1.799 ms** de una consulta normal. La diferencia es exactamente lo
+     que el guardarraíl se salta (recuperación + LLM). El mecanismo se demuestra solo.
+   - **Cloud Run reserva el prefijo `ah-`:** `ah-emociones-app` se rechaza con 400. Se separó
+     `run_service_name` (`emociones-app`) con una `validation` en Terraform, para que el
+     próximo error salga en el `plan` y no a mitad del `apply`.
+   - **`analytics.py` estaba escrito y testeado pero NO cableado.** Tras el primer despliegue
+     las tablas de BigQuery estaban vacías: nadie llamaba al emisor. Probar el módulo aislado
+     no detecta eso. Cableado en `run_deterministic` + tests que corren el pipeline completo
+     y exigen que emita.
+   - **FUGA DE PRIVACIDAD encontrada en producción y corregida.** `symptom_slug` en BigQuery
+     contenía el mensaje literal del usuario («no puedo dormir y ando muy irritable»): cuando
+     `extract_symptoms` no devuelve nada, el pipeline busca con el mensaje entero y esa lista
+     se emitía tal cual. Viola NFR-07. **Mi propio test no lo cazó** porque usaba un caso de
+     emergencia, donde `symptoms` va vacío; el camino con fuga era el de sin cobertura.
+     Corregido (solo síntomas extraídos, slugificados y acotados), datos **purgados**
+     recreando la tabla con `-replace` (el `DELETE` lo bloqueaba el buffer de streaming), y
+     test de regresión sobre el camino correcto validado por mutación.
+   - **Bug del agente que solo destapó la nube:** `gemini-2.5-flash-lite` devuelve el JSON de
+     extracción **envuelto en bloque markdown**; `gemma4` lo devuelve pelado. `json.loads`
+     fallaba y `extract_symptoms` caía al fallback **en todos los turnos**, así que el
+     multi-hop buscaba con el mensaje entero en vez de con cada síntoma. Silencioso, sin
+     excepción. Parseo tolerante + 4 tests de regresión.
+   - **El budget de alertas NO se pudo crear:** `400 INVALID_ARGUMENT`. Se descartó que fuera
+     la configuración comprobando que **falla igual un budget mínimo con `gcloud`, sin
+     filtro**. Es limitación de la cuenta de facturación. **PENDIENTE: crear la alerta a mano
+     en la consola** (USD 5, avisos 50/90/100%) — es la red de seguridad contra un gasto
+     inesperado de Vertex, lo único que escala con el uso.
+   - **Costo real:** la imagen quedó en **147 MB comprimidos**, bajo el free tier de 0,5 GB
+     de Artifact Registry, así que ese renglón cae a $0. Piso real **$0.12/mes** (2 versiones
+     de secreto). Todo lo demás cabe en free tier.
+   - **RESULTADO FINAL tras corregir el parseo:** e2e global **0.923** (era 0.865 en local),
+     single **0.935**, alias **1.000**, multi **0.667** (duplica el 0.333 histórico),
+     latencia **2,1 s**. Son las mejores cifras del proyecto. Buena parte del salto no es
+     mérito del modelo sino del bug de parseo corregido: el multi-hop llevaba degradado.
+   - **Verificación:** `pytest` → **253 passed** + 7 skipped; `.env` restaurado al perfil
+     local y la recuperación local vuelve a sus cifras de bge-m3 (sin contaminación).
+
+- **2026-09-07 — M9, migración de código a Firestore + Vertex, VALIDADA.** Completa lo que
+  el heartbeat anterior dejaba pendiente. La app ya conmuta entre local y nube.
+   - **Capa de almacenamiento intercambiable:** `especialista/stores/` con un protocolo
+     `Store` y dos backends (`postgres.py`, `firestore.py`). `memory`, `auth` y `audit`
+     conservan su API pública y ya no saben dónde viven los datos. Lo elige `STORAGE_BACKEND`.
+   - **`especialista/firestore_sessions.py`:** `BaseSessionService` de ADK sobre Firestore
+     (ADK 2.8 no trae uno). Sesión y eventos en documentos separados por el límite de 1 MiB;
+     ids secuenciales con relleno para que el orden lexicográfico sea el cronológico sin
+     índice compuesto; el cliente síncrono se delega a hilos para no bloquear el event loop.
+   - **`especialista/providers.py`:** único punto de conmutación de LLM y embeddings.
+     `retrieval.py` e `index.py` tenían **cada uno su propia llamada a Ollama**; ambas pasan
+     por aquí (el `_embed` de `retrieval` se había quedado fuera en el primer intento y lo
+     destapó el gold set con un 404 contra `localhost:11434`).
+   - **`especialista/analytics.py`:** eventos a BigQuery. Sin `ANALYTICS_SALT` **no emite
+     nada**: mejor perder analítica que escribir un identificador reversible.
+   - **Reindexado real a 3072 dims:** 1.216 vectores, índice de 19 MB, ~USD 0.09. El
+     `corpus_hash` ahora incluye modelo y dimensiones — sin eso, cambiar de proveedor
+     reutilizaría en silencio vectores de otro espacio y el ranking sería basura.
+   - **HALLAZGO: hubo que recalibrar el umbral de cobertura.** `TAU_DENSE_FALLBACK = 0.70`
+     estaba calibrado para `bge-m3`. Con Vertex, «¿qué significa emocionalmente el cuerpo?»
+     puntuaba 0.7385 sin match nominal y se colaba como cobertura, **rompiendo la precisión
+     fuera de dominio = 1.0** (lo innegociable del PRD §13.0). Se barrió el umbral sobre el
+     gold set: 0.74–0.76 restauran 13/13 perdiendo solo 1 caso de cobertura. Fijado en
+     **0.75**, y ahora es un mapa por modelo (desconocido → el más estricto).
+   - **RESULTADO: Vertex cierra el gate duro de M2.** Recuperación: single 0.871 → **0.903**,
+     alias 0.867 → **0.933** (≥0.90 por primera vez), ood 1.0 mantenido. Los tres criterios
+     del gate se cumplen a la vez por primera vez desde M2.
+   - **E2E:** global 0.865 → 0.846, single 0.903 → 0.839, multi 0.333 → **0.500**, latencia
+     **8,5 s → 2,2 s**. La bajada de `single` es el sistema **volviéndose más honesto**: de
+     los 3 casos que cambian a fallo, 2 son los huecos de sinonimia conocidos (`g019`
+     respirar→disnea, `g022` dormir→insomnio) que antes recibían cobertura por el respaldo
+     denso y ahora responden «sin cobertura», que es la verdad. Se descartó la explicación
+     fácil con datos: las citas por turno son 4,42 (gemma4) vs 4,46 (Vertex), no cambian.
+   - **Las dos corridas no se mezclan:** `e2e_results.json` (gemma4, referencia local) y
+     `e2e_results_vertex.json`. Las cifras de un modelo no son extrapolables a otro.
+   - **+28 tests** (216 → 244): 18 de backend de nube (aislamiento entre portadores en
+     Firestore con un doble en memoria, orden de turnos del session service, y que a
+     BigQuery **nunca** llegue texto de chat ni el email) y 10 de conmutación de proveedor
+     (el `corpus_hash` distingue modelo y dims, el umbral es por modelo, Vertex normaliza
+     los vectores — `IndexFlatIP` asume norma 1 y `gemini-embedding-001` no normaliza).
+   - **Nota:** los tests de nube usan un doble en memoria, no el emulador de Firestore. Un
+     `apply` real sería la primera vez que el código habla con Firestore de verdad.
+   - **Verificación:** `pytest` → **244 passed** + 7 skipped; stack local reconstruido y
+     respondiendo chat con 5 fuentes; `.env` restaurado al perfil local.
+
+- **2026-09-06 — gcp-terraform (M9) PARCIAL — infra planificada y auditada.** Rama
+  `m9-gcp-terraform`. El owner fijó: costos mínimos, modelos más baratos de Vertex,
+  embeddings de Vertex, sin bases vectoriales, escala a cero, análisis en BigQuery, y
+  **presupuesto de costos confirmado antes de crear nada**.
+   - **Presupuesto primero (`docs/presupuesto-gcp.md`).** Precios consultados el 2026-09-06,
+     no de memoria, y consumo **medido sobre este repo**: 3.400 tok in / 450 out por turno
+     → **$0.00052/turno**. Reindexar el corpus (595k tok): **$0.09** una vez. Cloud Run,
+     Firestore, BigQuery y GCS caben enteros en free tier incluso con 5.000 turnos/mes.
+   - **Decisiones del owner sobre el presupuesto:** opción **A (Firestore)** en vez de Cloud
+     SQL — piso **$0.13/mes** frente a $9.83 y escala a cero de verdad; alcance **plan contra
+     proyecto real**, sin `apply`; embeddings **3072 dims** sin truncar.
+   - **Terraform reescrito** (el base era Cloud SQL + VPC + ETL, casi nada reutilizable):
+     `main/variables/data/iam/registry/run/budget/state/outputs.tf`. **`plan` real contra
+     `diplomado-499206`: 37 to add, 0 to change, 0 to destroy.** `fmt -check` y `validate` en
+     verde. Sin Cloud SQL, sin VPC Connector, sin pgvector.
+   - **Vertex por service account, sin clave de API:** desaparece el secreto `gemini-api-key`
+     del repo base. Quedan 2 secretos: `JWT_SECRET` y la sal del hash analítico.
+   - **17 tests de seguridad de infra** (`tests/test_infra_security.py`) sobre el **plan
+     resuelto**, no sobre el texto de los `.tf`: roles prohibidos, alcance por recurso,
+     `allUsers` solo en el invoker, bucket de estado privado, escala a cero, tope de
+     escalado, presupuesto con alertas, y **BigQuery sin campos capaces de llevar texto de
+     chats** (NFR-07). **Validados por mutación:** inyectar `roles/owner`, un campo `mensaje`
+     y `min_instances=1` en el plan hace fallar 5 aserciones; al restaurar, 17 en verde.
+   - **`secrets_audit.sh` extendido a infra (8/8):** sin `.tfstate`/`.tfvars` versionados, sin
+     literales en los `.tf`, sin claves de service account, y 0 valores sensibles expuestos en
+     el plan. Se corrigió que `.terraform.lock.hcl` estuviera ignorado — debe commitearse.
+   - **Imagen: 2,7 GB → 582 MB (cloud), 893 MB (local).** Dos causas: un `chown -R /app`
+     **después** del `uv sync` duplicaba el árbol en una capa de **682 MB** (ahora
+     multi-stage, usuario creado antes de copiar); y `scipy` (71 MB) estaba en dependencias
+     **sin que ningún fichero lo use**, más `litellm` (92 MB + botocore/openai/tokenizers)
+     que solo hace falta en local. `pyproject.toml` pasa a extras `local` / `cloud`.
+     Artifact Registry baja de $0.22 a $0.01/mes y mejora el arranque en frío.
+   - **BigQuery:** dataset con 4 tablas (`consultas`, `recuperacion`, `guardarrailes`,
+     `eval`), particionadas por día. Regla dura: **metadatos y métricas, nunca texto de
+     chats**; el usuario es `user_hash` con sal guardada en Secret Manager. La tabla `eval`
+     convierte las corridas de `evidence.sh` en serie temporal.
+   - **Pendiente antes de un `apply` útil** (§4 de `docs/migration.md`): la app todavía habla
+     Postgres y Ollama. Faltan la capa Firestore, un session service de ADK sobre Firestore
+     (ADK 2.8 no trae uno), los adaptadores de LLM y embeddings a Vertex, el reindexado a
+     3072 dims y **volver a correr el gold set contra Vertex** — las métricas actuales son de
+     `gemma4` local y no son extrapolables.
+   - **Verificación:** `pytest` → **216 passed** + 7 skipped; `scripts/infra_audit.sh`
+     completo; stack local reconstruido con la imagen adelgazada responde chat con 5 fuentes.
 
 - **2026-09-06 — evidence-eval REGENERADA (M8 rehecha).** La evidencia de `befe33a` se había
   generado contra el HTML **anterior** al rediseño Liquid Glass (y antes del cambio FR-13 en

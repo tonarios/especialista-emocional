@@ -28,7 +28,6 @@ import unicodedata
 from pathlib import Path
 
 import faiss
-import httpx
 import numpy as np
 
 from especialista.config import ROOT, settings
@@ -51,10 +50,28 @@ RRF_K = 60          # constante RRF (>= 60, convención)
 DENSE_TOP = 120     # candidatos densos a fusionar
 LEX_TOP = 120       # candidatos léxicos a fusionar
 BIG_LEX = 1000.0    # separa niveles de fuerza de match en el ranking compuesto
-TAU_DENSE_FALLBACK = 0.70  # coseno denso mínimo para "cobertura" sin match nominal
+
+# Coseno denso mínimo para declarar "cobertura" SIN match nominal (FR-09b).
+#
+# Depende del modelo: cada espacio de embeddings tiene su propia distribución de
+# similitud, así que un umbral calibrado para uno es incorrecto para otro. Ambos
+# valores se fijaron con `eval/gold_set.json` barriendo el umbral y quedándose
+# con el más bajo que conserva **precisión fuera de dominio = 1.0** (§13.0: en
+# salud, un falso positivo es peor que un fallo de recall).
+#
+#   bge-m3 (1024):              0.70  -> OOD 13/13
+#   gemini-embedding-001 (3072): 0.75  -> OOD 13/13 (con 0.70 daba 12/13:
+#                                        «¿qué significa emocionalmente el
+#                                        cuerpo?» puntuaba 0.7385 sin match
+#                                        nominal y se colaba como cobertura)
+_TAU_DENSE_BY_MODEL = {
+    "bge-m3": 0.70,
+    "gemini-embedding-001": 0.75,
+}
+_TAU_DENSE_DEFAULT = 0.75  # ante un modelo desconocido, el umbral más estricto
 
 EMBED_MODEL = settings.embed_model
-OLLAMA_EMBED_URL = settings.ollama_base_url.rstrip("/") + "/api/embed"
+TAU_DENSE_FALLBACK = _TAU_DENSE_BY_MODEL.get(EMBED_MODEL, _TAU_DENSE_DEFAULT)
 
 
 # ── Normalización ─────────────────────────────────────────────────
@@ -108,18 +125,19 @@ def _aliases() -> dict:
 
 
 def _embed(texts: list[str]) -> np.ndarray:
+    """Embebe la consulta con el MISMO proveedor que construyó el índice.
+
+    Crítico: un vector de `bge-m3` (1024 dims) y uno de `gemini-embedding-001`
+    (3072) no son comparables. `providers` es el único punto que decide cuál se
+    usa, y el `corpus_hash` incluye modelo y dimensiones para que un índice
+    construido con otro proveedor se detecte como obsoleto.
+    """
+    from especialista import providers
+
     out: list[np.ndarray] = []
     batch = 32
     for start in range(0, len(texts), batch):
-        chunk = texts[start : start + batch]
-        r = httpx.post(
-            OLLAMA_EMBED_URL,
-            json={"model": EMBED_MODEL, "input": chunk},
-            timeout=180,
-        )
-        r.raise_for_status()
-        for emb in r.json()["embeddings"]:
-            out.append(np.asarray(emb, dtype=np.float32))
+        out.extend(providers.embed(texts[start : start + batch]))
     return np.vstack(out)
 
 

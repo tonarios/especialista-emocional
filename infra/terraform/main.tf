@@ -1,16 +1,21 @@
-# Infraestructura GCP del tutor — proyecto cohort-fundador
+# ah-emociones — infraestructura GCP mínima (M9)
 #
-# Componentes:
-#   - Artifact Registry      : imágenes docker (app single-container + ETL)
-#   - Cloud SQL PostgreSQL   : instancia MÍNIMA, SOLO IP privada (sin IP pública,
-#                              sin authorized networks) -> solo alcanzable por
-#                              Cloud Run vía la conexión de servicios privados.
-#   - Secret Manager         : gemini-api-key, db-password, jwt-signing-key.
-#   - Cloud Run              : un solo servicio (front+back) con los secretos
-#                              montados como env var (nunca en la imagen).
-#   - BigQuery               : dataset de analítica alimentado por el job ETL.
+# Arquitectura elegida por el owner (ver docs/presupuesto-gcp.md, opción A):
+#   - Cloud Run          : contenedor único back+front, ESCALA A CERO
+#   - Firestore (Native) : auth, perfiles, sesiones ADK y auditoría
+#   - Vertex AI          : gemini-2.5-flash-lite (LLM) + gemini-embedding-001
+#   - BigQuery           : analítica de métricas y metadatos (NUNCA texto de chats)
+#   - Artifact Registry  : imagen docker, con política de limpieza
+#   - Secret Manager     : JWT_SECRET (único secreto; Vertex va por service account)
+#   - GCS                : estado remoto de Terraform
+#   - Billing budget     : alerta de gasto, la red de seguridad de todo lo anterior
 #
-# NO aplicar hasta tener el visto bueno. Ver infra/terraform/README.md.
+# Deliberadamente NO hay: Cloud SQL, VPC Connector, pgvector, ni servicio de
+# vectores. El índice FAISS (~15 MB con 3072 dims) va horneado en la imagen.
+#
+# Piso de costo con cero uso: ~USD 0.28/mes. Ver docs/presupuesto-gcp.md.
+#
+# NO aplicar sin visto bueno explícito del owner (política heredada del repo base).
 
 terraform {
   required_version = ">= 1.6"
@@ -31,17 +36,42 @@ provider "google" {
   region  = var.region
 }
 
-variable "project_id" {
-  type    = string
-  default = "cohort-fundador"
+# Alias solo para Billing Budgets. Esa API exige un "quota project" explícito y,
+# con Application Default Credentials de usuario, el provider por defecto no lo
+# envía: falla con SERVICE_DISABLED aunque la API esté habilitada.
+# `user_project_override` hace que la cuota se impute a nuestro proyecto.
+# Se aísla en un alias para no cambiar el comportamiento del resto de recursos.
+provider "google" {
+  alias                 = "billing"
+  project               = var.project_id
+  region                = var.region
+  billing_project       = var.project_id
+  user_project_override = true
 }
 
-variable "region" {
-  type    = string
-  default = "europe-west1"
+# ── APIs necesarias ────────────────────────────────────────────────────────
+# Ya activas en el proyecto: aiplatform, bigquery, storage.
+# `disable_on_destroy = false`: apagar una API al destruir puede romper otros
+# recursos del proyecto que la compartan.
+resource "google_project_service" "services" {
+  for_each = toset([
+    "run.googleapis.com",
+    "firestore.googleapis.com",
+    "aiplatform.googleapis.com",
+    "bigquery.googleapis.com",
+    "artifactregistry.googleapis.com",
+    "secretmanager.googleapis.com",
+    "storage.googleapis.com",
+    "cloudbilling.googleapis.com",
+    "billingbudgets.googleapis.com",
+  ])
+  project            = var.project_id
+  service            = each.value
+  disable_on_destroy = false
 }
 
-variable "gemini_api_key" {
-  type      = string
-  sensitive = true # pasar con TF_VAR_gemini_api_key (nunca en código)
+# El número del proyecto: la API de Billing Budgets identifica los proyectos por
+# número, no por id (con "projects/<id>" devuelve 400 invalid argument).
+data "google_project" "this" {
+  project_id = var.project_id
 }

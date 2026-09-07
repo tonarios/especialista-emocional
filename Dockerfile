@@ -1,23 +1,59 @@
-# Single container: FastAPI backend (especialista ADK con RAG + memoria) + frontend vanilla
-# Hardened: non-root, solo copia lo necesario, NUNCA incluye .env ni secretos.
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+# Contenedor único: FastAPI (especialista ADK con RAG + memoria) + frontend vanilla.
+# Endurecido: non-root, multi-stage, sin .env ni secretos.
+#
+# EXTRA selecciona el perfil de dependencias (ver pyproject.toml):
+#   local  -> Ollama (gemma4/bge-m3) + Postgres      [por defecto, docker compose]
+#   cloud  -> Vertex + Firestore + BigQuery          [Cloud Run]
+#
+#   docker build --build-arg EXTRA=cloud --platform linux/amd64 -t <registry>/app:latest .
+#
+# Por qué multi-stage: la versión anterior hacía `chown -R appuser /app` DESPUÉS
+# de crear el venv, y eso duplicaba el árbol entero en una capa de 682 MB. Aquí
+# el venv se construye aparte y se copia una sola vez, ya con el dueño correcto.
+
+# ── builder ────────────────────────────────────────────────────────────────
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
+
+WORKDIR /app
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
+
+ARG EXTRA=local
+COPY pyproject.toml uv.lock* ./
+RUN uv sync --frozen --no-dev --extra "${EXTRA}"
+
+# ── runtime ────────────────────────────────────────────────────────────────
+# python:3.12-slim en vez de la imagen de uv: el runtime no necesita uv.
+FROM python:3.12-slim-bookworm
+
+# El usuario se crea ANTES de copiar, para que todo entre ya con su dueño y no
+# haga falta un `chown -R` que duplique capas.
+RUN groupadd -r appuser && useradd -r -g appuser -d /app appuser
 
 WORKDIR /app
 
-ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
+COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
+COPY --chown=appuser:appuser especialista/ ./especialista/
+COPY --chown=appuser:appuser backend/ ./backend/
+COPY --chown=appuser:appuser frontend/ ./frontend/
+COPY --chown=appuser:appuser rag/ ./rag/
 
-COPY pyproject.toml uv.lock* ./
-RUN uv sync --frozen --no-dev
+# El índice FAISS se hornea en la imagen (§12: no hace falta servicio de
+# vectores). En local, docker compose lo sobreescribe con un bind mount.
+#
+# INDEX_SRC debe corresponder al perfil: el índice de bge-m3 (1024 dims) y el de
+# gemini-embedding-001 (3072) NO son intercambiables — los vectores viven en
+# espacios distintos. El corpus_hash incluye modelo y dimensiones, así que un
+# índice desparejado se detecta como obsoleto en vez de dar ranking basura.
+#   EXTRA=local -> data/index         (bge-m3, ~11 MB)
+#   EXTRA=cloud -> data/index-vertex  (gemini-embedding-001, ~19 MB)
+ARG INDEX_SRC=data/index
+COPY --chown=appuser:appuser ${INDEX_SRC}/ ./data/index/
 
-# Todo el contexto (el .dockerignore excluye secretos, datos, docs y artifacts)
-COPY . .
-
-RUN groupadd -r appuser && useradd -r -g appuser appuser \
-    && chown -R appuser:appuser /app
 USER appuser
-ENV PATH="/app/.venv/bin:$PATH"
+ENV PATH="/app/.venv/bin:$PATH" \
+    PYTHONUNBUFFERED=1
 
 EXPOSE 8000
 
-# Cloud Run inyecta $PORT; en local usa 8000
+# Cloud Run inyecta $PORT; en local usa 8000.
 CMD ["sh", "-c", "python -m uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

@@ -54,6 +54,55 @@ HITS=$(grep -RInE '(JWT_SECRET|POSTGRES_DSN|POSTGRES_PASSWORD)\s*=\s*["'\''][^"'
 if [ -n "$HITS" ]; then log "$HITS"; log "   ❌ FAIL"; exit 1; fi
 log "   ✅ PASS"
 
+# ── Infraestructura (M9) ──────────────────────────────────────────────────
+
+log "## 5. Terraform: sin state ni tfvars versionados"
+BAD=$(git ls-files 'infra/**' | grep -E '\.tfstate|\.tfvars$|\.terraform/' || true)
+if [ -n "$BAD" ]; then
+  log "$BAD"; log "   ❌ FAIL: el state lleva secretos en claro y los tfvars credenciales"; exit 1
+fi
+for p in '*.tfvars' 'infra/terraform/.terraform/' 'infra/terraform/terraform.tfstate'; do
+  git check-ignore -q "$p" 2>/dev/null || { log "   ❌ FAIL: $p no está ignorado"; exit 1; }
+done
+log "   ✅ PASS: sin state/tfvars en git y los patrones están ignorados"
+
+log "## 6. Terraform: ningún secreto en claro en los .tf"
+# Los valores generados salen de random_password y se guardan en Secret Manager;
+# ningún `.tf` debe llevar un literal.
+HITS=$(grep -RInE '(secret_data|password|api_key|token)[[:space:]]*=[[:space:]]*"[^"$]{8,}"' \
+  infra/terraform --include='*.tf' 2>/dev/null \
+  | grep -vE 'random_password|google_secret_manager|description|EXAMPLE|YOUR_' || true)
+if [ -n "$HITS" ]; then log "$HITS"; log "   ❌ FAIL"; exit 1; fi
+log "   ✅ PASS: los secretos se generan con random_password y viven en Secret Manager"
+
+log "## 7. Terraform: no se crean claves descargables de service account"
+HITS=$(grep -RIn 'google_service_account_key' infra/terraform --include='*.tf' 2>/dev/null || true)
+if [ -n "$HITS" ]; then log "$HITS"; log "   ❌ FAIL: una clave descargable es un secreto que se filtra"; exit 1; fi
+log "   ✅ PASS: la identidad del contenedor es el service account, sin claves"
+
+log "## 8. El plan de Terraform no expone secretos en claro"
+if [ -f outputs/evidence/tfplan.json ]; then
+  # random_password.result y secret_data deben venir marcados como sensibles.
+  LEAK=$(python3 - <<'PY' 2>/dev/null || echo "?"
+import json
+d = json.load(open("outputs/evidence/tfplan.json"))
+bad = []
+for c in d.get("resource_changes", []):
+    sens = c["change"].get("after_sensitive") or {}
+    after = c["change"].get("after") or {}
+    for campo in ("secret_data", "result"):
+        if campo in after and after[campo] is not None and not sens.get(campo):
+            bad.append(f"{c['address']}.{campo}")
+print(len(bad))
+PY
+)
+  log "   valores sensibles expuestos en el plan: $LEAK (esperado 0)"
+  if [ "$LEAK" != "0" ]; then log "   ❌ FAIL"; exit 1; fi
+  log "   ✅ PASS"
+else
+  log "   ⚠ SKIP (sin plan; genera con scripts/infra_audit.sh)"
+fi
+
 log ""
 log "Evidencia completa en $OUT"
 rm -f /tmp/git_secrets.txt

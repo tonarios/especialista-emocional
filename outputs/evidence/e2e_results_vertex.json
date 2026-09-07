@@ -1,0 +1,1035 @@
+{
+  "seed": 42,
+  "n": 52,
+  "results": [
+    {
+      "id": "g001",
+      "type": "single",
+      "query": "me duele la garganta muy seguido",
+      "expected": [
+        "garganta-dolores-de",
+        "garganta-en-general"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 3.039,
+      "source_slugs": [
+        "garganta-dolores-de",
+        "garganta-en-general",
+        "garganta-apretada",
+        "garganta-faringe",
+        "garganta-faringitis"
+      ]
+    },
+    {
+      "id": "g002",
+      "type": "single",
+      "query": "siento un nudo en la garganta cuando me estreso",
+      "expected": [
+        "garganta-apretada",
+        "garganta-en-general"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.568,
+      "source_slugs": [
+        "garganta-apretada",
+        "estres",
+        "garganta-en-general",
+        "garganta-dolores-de",
+        "garganta-laringe"
+      ]
+    },
+    {
+      "id": "g003",
+      "type": "single",
+      "query": "me quedé sin voz de repente",
+      "expected": [
+        "afonia-o-extincion-de-voz",
+        "garganta-laringitis"
+      ],
+      "kind": "respuesta",
+      "hit": false,
+      "latency_s": 2.156,
+      "source_slugs": [
+        "voz-ronquera",
+        "audicion-perdida-de",
+        "cerebro-equilibrio-perdida-de-o-aturdimientos",
+        "apetito-perdida-de",
+        "cabellos-perdida-de-ver-alopecia"
+      ]
+    },
+    {
+      "id": "g004",
+      "type": "single",
+      "query": "tengo acidez estomacal después de comer",
+      "expected": [
+        "estomago-acidez-ardores-pirosis"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.277,
+      "source_slugs": [
+        "ardores-de-estomago-acidez-estomacal",
+        "estomago-acidez-ardores-pirosis",
+        "hernia-de-hiato-acidez-de-estomago",
+        "estomago-en-general",
+        "sistema-digestivo"
+      ]
+    },
+    {
+      "id": "g005",
+      "type": "single",
+      "query": "me arde el estómago y ando muy tenso",
+      "expected": [
+        "estomago-gastritis",
+        "estomago-acidez-ardores-pirosis",
+        "estomago-dolores-de"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.176,
+      "source_slugs": [
+        "estomago-acidez-ardores-pirosis",
+        "estomago-dolores-de",
+        "estomago-gastritis",
+        "gastritis-ver-estomago-gastritis",
+        "ardores-de-estomago-acidez-estomacal"
+      ]
+    },
+    {
+      "id": "g006",
+      "type": "alias",
+      "query": "dolor de panza constante",
+      "expected": [
+        "estomago-dolores-de",
+        "barriga-dolor-de-ver-estomago-dolores-de"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.75,
+      "source_slugs": [
+        "dolor-de-vientre",
+        "barriga-dolor-de-ver-estomago-dolores-de",
+        "dolor",
+        "dolor-repentino",
+        "espalda-dolor-de-parte-inferior"
+      ]
+    },
+    {
+      "id": "g007",
+      "type": "single",
+      "query": "me dan migrañas cada semana",
+      "expected": [
+        "cabeza-migranas"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.985,
+      "source_slugs": [
+        "cerebro-dolencias-del",
+        "neurologias",
+        "otalgia",
+        "orejas-oidos-dolores-de",
+        "cabeza-migranas"
+      ]
+    },
+    {
+      "id": "g008",
+      "type": "single",
+      "query": "dolor de cabeza cuando tengo mucha presión en el trabajo",
+      "expected": [
+        "cabeza-dolores-de",
+        "cabeza-migranas"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.253,
+      "source_slugs": [
+        "cabeza-dolores-de",
+        "cabeza-en-general",
+        "cabeza-migranas",
+        "dolor-repentino",
+        "espalda-dolor-de-parte-superior-7-vertebras-cervicales"
+      ]
+    },
+    {
+      "id": "g009",
+      "type": "single",
+      "query": "me duele la espalda baja",
+      "expected": [
+        "espalda-dolor-de-parte-inferior",
+        "rinones-dolor-de-cintura-lumbago"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.329,
+      "source_slugs": [
+        "espalda-en-general",
+        "espalda-dolor-de-parte-inferior",
+        "espalda-dolor-de-parte-central-12-vertebras-dorsales",
+        "espalda-dolor-de-parte-superior-7-vertebras-cervicales"
+      ]
+    },
+    {
+      "id": "g010",
+      "type": "single",
+      "query": "cargo mucho peso emocional y me duele la parte alta de la espalda",
+      "expected": [
+        "espalda-dolor-de-parte-superior-7-vertebras-cervicales",
+        "espalda-en-general"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.52,
+      "source_slugs": [
+        "espalda-en-general",
+        "espalda-dolor-de-parte-central-12-vertebras-dorsales",
+        "espalda-dolor-de-parte-superior-7-vertebras-cervicales",
+        "espalda-dolor-de-parte-inferior"
+      ]
+    },
+    {
+      "id": "g011",
+      "type": "single",
+      "query": "amanecí con el cuello trabado",
+      "expected": [
+        "cuello-torticolis",
+        "cuello-en-general"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.049,
+      "source_slugs": [
+        "cuello-torticolis",
+        "cuello-en-general",
+        "cuello-de-utero-cervix",
+        "cancer-de-utero-cuello-uterino",
+        "artrosis-cervical"
+      ]
+    },
+    {
+      "id": "g012",
+      "type": "single",
+      "query": "me salen granos en la cara",
+      "expected": [
+        "piel-acne",
+        "piel-brote-de-granos",
+        "piel-acne-rosacea"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.744,
+      "source_slugs": [
+        "piel-granos-acne",
+        "piel-brote-de-granos",
+        "problemas-faciales",
+        "rostro",
+        "piel-acne"
+      ]
+    },
+    {
+      "id": "g013",
+      "type": "single",
+      "query": "tengo la piel irritada y me rasco mucho",
+      "expected": [
+        "piel-eczema-dermatitis-atopica",
+        "piel-comezon-prurito",
+        "piel-en-general"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.942,
+      "source_slugs": [
+        "comezones-vaginales-picazon-vaginal",
+        "piel-epidermitis",
+        "piel-dermatitis",
+        "piel-eczema-dermatitis-atopica"
+      ]
+    },
+    {
+      "id": "g014",
+      "type": "alias",
+      "query": "se me está cayendo el pelo",
+      "expected": [
+        "cabellos-perdida-de-ver-alopecia",
+        "alopecia",
+        "cabellos-enfermedades-de-los"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.521,
+      "source_slugs": [
+        "pelo",
+        "micosis-del-cuero-cabelludo-pelos-y-unas",
+        "prostata-caida-de-disfuncion-prostatica",
+        "prolapso-caida-de-matriz-de-organo",
+        "cabellos-perdida-de-ver-alopecia"
+      ]
+    },
+    {
+      "id": "g015",
+      "type": "single",
+      "query": "ando estreñido desde hace semanas",
+      "expected": [
+        "intestinos-estrenimiento"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.255,
+      "source_slugs": [
+        "sistema-digestivo",
+        "intestinos-estrenimiento",
+        "sigmoide",
+        "intestinos-dolores-de-los",
+        "oliguria"
+      ]
+    },
+    {
+      "id": "g016",
+      "type": "single",
+      "query": "tengo diarrea cada vez que me pongo nervioso",
+      "expected": [
+        "intestinos-diarrea"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.84,
+      "source_slugs": [
+        "intestinos-diarrea",
+        "disenteria-ver-intestinos-diarrea",
+        "intestinos-gastro-enteritis"
+      ]
+    },
+    {
+      "id": "g017",
+      "type": "single",
+      "query": "me dan cólicos intestinales",
+      "expected": [
+        "intestinos-colico",
+        "intestinos-dolores-de-los"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.6,
+      "source_slugs": [
+        "ano-rectocolitis-colitis-ulcerosa-dolores-anales",
+        "colico",
+        "colico-nefritico",
+        "intestinos-colico",
+        "intestinos-dolores-de-los"
+      ]
+    },
+    {
+      "id": "g018",
+      "type": "single",
+      "query": "problemas de hígado",
+      "expected": [
+        "higado-dolores-de",
+        "higado-crisis-de"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.987,
+      "source_slugs": [
+        "higado-dolores-de",
+        "higado-crisis-de",
+        "higado-graso",
+        "higado-absceso-del",
+        "higado-hepatitis"
+      ]
+    },
+    {
+      "id": "g019",
+      "type": "single",
+      "query": "me cuesta respirar cuando me angustio",
+      "expected": [
+        "pulmones-en-general",
+        "disnea",
+        "asma-grito-silencioso"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.151,
+      "source_slugs": [
+        "angustia",
+        "disnea",
+        "garganta-apretada",
+        "respiracion-ahogos",
+        "enfisema-pulmonar"
+      ]
+    },
+    {
+      "id": "g020",
+      "type": "single",
+      "query": "tengo asma desde niño",
+      "expected": [
+        "asma-grito-silencioso",
+        "asma-del-bebe"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.241,
+      "source_slugs": [
+        "asma-grito-silencioso",
+        "ojos-astigmatismo",
+        "opresion-pulmonar",
+        "piel-melanoma-maligno"
+      ]
+    },
+    {
+      "id": "g021",
+      "type": "single",
+      "query": "me duelen las rodillas al caminar",
+      "expected": [
+        "rodillas-dolores-de",
+        "rodillas-en-general"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.059,
+      "source_slugs": [
+        "rodillas-dolores-de",
+        "rodillas-en-general",
+        "dolor-en-reumatologia",
+        "meseta-tibial-rodilla",
+        "punta-de-los-pies-caminar"
+      ]
+    },
+    {
+      "id": "g022",
+      "type": "single",
+      "query": "no puedo dormir en toda la noche",
+      "expected": [
+        "insomnio"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.303,
+      "source_slugs": [
+        "insomnio",
+        "inquietud"
+      ]
+    },
+    {
+      "id": "g023",
+      "type": "single",
+      "query": "vivo con ansiedad todo el tiempo",
+      "expected": [
+        "ansiedad",
+        "angustia"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.843,
+      "source_slugs": [
+        "ansiedad",
+        "trastornos-de-ansiedad-social-tas",
+        "nervios-en-general",
+        "problemas-de-palpitaciones"
+      ]
+    },
+    {
+      "id": "g024",
+      "type": "single",
+      "query": "me siento agotado todo el día, sin energía",
+      "expected": [
+        "agotamiento-o-burnout",
+        "burnout",
+        "cansancio-fatiga-en-general"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.49,
+      "source_slugs": [
+        "agotamiento-o-burnout",
+        "vitalidad-falta",
+        "calcio-falta-de",
+        "lagrimas-falta-de-sindrome-del-ojo-seco",
+        "faltas-de-lagrimas-secuencia-ocular-hipolacrimea"
+      ]
+    },
+    {
+      "id": "g025",
+      "type": "single",
+      "query": "rechino los dientes mientras duermo",
+      "expected": [
+        "dientes-chirrido-de-bruxismo"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.853,
+      "source_slugs": [
+        "dientes-chirrido-de-bruxismo",
+        "dientes-dolor-de-o-de-muelas",
+        "dientes-en-general",
+        "dientes-protesis-dentales-o-dientes-postizos",
+        "pesadillas"
+      ]
+    },
+    {
+      "id": "g026",
+      "type": "alias",
+      "query": "me duele una muela",
+      "expected": [
+        "dientes-dolor-de-o-de-muelas",
+        "dolor-de-muelas-ver-dientes-dolores-de"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.789,
+      "source_slugs": [
+        "dientes-dolor-de-o-de-muelas",
+        "mejilla-dolor-en-la",
+        "dolor-repentino",
+        "boca-dolor-de",
+        "dolor"
+      ]
+    },
+    {
+      "id": "g027",
+      "type": "alias",
+      "query": "tengo mal aliento",
+      "expected": [
+        "halitosis-ver-boca-aliento-mal",
+        "boca-mal-aliento-ver-halitosis"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.864,
+      "source_slugs": [
+        "boca-mal-aliento-ver-halitosis",
+        "halitosis-ver-boca-aliento-mal",
+        "bromhidrosis",
+        "filetes-olfatorios"
+      ]
+    },
+    {
+      "id": "g028",
+      "type": "single",
+      "query": "me arden los ojos y veo borroso",
+      "expected": [
+        "ojos-en-general",
+        "ojos-presbicia",
+        "ojos-conjuntivitis"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.879,
+      "source_slugs": [
+        "ojos-conjuntivitis",
+        "ardores-de-estomago-acidez-estomacal",
+        "vision-perdida"
+      ]
+    },
+    {
+      "id": "g029",
+      "type": "single",
+      "query": "escucho un zumbido en el oído",
+      "expected": [
+        "orejas-oidos-acufeno-tinnitus",
+        "oidos-problemas-en-los"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.195,
+      "source_slugs": [
+        "orejas-zumbido-de-los-oidos-acufenos",
+        "oido-medio",
+        "sindrome-de-meniere-oido-interno",
+        "oido-interno"
+      ]
+    },
+    {
+      "id": "g030",
+      "type": "single",
+      "query": "me dan infecciones urinarias seguido",
+      "expected": [
+        "vejiga-cistitis",
+        "vejiga-dolores-de"
+      ],
+      "kind": "respuesta",
+      "hit": false,
+      "latency_s": 1.781,
+      "source_slugs": [
+        "orina-infecciones-urinarias-cistitis",
+        "infecciones-en-general",
+        "oxiuriasis-infeccion-por-oxiuros-o-lombrices-intestinales",
+        "incontinencia-fecal-urinaria",
+        "sistema-urinario"
+      ]
+    },
+    {
+      "id": "g031",
+      "type": "single",
+      "query": "tengo las manos frías y me sudan",
+      "expected": [
+        "manos-en-general"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.458,
+      "source_slugs": [
+        "manos-en-general",
+        "manos-contractura-de-depuytren",
+        "extremidades-frias",
+        "sindrome-del-tunel-carpiano-stc",
+        "callos-en-los-pies-o-en-las-manos"
+      ]
+    },
+    {
+      "id": "g032",
+      "type": "single",
+      "query": "se me duermen los pies",
+      "expected": [
+        "adormecimiento-torpor",
+        "pies-en-general"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.048,
+      "source_slugs": [
+        "pies-frios",
+        "pies-huecos-o-cavos",
+        "pies-en-general",
+        "pies-calientes",
+        "pies-callosidades-o-callos-en-los-pies"
+      ]
+    },
+    {
+      "id": "g033",
+      "type": "single",
+      "query": "tengo várices en las piernas",
+      "expected": [
+        "sangre-varices",
+        "piernas-en-general"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.536,
+      "source_slugs": [
+        "piernas-varices",
+        "sangre-varices",
+        "piernas-pesadas"
+      ]
+    },
+    {
+      "id": "g034",
+      "type": "single",
+      "query": "me da colitis cuando estoy bajo presión",
+      "expected": [
+        "intestinos-colitis-mucosidad-del-colon"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.377,
+      "source_slugs": [
+        "colitis-hemorragica",
+        "intestinos-colitis-mucosidad-del-colon",
+        "colitis-ulcerosa",
+        "ano-rectocolitis-colitis-ulcerosa-dolores-anales",
+        "sigmoide"
+      ]
+    },
+    {
+      "id": "g035",
+      "type": "alias",
+      "query": "tengo hongos en los pies",
+      "expected": [
+        "pies-micosis-o-infecciones-por-hongos",
+        "pie-de-atleta-tinea-pedis-ver-pies-micosis"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.186,
+      "source_slugs": [
+        "pies-micosis-o-infecciones-por-hongos",
+        "pies-en-general",
+        "pies-callosidades-o-callos-en-los-pies",
+        "pies-huecos-o-cavos",
+        "pies-frios"
+      ]
+    },
+    {
+      "id": "g036",
+      "type": "alias",
+      "query": "subí mucho de peso y no puedo bajar",
+      "expected": [
+        "obesidad",
+        "peso-exceso-de-ver-obesidad"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.673,
+      "source_slugs": [
+        "obesidad",
+        "sobrepeso",
+        "retencion-del-agua",
+        "retencion-de-liquidos-en-piernas",
+        "pesares"
+      ]
+    },
+    {
+      "id": "g037",
+      "type": "single",
+      "query": "me salió un fuego en el labio",
+      "expected": [
+        "herpes-bucal-herpes-labial",
+        "boca-en-general",
+        "labio"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.699,
+      "source_slugs": [
+        "labios-secos",
+        "fuego-fiebre-o-calentura-labial",
+        "fiebre-en-general",
+        "labio-leporino"
+      ]
+    },
+    {
+      "id": "g041",
+      "type": "multi",
+      "query": "me duele la garganta y también el estómago",
+      "expected": [
+        "garganta-dolores-de",
+        "estomago-dolores-de"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.655,
+      "source_slugs": [
+        "garganta-dolores-de",
+        "estomago-dolores-de",
+        "barriga-dolor-de-ver-estomago-dolores-de"
+      ]
+    },
+    {
+      "id": "g042",
+      "type": "multi",
+      "query": "tengo insomnio, dolor de cabeza y ando muy irritable",
+      "expected": [
+        "insomnio",
+        "cabeza-dolores-de"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.108,
+      "source_slugs": [
+        "insomnio",
+        "cabeza-dolores-de",
+        "cabeza-migranas",
+        "dolor-repentino"
+      ]
+    },
+    {
+      "id": "g043",
+      "type": "multi",
+      "query": "se me cae el pelo y me salen granos desde que cambié de trabajo",
+      "expected": [
+        "alopecia",
+        "piel-acne"
+      ],
+      "kind": "respuesta",
+      "hit": false,
+      "latency_s": 1.962,
+      "source_slugs": [
+        "piel-granos-acne",
+        "piel-brote-de-granos",
+        "pelo",
+        "micosis-del-cuero-cabelludo-pelos-y-unas",
+        "prostata-caida-de-disfuncion-prostatica"
+      ]
+    },
+    {
+      "id": "g044",
+      "type": "multi",
+      "query": "ando estreñido y con dolor de espalda baja",
+      "expected": [
+        "intestinos-estrenimiento",
+        "espalda-dolor-de-parte-inferior"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.235,
+      "source_slugs": [
+        "espalda-en-general",
+        "espalda-dolor-de-parte-inferior",
+        "espalda-dolor-de-parte-central-12-vertebras-dorsales",
+        "vertebras-lumbares-ver-tambien-espalda-parte-inferior",
+        "intestinos-estrenimiento"
+      ]
+    },
+    {
+      "id": "g045",
+      "type": "multi",
+      "query": "me duelen las rodillas, tengo várices y siempre estoy cansada",
+      "expected": [
+        "rodillas-dolores-de",
+        "sangre-varices",
+        "agotamiento-o-burnout"
+      ],
+      "kind": "respuesta",
+      "hit": false,
+      "latency_s": 2.561,
+      "source_slugs": [
+        "rodillas-dolores-de",
+        "piernas-varices",
+        "cansancio-fatiga-en-general",
+        "cansancio-cronico-sindrome-de-fatiga-cronica-fatiga-cronica",
+        "rodillas-en-general"
+      ]
+    },
+    {
+      "id": "g046",
+      "type": "multi",
+      "query": "acidez, colitis y ansiedad al mismo tiempo",
+      "expected": [
+        "estomago-acidez-ardores-pirosis",
+        "intestinos-colitis-mucosidad-del-colon",
+        "ansiedad"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.561,
+      "source_slugs": [
+        "estomago-acidez-ardores-pirosis",
+        "ansiedad",
+        "colitis-hemorragica",
+        "intestinos-colitis-mucosidad-del-colon",
+        "ardores-de-estomago-acidez-estomacal"
+      ]
+    },
+    {
+      "id": "g067",
+      "type": "alias",
+      "query": "tengo osteoporosis",
+      "expected": [
+        "huesos-en-general"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.15,
+      "source_slugs": [
+        "huesos-en-general#osteoporosis",
+        "osteolisis",
+        "oniquia",
+        "osteocondritis-disecante-de-cadera",
+        "paget-enfermedad-osea-de-osteitis-deformante"
+      ]
+    },
+    {
+      "id": "g068",
+      "type": "alias",
+      "query": "me fracturé un hueso",
+      "expected": [
+        "huesos-en-general",
+        "clavicula-dolor-en-la-fractura-de-la"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.006,
+      "source_slugs": [
+        "huesos-en-general#fractura",
+        "espalda-fractura-de-las-vertebras",
+        "huesos-dolores-de-los",
+        "clavicula-dolor-en-la-fractura-de-la",
+        "hueso-dental"
+      ]
+    },
+    {
+      "id": "g069",
+      "type": "alias",
+      "query": "tengo estrabismo",
+      "expected": [
+        "ojos-estrabismo-en-general",
+        "ojos-estrabismo-convergente"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.926,
+      "source_slugs": [
+        "ojos-estrabismo-convergente",
+        "ojos-estrabismo-divergente-exotropia",
+        "ojos-nistagmo",
+        "ojos-miopia"
+      ]
+    },
+    {
+      "id": "g070",
+      "type": "alias",
+      "query": "me diagnosticaron Crohn",
+      "expected": [
+        "intestinos-crohn-enfermedad-de",
+        "enfermedad-de-crohn"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.965,
+      "source_slugs": [
+        "crohn-enfermedad-de",
+        "intestinos-crohn-enfermedad-de",
+        "osteocondritis-disecante-de-cadera",
+        "osler-enfermedad-de",
+        "oxiuriasis-infeccion-por-oxiuros-o-lombrices-intestinales"
+      ]
+    },
+    {
+      "id": "g071",
+      "type": "alias",
+      "query": "tengo Parkinson",
+      "expected": [
+        "cerebro-parkinson-enfermedad-de",
+        "parkinson-enfermedad-de"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.577,
+      "source_slugs": [
+        "cerebro-parkinson-enfermedad-de",
+        "nistagmos-parkinson-ocular",
+        "abasia",
+        "ojos-nistagmo",
+        "neurologias"
+      ]
+    },
+    {
+      "id": "g072",
+      "type": "alias",
+      "query": "tengo fibromialgia",
+      "expected": [
+        "cansancio-fatiga-en-general",
+        "encefalomielitis-fibromialgia"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.047,
+      "source_slugs": [
+        "fibromialgia",
+        "cansancio-cronico-sindrome-de-fatiga-cronica-fatiga-cronica",
+        "otalgia",
+        "osteolisis",
+        "osteocondritis-disecante-de-cadera"
+      ]
+    },
+    {
+      "id": "g073",
+      "type": "alias",
+      "query": "sufro de fiebre del heno",
+      "expected": [
+        "alergia-a-la-fiebre-del-heno-rinitis-alergica"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.564,
+      "source_slugs": [
+        "alergia-a-la-fiebre-del-heno-rinitis-alergica",
+        "fiebre-en-general",
+        "fiebre-botones-de-herpes-labial",
+        "tifoidea-fiebre",
+        "fuego-fiebre-o-calentura-labial"
+      ]
+    },
+    {
+      "id": "g074",
+      "type": "alias",
+      "query": "tengo piedras en los riñones",
+      "expected": [
+        "calculos-renales-o-litiasis-urinaria",
+        "calculos-en-general"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 2.529,
+      "source_slugs": [
+        "calculos-renales-o-litiasis-urinaria",
+        "rinones-nefritis",
+        "rinones-anuria",
+        "rinones-problemas-renales"
+      ]
+    },
+    {
+      "id": "g075",
+      "type": "alias",
+      "query": "tengo la enfermedad de Dupuytren",
+      "expected": [
+        "manos-contractura-de-depuytren"
+      ],
+      "kind": "respuesta",
+      "hit": true,
+      "latency_s": 1.771,
+      "source_slugs": [
+        "manos-contractura-de-depuytren",
+        "enfermedad-de-raynaud",
+        "enfermedad-cronica",
+        "marfan-enfermedad-de"
+      ]
+    }
+  ],
+  "metrics": {
+    "overall_accuracy": {
+      "mean": 0.9230769230769231,
+      "median": 1.0,
+      "std": 0.2664693550105965,
+      "ci95_low": 0.8461538461538461,
+      "ci95_high": 0.9807692307692307
+    },
+    "n": 52,
+    "single": {
+      "n": 31,
+      "recall": {
+        "mean": 0.9354838709677419,
+        "median": 1.0,
+        "std": 0.2456701001891583,
+        "ci95_low": 0.8387096774193549,
+        "ci95_high": 1.0
+      },
+      "latency_s": {
+        "mean": 2.084935483870968,
+        "median": 2.059,
+        "std": 0.3451400777322505,
+        "ci95_low": 1.9681508064516129,
+        "ci95_high": 2.2038072580645167
+      }
+    },
+    "alias": {
+      "n": 15,
+      "recall": {
+        "mean": 1.0,
+        "median": 1.0,
+        "std": 0.0,
+        "ci95_low": 1.0,
+        "ci95_high": 1.0
+      },
+      "latency_s": {
+        "mean": 2.0878666666666663,
+        "median": 2.006,
+        "std": 0.3295884032479838,
+        "ci95_low": 1.9246649999999998,
+        "ci95_high": 2.267028333333333
+      }
+    },
+    "multi": {
+      "n": 6,
+      "recall": {
+        "mean": 0.6666666666666666,
+        "median": 1.0,
+        "std": 0.4714045207910317,
+        "ci95_low": 0.3333333333333333,
+        "ci95_high": 1.0
+      },
+      "latency_s": {
+        "mean": 2.180333333333333,
+        "median": 2.1715,
+        "std": 0.321890077856125,
+        "ci95_low": 1.9083333333333332,
+        "ci95_high": 2.4311666666666665
+      }
+    }
+  },
+  "bootstrap": {
+    "seed": 42,
+    "resamples": 2000
+  }
+}

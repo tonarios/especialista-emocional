@@ -1,4 +1,4 @@
-"""Trazas de observabilidad en PostgreSQL: tabla audit_log + log estructurado.
+"""Trazas de observabilidad: `audit_log` del store activo + log estructurado.
 
 Registra (best-effort, nunca rompe el flujo del request):
   - login/register (éxito y fallo)
@@ -14,38 +14,10 @@ import logging
 import sys
 import time
 
-import psycopg
-
-from especialista.config import settings
+from especialista.stores import get_store
 
 logger = logging.getLogger("especialista.audit")
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format="%(message)s")
-
-AUDIT_TABLE = """
-CREATE TABLE IF NOT EXISTS audit_log (
-    id         BIGSERIAL PRIMARY KEY,
-    ts         TIMESTAMPTZ NOT NULL DEFAULT now(),
-    user_email TEXT,
-    action     TEXT NOT NULL,
-    client_ip  TEXT,
-    status     INTEGER,
-    detail     JSONB
-)
-"""
-AUDIT_INDEX = "CREATE INDEX IF NOT EXISTS idx_audit_user_ts ON audit_log (user_email, ts DESC)"
-
-_conn: psycopg.Connection | None = None
-
-
-def _connect() -> psycopg.Connection:
-    global _conn
-    if _conn is None or _conn.closed:
-        conn = psycopg.connect(settings.postgres_dsn, autocommit=True)
-        conn.execute(AUDIT_TABLE)
-        conn.execute(AUDIT_INDEX)
-        _conn = conn
-    return _conn
-
 
 def audit(
     action: str,
@@ -55,7 +27,7 @@ def audit(
     status: int | None = None,
     detail: dict | None = None,
 ) -> None:
-    """Inserta una traza en audit_log y la emite a stdout (Cloud Logging)."""
+    """Inserta una traza en el almacén y la emite a stdout (Cloud Logging)."""
     record = {
         "event": "audit",
         "action": action,
@@ -67,10 +39,6 @@ def audit(
     }
     logger.info(json.dumps(record, ensure_ascii=False))
     try:
-        _connect().execute(
-            """INSERT INTO audit_log (user_email, action, client_ip, status, detail)
-               VALUES (%s, %s, %s, %s, %s)""",
-            (user_email, action, client_ip, status, json.dumps(detail or {}, ensure_ascii=False)),
-        )
+        get_store().write_audit(record)
     except Exception as e:  # noqa: BLE001 — la auditoría nunca debe romper el request
         logger.info(json.dumps({"event": "audit_write_failed", "error": str(e)}))

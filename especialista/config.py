@@ -33,30 +33,48 @@ def _require(name: str) -> str:
 
 class Settings:
     def __init__(self) -> None:
+        # ── Backend de datos ────────────────────────────────────────
+        # local  -> postgres (docker compose)
+        # cloud  -> firestore (escala a cero; docs/presupuesto-gcp.md §5)
+        self.storage_backend = os.getenv("STORAGE_BACKEND", "postgres").strip().lower()
+
         # ── Secretos (sin defaults; fail-fast) ──────────────────────
-        cloudsql_instance = os.getenv("CLOUDSQL_INSTANCE", "").strip()
-        if cloudsql_instance:
-            self.postgres_dsn = (
-                f"postgresql://{os.environ['POSTGRES_USER']}:{os.environ['POSTGRES_PASSWORD']}"
-                f"@/{os.environ['POSTGRES_DB']}?host=/cloudsql/{cloudsql_instance}"
-            )
-        else:
-            # Local: DSN completo definido en .env o exportado en el shell.
+        # El DSN solo se exige si el backend es Postgres: en nube no existe.
+        if self.storage_backend == "postgres":
             self.postgres_dsn = _require("POSTGRES_DSN")
+        else:
+            self.postgres_dsn = os.getenv("POSTGRES_DSN", "")
         # Secreto de firma JWT: si JWT_SECRET está presente (Secret Manager)
         # tiene prioridad; si no, se usa/genera el persistido en app_config.
         self.jwt_secret_b64 = os.getenv("JWT_SECRET", "")
 
-        # ── Modelo LLM (local: gemma4 vía Ollama; cloud: gemini/… TBD) ──
+        # ── Proveedor de LLM y embeddings ───────────────────────────
+        # ollama -> gemma4 / bge-m3 en local
+        # vertex -> gemini-2.5-flash-lite / gemini-embedding-001 en Cloud Run
+        self.llm_provider = os.getenv("LLM_PROVIDER", "ollama").strip().lower()
         self.llm_model = os.getenv("LLM_MODEL", "ollama/gemma4:latest")
         # Fallback opcional (p. ej. otro modelo); sin valor = solo primario.
         self.fallback_model = os.getenv("FALLBACK_LLM_MODEL", "") or None
 
         # ── RAG / embeddings ─────────────────────────────────────────
         self.embed_model = os.getenv("EMBED_MODEL", "bge-m3")
+        # Dimensiones del vector. bge-m3 = 1024; gemini-embedding-001 = 3072
+        # (sin truncar, decisión del owner). El índice se invalida solo al
+        # cambiar, porque el hash de corpus cubre la configuración.
+        self.embed_dims = int(os.getenv("EMBED_DIMS", "0")) or None
         # Local con Docker = http://host.docker.internal:11434; sin Docker = localhost.
         self.ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
         self.index_dir = os.getenv("INDEX_DIR", "data/index")
+
+        # ── GCP (solo con backend/proveedor de nube) ─────────────────
+        self.gcp_project = os.getenv("GOOGLE_CLOUD_PROJECT", "").strip()
+        self.gcp_location = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1").strip()
+        self.firestore_database = os.getenv("FIRESTORE_DATABASE", "(default)").strip()
+        # Analítica en BigQuery: vacío = desactivada (el caso local).
+        self.bq_dataset = os.getenv("BQ_DATASET", "").strip()
+        # Sal del hash de usuario para BigQuery. Sin ella no se emite nada:
+        # es preferible perder analítica a escribir un identificador reversible.
+        self.analytics_salt = os.getenv("ANALYTICS_SALT", "")
 
         # ── No secretos ─────────────────────────────────────────────
         self.environment = os.getenv("ENVIRONMENT", "local")
