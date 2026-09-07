@@ -17,6 +17,28 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "outputs"
 E2E = OUT / "evidence" / "e2e_results.json"
+MANIFEST = OUT / "evidence" / "capture_manifest.json"
+GIFS = OUT / "gifs"
+
+# Stills capturados por `capture_evidence.py`, en el orden en que cuentan la historia.
+STILLS = [
+    ("register.png", "Acceso — alta de usuario (FR-16)"),
+    ("chat_disclaimer.png", "Disclaimer visible antes del primer mensaje (FR-20)"),
+    ("rag_sources.png", "Respuesta con chips de fuentes (FR-03/FR-19)"),
+    ("emergencia.png", "Emergencia — derivación sin pasar por el LLM (FR-06)"),
+    ("bloqueo.png", "Prompt injection bloqueado con 403 (NFR-01)"),
+    ("memoria.png", "El agente responde desde el historial (FR-13)"),
+    ("profiles.png", "Historial persistido del portador (FR-14)"),
+    ("sessions.png", "Sesiones ADK persistidas (FR-12)"),
+]
+
+ESCENARIOS = [
+    ("registro", "FR-16 / FR-18", "Alta de usuario y entrada al chat"),
+    ("consulta", "FR-03 / FR-19", "Respuesta con chips de fuentes"),
+    ("emergencia", "FR-06", "Derivación determinista, sin LLM"),
+    ("seguridad", "NFR-01", "Prompt injection bloqueado"),
+    ("memoria", "FR-13 / FR-14", "Historial persistido y consultable"),
+]
 
 # Métricas de recuperación (§13.0), reproducibles con `python -m eval.retrieval --k 5`.
 RETRIEVAL = {
@@ -96,9 +118,45 @@ def retrieval_table_html() -> str:
     )
 
 
+def stills_html() -> str:
+    """Galería de stills, solo con los que existen en la última corrida."""
+    figs = []
+    for name, caption in STILLS:
+        if (OUT / "evidence" / name).exists():
+            figs.append(f"<figure><img src='evidence/{name}'>"
+                        f"<figcaption class='muted'>{caption}</figcaption></figure>")
+    return f"<div class='gallery'>{''.join(figs)}</div>"
+
+
+def escenarios_html() -> str:
+    """Tabla de escenarios e2e con el número de frames capturados."""
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8")) if MANIFEST.exists() else {}
+    frames = manifest.get("escenarios", {})
+    rows = []
+    for name, fr, desc in ESCENARIOS:
+        gif = GIFS / f"{name}.gif"
+        estado = f"{frames.get(name, '?')} frames" if gif.exists() else "no generado"
+        rows.append(f"<tr><td><code>{name}.gif</code></td><td>{fr}</td>"
+                    f"<td>{desc}</td><td>{estado}</td></tr>")
+    usuario = manifest.get("usuario", "—")
+    return (
+        "<table class='tbl'><thead><tr><th>GIF</th><th>FR/NFR</th><th>Qué demuestra</th>"
+        f"<th>Captura</th></tr></thead><tbody>{''.join(rows)}</tbody></table>"
+        f"<p class='muted'>Usuario registrado durante la corrida: <code>{usuario}</code>. "
+        "Los GIFs animados están en <code>outputs/gifs/</code> y embebidos en "
+        "<code>docs/QA_report.md</code> (un PDF no los anima).</p>"
+    )
+
+
 def render(e2e: dict) -> str:
     fecha = datetime.date.today().isoformat()
-    overall = e2e["metrics"]["overall_accuracy"]
+    m = e2e["metrics"]
+    overall = m["overall_accuracy"]
+    single = m["single"]["recall"]["mean"]
+    alias = m["alias"]["recall"]["mean"]
+    multi = m["multi"]["recall"]["mean"]
+    ood = RETRIEVAL["out_of_domain"]
+    ood_prec = ood["ok"] / ood["n"]
     return f"""<!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -141,10 +199,10 @@ img {{ max-width:100%; border-radius:10px; border:1px solid var(--line); }}
 <section>
   <h2>Resumen</h2>
   <div class="kpis">
-    <div class="kpi"><div class="v">{overall['mean']:.3f}</div><div class="l">Precisión e2e (52 preguntas)</div></div>
-    <div class="kpi"><div class="v">0.935</div><div class="l">Recall single (e2e)</div></div>
-    <div class="kpi"><div class="v">1.000</div><div class="l">Recall alias (e2e)</div></div>
-    <div class="kpi"><div class="v">1.0</div><div class="l">Precisión fuera de dominio</div></div>
+    <div class="kpi"><div class="v">{overall['mean']:.3f}</div><div class="l">Precisión e2e ({e2e['n']} preguntas)</div></div>
+    <div class="kpi"><div class="v">{single:.3f}</div><div class="l">Recall single (e2e)</div></div>
+    <div class="kpi"><div class="v">{alias:.3f}</div><div class="l">Recall alias (e2e)</div></div>
+    <div class="kpi"><div class="v">{ood_prec:.3f}</div><div class="l">Precisión fuera de dominio</div></div>
   </div>
   <p>El sistema recupera con fusión híbrida (FAISS + bge-m3 denso y BM25 léxico con match
   normalizado de título/alias) y responde con <code>gemma4</code> local, citando las fuentes usadas
@@ -185,8 +243,8 @@ img {{ max-width:100%; border-radius:10px; border:1px solid var(--line); }}
   <h2>3. Evaluación end-to-end (gemma4)</h2>
   {metrics_html(e2e)}
   <div class="callout ok"><strong>Aciertos consistentes con las metas:</strong> recall single
-  0.935 ≥ 0.85 y alias 1.000 ≥ 0.90.</div>
-  <div class="callout warn"><strong>Multi-hop (recall 0.333):</strong> relacionar y citar TODOS los
+  {single:.3f} ≥ 0.85 y alias {alias:.3f} ≥ 0.90.</div>
+  <div class="callout warn"><strong>Multi-hop (recall {multi:.3f}):</strong> relacionar y citar TODOS los
   síntomas en una síntesis cohesiva es el caso más difícil del modelo local; además arrastra el hueco
   de sinonimia (<em>pelo→alopecia</em>). El camino multi-hop determinista (extraer → N búsquedas →
   1 síntesis) funciona; la limitación está en la fidelidad de citación de todos los términos.</div>
@@ -219,13 +277,17 @@ img {{ max-width:100%; border-radius:10px; border:1px solid var(--line); }}
 </section>
 
 <section>
-  <h2>6. Evidencia generada</h2>
-  <div class="gallery">
-    <figure><img src="evidence/register.png"><figcaption class="muted">register.png — acceso</figcaption></figure>
-    <figure><img src="evidence/rag_sources.png"><figcaption class="muted">rag_sources.png — chips de fuentes</figcaption></figure>
-    <figure><img src="evidence/profiles.png"><figcaption class="muted">profiles.png — historial persistido</figcaption></figure>
-    <figure><img src="evidence/sessions.png"><figcaption class="muted">sessions.png — sesiones ADK</figcaption></figure>
-  </div>
+  <h2>6. Escenarios end-to-end sobre la UI final</h2>
+  <p>Cinco recorridos completos sobre la app en contenedor, capturados con Chrome headless
+  (CDP) contra un usuario <strong>registrado durante la propia corrida</strong>. Cada escenario
+  lleva una aserción: si los chips no se ven, si la respuesta de emergencia no se marca o si la
+  inyección no se bloquea, la captura <strong>falla</strong> y no se genera evidencia.</p>
+  {escenarios_html()}
+</section>
+
+<section>
+  <h2>7. Evidencia generada</h2>
+  {stills_html()}
 </section>
 
 </main></body></html>"""

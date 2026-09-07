@@ -1,0 +1,20 @@
+{
+  "usuario": "evidencia-83308086@demo.co",
+  "escenarios": {
+    "consulta": 22,
+    "emergencia": 23,
+    "memoria": 30,
+    "registro": 25,
+    "seguridad": 23
+  },
+  "stills": [
+    "bloqueo.png",
+    "chat_disclaimer.png",
+    "emergencia.png",
+    "memoria.png",
+    "profiles.png",
+    "rag_sources.png",
+    "register.png",
+    "sessions.png"
+  ]
+}

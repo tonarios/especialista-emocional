@@ -1,6 +1,6 @@
 # heartbeat — estado del proceso (ah-emociones)
 
-Última actualización: 2026-09-05
+Última actualización: 2026-09-06
 LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutadas)
 
 ## Resumen por skill
@@ -16,7 +16,7 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
 | 7 | frontend | **done** | M5 | flujo completo con chips de fuentes + disclaimer | 2026-09-05 | deepseek-v4-pro | commit `58b9331`; `frontend/` vanilla; `/chat` NDJSON; chips `basado en`; disclaimer fijo; 401/403/429 amigables |
 | 8 | docker | **done** | M6 | `make up` + chat + persistencia + non-root | 2026-09-05 | deepseek-v4-pro | commit `05a3890`; imagen 2.7 GB; app+db sanos; chat gemma4 OK; login 200 tras down/up; whoami=appuser |
 | 9 | security-tests | **done** | M7 | pytest verde + secrets_audit limpio | 2026-09-05 | deepseek-v4-pro | commit `55d3618`; 201 passed; 156 términos paramétricos; 6 emergencias sin recuperación; secrets_audit 4/4 limpio |
-| 10 | evidence-eval | **done** | M8 | PNGs + PDF + GIFs con métricas | 2026-09-05 | deepseek-v4-pro | commit `befe33a`; e2e 52 preguntas; recall single 0.935 / alias 1.0 / multi 0.333; bootstrap seed 42; 4 PNGs + reporte.pdf |
+| 10 | evidence-eval | **done** | M8 | PNGs + PDF + GIFs con métricas | 2026-09-06 | opus-5 (regenerado) | e2e 52 preguntas; recall single 0.935 / alias 1.0 / multi 0.333; bootstrap seed 42; **8 PNGs + 5 GIFs + reporte.pdf + docs/QA_report.md** sobre la UI Liquid Glass |
 | 11 | gcp-terraform | pending | M9 | — | — | — | — |
 
 ## Bitácora (cronológica)
@@ -117,6 +117,58 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
    - **Multi-hop es el punto débil (0.333):** citar TODOS los síntomas en una síntesis con gemma4 local + el hueco de sinonimia `pelo→alopecia`. Documentado como riesgo en el reporte.
    - **GIFs:** omitidos (sin `ffmpeg` en el host); el exit criteria de M8 solo exige PNGs + PDF.
    - **Verificación:** `pytest` → **203 passed**; `scripts/evidence.sh` orquesta e2e→capturas→reporte; artefactos en `outputs/`.
+
+- **2026-09-06 — evidence-eval REGENERADA (M8 rehecha).** La evidencia de `befe33a` se había
+  generado contra el HTML **anterior** al rediseño Liquid Glass (y antes del cambio FR-13 en
+  `run_deterministic`), así que las capturas ya no retrataban el sistema. Se rehízo entera y se
+  añadieron los artefactos que faltaban respecto al repo base: **GIFs** y **reportes `.md`**.
+   - **Scripts nuevos/rehechos:** `scripts/cdp.py` (cliente CDP compartido),
+     `scripts/capture_evidence.py` (reescrito: 5 escenarios con aserciones, frames + stills),
+     `scripts/gifs.py` (ensamblado con **Pillow**, no ffmpeg), `scripts/qa_report.py`
+     (`docs/QA_report.md` generado desde los datos), `scripts/report.py` (KPIs ya no
+     hardcodeados; galería de 8 stills + tabla de escenarios), `scripts/evidence.sh` (5 pasos).
+   - **GIFs sin ffmpeg (deuda de M8 cerrada):** el host sigue sin `ffmpeg`; se usa Pillow.
+     Dos trucos necesarios para que no pesaran ~4 MB cada uno: **congelar la animación del
+     fondo aurora** durante la captura (si no, cada frame difiere en todos los píxeles) y
+     **paleta única** por escenario con `disposal=1` (con paleta por frame se pierde la
+     compresión delta). Resultado: 104–308 KB por GIF, en línea con el repo base.
+   - **`scripts/evidence.sh` estaba roto:** `uv run python scripts/e2e.py` fallaba con
+     `ModuleNotFoundError: especialista` (pyproject tiene `package = false`). Se exporta
+     `PYTHONPATH` en el wrapper. Nadie lo había ejecutado de punta a punta desde M8.
+   - **3 defectos reales del frontend destapados por las aserciones de captura** (el punto de
+     que la evidencia se autocompruebe):
+     1. **Resaltado de emergencia perdido** en el refactor a `/chat` NDJSON: la burbuja se crea
+        antes de conocer el `kind`, y nadie aplicaba `.emergency` al llegar el evento final.
+        Contradecía lo que el propio heartbeat de M5 declaraba. Corregido en `app.js`.
+     2. **403 mostraba el detalle técnico del guardarraíl** (`"prompt injection"`) al usuario;
+        además de feo, decirle qué patrón saltó facilita evadirlo. Ahora mensaje amigable en
+        español + clase `.blocked` (nuevo estilo).
+     3. **Los chips de fuentes quedaban fuera de vista**: al llegar una respuesta larga el
+        contenedor no volvía a hacer scroll, así que FR-19 no se veía ni en la UI ni en la
+        captura. Corregido con re-scroll tras el evento final.
+   - **Bug de la propia captura (falso verde):** `localStorage.clear()` corría sobre
+     `about:blank` — otro origen —, así que la app restauraba la sesión de una corrida previa y
+     el escenario «registro» fotografiaba un chat viejo mientras la aserción `chat visible`
+     pasaba en falso. Se limpia ya en el origen de la app y se exige estar en la vista de
+     acceso antes de registrar. Salvaguarda añadida en `gifs.py`: un GIF con <4 transiciones
+     reales **rompe la corrida** en vez de publicar un GIF estático.
+   - **Métricas (corrida final):** global **0.865** (IC95 [0.769, 0.942]) · single **0.903** ·
+     alias **1.000** · multi **0.333**; seed 42, 2.000 remuestreos.
+   - **Variabilidad declarada:** dos corridas del mismo eval sobre el mismo índice dieron
+     global 0.885/0.865 y single 0.935/0.903 (`gemma4` no es determinista). Lo reproducible es
+     el procedimiento, no la cifra; queda dicho en `docs/QA_report.md` §4.1 en vez de reportar
+     el mejor número. Nota aparte: el cambio FR-13 en `run_deterministic` **no** movió las
+     métricas fuera de ese rango.
+   - **`.gitignore`:** `outputs/` estaba ignorado **entero**, así que la evidencia de M8 nunca
+     se commiteó y `docs/QA_report.md` habría tenido todas las imágenes rotas en un clon. Se
+     adopta la política del repo base: se publican `outputs/evidence/`, `outputs/gifs/` y
+     `outputs/reporte.pdf` (7,6 MB); se ignoran los **frames** intermedios (55 MB).
+   - **Artefactos:** 8 stills, 5 GIFs (registro/consulta/emergencia/seguridad/memoria),
+     `outputs/reporte.pdf` (7 págs.), `docs/QA_report.md` (generado) y `docs/QA_reasoning.md`
+     (razonamiento de diseño, escrito a mano como en el base).
+   - **Verificación:** `pytest` → 199 passed + 7 skipped (los 7 son `test_auth.py`, saltados
+     porque el Postgres del compose no publica puerto al host); `secrets_audit.sh` 4/4 limpio;
+     `scripts/evidence.sh` completo de punta a punta.
 
 - **2026-09-05 — post-M8, ajustes finales.** Dos correcciones tras la revisión con el owner:
    - **Memoria (FR-13):** el camino determinista NO leía el historial (solo existía la tool `get_user_profile` para ADK). Ahora `run_deterministic` inyecta `<historial>` en la síntesis cada turno y detecta preguntas de memoria (`"¿cuál fue mi última consulta?"`, `"¿recuerdas mis consultas?"`) → responde desde el historial persistido. Sin historial → aviso amable. tests: +3 (`test_memory_question_detected`, `test_format_history`, `test_format_history_empty`). Commit `f2ec2fb`.

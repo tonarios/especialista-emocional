@@ -14,8 +14,15 @@ __pycache__/
 # Índice RAG generado (regenerable con `python -m index`)
 data/index/
 
-# Outputs generados (evidencia, gifs, reportes)
-outputs/
+# Outputs generados: se publican solo los que referencian los docs
+# (docs/QA_report.md enlaza GIFs, stills y el PDF).
+outputs/*
+!outputs/evidence/
+!outputs/gifs/
+!outputs/reporte.pdf
+# Los frames intermedios de los GIFs son ~55 MB y se regeneran con
+# scripts/capture_evidence.py.
+outputs/gifs/frames/
 
 # OS
 .DS_Store

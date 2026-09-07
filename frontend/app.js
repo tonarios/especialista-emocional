@@ -124,8 +124,12 @@ async function sendMessage(ev) {
 
     if (res.status === 401) { handleSessionExpired(); return; }
     if (res.status === 403) {
-      const data = await res.json().catch(() => ({}));
-      typing.textContent = data.detail || "Mensaje bloqueado.";
+      // No se expone el `detail` del backend: es el motivo técnico del
+      // guardarraíl y decirle al usuario qué patrón saltó facilita evadirlo.
+      await res.json().catch(() => ({}));
+      typing.textContent = "Tu mensaje fue bloqueado por seguridad. "
+        + "Cuéntame qué síntoma sientes y con gusto te acompaño.";
+      typing.classList.add("blocked");
       return;
     }
     if (res.status === 429) {
@@ -153,9 +157,15 @@ async function sendMessage(ev) {
     }
     if (doneEvent) {
       typing.textContent = doneEvent.text || "…";
+      // El resaltado de emergencia depende del evento final: al crear la burbuja
+      // todavía no se conoce el `kind`.
+      if (doneEvent.kind === "emergency") typing.classList.add("emergency");
       if (doneEvent.sources && doneEvent.sources.length) {
         renderChips(typing, doneEvent.sources);
       }
+      // La burbuja crece al llegar el texto: sin re-scroll el final de la
+      // respuesta y los chips de fuentes quedan fuera de vista.
+      messages.scrollTop = messages.scrollHeight;
     } else {
       typing.textContent = "No hubo respuesta.";
     }
