@@ -1,0 +1,109 @@
+{
+  "url": "https://emociones-app-zxzgilzqfq-uc.a.run.app",
+  "ts": "2026-09-07T07:00:15Z",
+  "total": 16,
+  "ok": 16,
+  "latencias_ms": {
+    "consulta": 3079,
+    "multi_hop": 2437,
+    "emergencia": 585
+  },
+  "casos": [
+    {
+      "caso": "health",
+      "fr": "—",
+      "ok": true,
+      "detalle": "HTTP 200"
+    },
+    {
+      "caso": "frontend servido",
+      "fr": "FR-18",
+      "ok": true,
+      "detalle": "HTTP 200"
+    },
+    {
+      "caso": "registro",
+      "fr": "FR-16",
+      "ok": true,
+      "detalle": "HTTP 200, token emitido: True"
+    },
+    {
+      "caso": "login con clave errónea rechazado",
+      "fr": "FR-16",
+      "ok": true,
+      "detalle": "HTTP 401"
+    },
+    {
+      "caso": "perfil sin token rechazado",
+      "fr": "FR-17",
+      "ok": true,
+      "detalle": "HTTP 401"
+    },
+    {
+      "caso": "consulta con fuentes citadas",
+      "fr": "FR-03/FR-09",
+      "ok": true,
+      "detalle": "kind=respuesta, 3 fuentes, 3.1s"
+    },
+    {
+      "caso": "multi-hop",
+      "fr": "FR-04",
+      "ok": true,
+      "detalle": "4 fuentes, 2.4s"
+    },
+    {
+      "caso": "emergencia deriva sin interpretar",
+      "fr": "FR-06",
+      "ok": true,
+      "detalle": "kind=emergency, 0 fuentes, 585 ms"
+    },
+    {
+      "caso": "emergencia más rápida que una consulta normal",
+      "fr": "NFR-02b",
+      "ok": true,
+      "detalle": "585 ms vs 3079 ms"
+    },
+    {
+      "caso": "prompt injection bloqueado",
+      "fr": "NFR-01",
+      "ok": true,
+      "detalle": "HTTP 403"
+    },
+    {
+      "caso": "fuera de dominio sin confabular",
+      "fr": "FR-09b",
+      "ok": true,
+      "detalle": "kind=sin_cobertura"
+    },
+    {
+      "caso": "historial persistido",
+      "fr": "FR-14",
+      "ok": true,
+      "detalle": "2 consultas"
+    },
+    {
+      "caso": "sesiones ADK persistidas",
+      "fr": "FR-12",
+      "ok": true,
+      "detalle": "1 sesión(es), 8 eventos"
+    },
+    {
+      "caso": "responde desde el historial",
+      "fr": "FR-13",
+      "ok": true,
+      "detalle": "Tu última consulta fue el 7 de septiembre de 2026, donde preguntaste s"
+    },
+    {
+      "caso": "usuario B no ve datos de A",
+      "fr": "FR-17",
+      "ok": true,
+      "detalle": "0 consultas y 0 sesiones ajenas"
+    },
+    {
+      "caso": "borrado del historial",
+      "fr": "FR-14b",
+      "ok": true,
+      "detalle": "historial vacío tras DELETE"
+    }
+  ]
+}

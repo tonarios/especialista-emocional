@@ -24,6 +24,8 @@ outputs/*
 !outputs/evidence/
 !outputs/gifs/
 !outputs/reporte.pdf
+!outputs/reporte-final.pdf
+!outputs/reporte-final.html
 # Los frames intermedios de los GIFs son ~55 MB y se regeneran con
 # scripts/capture_evidence.py.
 outputs/gifs/frames/
