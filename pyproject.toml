@@ -3,20 +3,37 @@ name = "ah-emociones"
 version = "0.1.0"
 description = "Especialista en enfermedades emocionales: RAG (FAISS + bge-m3) sobre un diccionario emocional, memoria persistente y autenticación (Google ADK 2.x + gemma4 vía Ollama)"
 requires-python = ">=3.12"
+# Núcleo: lo que necesitan TODOS los entornos. Todo lo específico de un backend
+# (Ollama local / Vertex+Firestore en nube) vive en un extra, para que la imagen
+# de Cloud Run no cargue lo que no usa.
 dependencies = [
     "google-adk>=2.0.0",
-    "litellm>=1.84",
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
     "httpx>=0.27",
     "python-dotenv>=1.0",
     "numpy>=1.26",
-    "scipy>=1.12",
+    "faiss-cpu>=1.8",
+    "rank-bm25>=0.2.2",
+]
+
+[project.optional-dependencies]
+# Desarrollo local: gemma4/bge-m3 por Ollama y Postgres para auth/memoria.
+# litellm arrastra botocore, openai, tokenizers y huggingface_hub (~150 MB) y
+# solo lo usa el camino alternativo `build_agent`, que importa perezosamente.
+local = [
+    "litellm>=1.84",
     "sqlalchemy>=2.0",
     "psycopg[binary]>=3.2",
     "greenlet>=3.5.5",
-    "faiss-cpu>=1.8",
-    "rank-bm25>=0.2.2",
+]
+
+# Cloud Run: Vertex para LLM y embeddings, Firestore para datos, BigQuery para
+# analítica. Sin Ollama, sin litellm, sin Postgres.
+cloud = [
+    "google-cloud-firestore>=2.19",
+    "google-cloud-bigquery>=3.25",
+    "google-cloud-secret-manager>=2.20",
 ]
 
 [tool.uv]

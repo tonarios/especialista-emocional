@@ -1,0 +1,995 @@
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # google_artifact_registry_repository.docker will be created
+  + resource "google_artifact_registry_repository" "docker" {
+      + create_time      = (known after apply)
+      + description      = "Imagen única back+front de ah-emociones"
+      + effective_labels = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + format           = "DOCKER"
+      + id               = (known after apply)
+      + location         = "us-central1"
+      + mode             = "STANDARD_REPOSITORY"
+      + name             = (known after apply)
+      + project          = "diplomado-499206"
+      + repository_id    = "ah-emociones"
+      + terraform_labels = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + update_time      = (known after apply)
+
+      + cleanup_policies {
+          + action = "DELETE"
+          + id     = "borrar-lo-demas"
+
+          + condition {
+              + older_than            = "2592000s"
+              + package_name_prefixes = []
+              + tag_prefixes          = []
+              + tag_state             = "ANY"
+              + version_name_prefixes = []
+                # (1 unchanged attribute hidden)
+            }
+        }
+      + cleanup_policies {
+          + action = "KEEP"
+          + id     = "conservar-3-recientes"
+
+          + most_recent_versions {
+              + keep_count            = 3
+              + package_name_prefixes = []
+            }
+        }
+
+      + vulnerability_scanning_config (known after apply)
+    }
+
+  # google_artifact_registry_repository_iam_member.runtime_pull will be created
+  + resource "google_artifact_registry_repository_iam_member" "runtime_pull" {
+      + etag       = (known after apply)
+      + id         = (known after apply)
+      + location   = "us-central1"
+      + member     = "serviceAccount:ah-emociones-run@diplomado-499206.iam.gserviceaccount.com"
+      + project    = "diplomado-499206"
+      + repository = (known after apply)
+      + role       = "roles/artifactregistry.reader"
+    }
+
+  # google_bigquery_dataset.analytics will be created
+  + resource "google_bigquery_dataset" "analytics" {
+      + creation_time              = (known after apply)
+      + dataset_id                 = "ah_emociones_analytics"
+      + default_collation          = (known after apply)
+      + delete_contents_on_destroy = false
+      + description                = "Sin PII ni contenido de conversaciones: NFR-07. El usuario se identifica por hash con sal."
+      + effective_labels           = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + etag                       = (known after apply)
+      + friendly_name              = "Analítica de ah-emociones (métricas y metadatos, sin texto de chats)"
+      + id                         = (known after apply)
+      + is_case_insensitive        = (known after apply)
+      + last_modified_time         = (known after apply)
+      + location                   = "US"
+      + max_time_travel_hours      = (known after apply)
+      + project                    = "diplomado-499206"
+      + self_link                  = (known after apply)
+      + storage_billing_model      = (known after apply)
+      + terraform_labels           = {
+          + "goog-terraform-provisioned" = "true"
+        }
+
+      + access (known after apply)
+    }
+
+  # google_bigquery_dataset_iam_member.runtime_analytics will be created
+  + resource "google_bigquery_dataset_iam_member" "runtime_analytics" {
+      + dataset_id = "ah_emociones_analytics"
+      + etag       = (known after apply)
+      + id         = (known after apply)
+      + member     = "serviceAccount:ah-emociones-run@diplomado-499206.iam.gserviceaccount.com"
+      + project    = (known after apply)
+      + role       = "roles/bigquery.dataEditor"
+    }
+
+  # google_bigquery_table.consultas will be created
+  + resource "google_bigquery_table" "consultas" {
+      + clustering                   = [
+          + "risk_tier",
+          + "kind",
+        ]
+      + creation_time                = (known after apply)
+      + dataset_id                   = "ah_emociones_analytics"
+      + deletion_protection          = false
+      + description                  = "Un registro por turno de chat. Términos y riesgo, nunca el mensaje."
+      + effective_labels             = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + etag                         = (known after apply)
+      + expiration_time              = (known after apply)
+      + generated_schema_columns     = (known after apply)
+      + id                           = (known after apply)
+      + ignore_auto_generated_schema = false
+      + last_modified_time           = (known after apply)
+      + location                     = (known after apply)
+      + max_staleness                = (known after apply)
+      + num_bytes                    = (known after apply)
+      + num_long_term_bytes          = (known after apply)
+      + num_rows                     = (known after apply)
+      + project                      = "diplomado-499206"
+      + schema                       = jsonencode(
+            [
+              + {
+                  + description = "Momento del turno"
+                  + mode        = "REQUIRED"
+                  + name        = "ts"
+                  + type        = "TIMESTAMP"
+                },
+              + {
+                  + description = "Hash con sal del email — nunca el email"
+                  + mode        = "REQUIRED"
+                  + name        = "user_hash"
+                  + type        = "STRING"
+                },
+              + {
+                  + mode = "NULLABLE"
+                  + name = "session_id"
+                  + type = "STRING"
+                },
+              + {
+                  + description = "Síntomas extraídos, normalizados"
+                  + mode        = "REPEATED"
+                  + name        = "symptom_slug"
+                  + type        = "STRING"
+                },
+              + {
+                  + description = "Términos citados tras la intersección (§9)"
+                  + mode        = "REPEATED"
+                  + name        = "term_slug"
+                  + type        = "STRING"
+                },
+              + {
+                  + description = "Nivel de riesgo que eligió la plantilla"
+                  + mode        = "NULLABLE"
+                  + name        = "risk_tier"
+                  + type        = "STRING"
+                },
+              + {
+                  + description = "respuesta | sin_cobertura | emergency | blocked"
+                  + mode        = "REQUIRED"
+                  + name        = "kind"
+                  + type        = "STRING"
+                },
+              + {
+                  + mode = "NULLABLE"
+                  + name = "latency_ms"
+                  + type = "INTEGER"
+                },
+              + {
+                  + description = "Para seguir el gasto de Vertex"
+                  + mode        = "NULLABLE"
+                  + name        = "input_tokens"
+                  + type        = "INTEGER"
+                },
+              + {
+                  + mode = "NULLABLE"
+                  + name = "output_tokens"
+                  + type = "INTEGER"
+                },
+            ]
+        )
+      + self_link                    = (known after apply)
+      + table_id                     = "consultas"
+      + terraform_labels             = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + type                         = (known after apply)
+
+      + time_partitioning {
+          + expiration_ms = (known after apply)
+          + field         = "ts"
+          + type          = "DAY"
+        }
+    }
+
+  # google_bigquery_table.eval will be created
+  + resource "google_bigquery_table" "eval" {
+      + creation_time                = (known after apply)
+      + dataset_id                   = "ah_emociones_analytics"
+      + deletion_protection          = false
+      + description                  = "Serie histórica de scripts/evidence.sh: permite ver si el recall se degrada entre corridas, no solo la foto de la última."
+      + effective_labels             = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + etag                         = (known after apply)
+      + expiration_time              = (known after apply)
+      + generated_schema_columns     = (known after apply)
+      + id                           = (known after apply)
+      + ignore_auto_generated_schema = false
+      + last_modified_time           = (known after apply)
+      + location                     = (known after apply)
+      + max_staleness                = (known after apply)
+      + num_bytes                    = (known after apply)
+      + num_long_term_bytes          = (known after apply)
+      + num_rows                     = (known after apply)
+      + project                      = "diplomado-499206"
+      + schema                       = jsonencode(
+            [
+              + {
+                  + mode = "REQUIRED"
+                  + name = "run_id"
+                  + type = "STRING"
+                },
+              + {
+                  + mode = "REQUIRED"
+                  + name = "ts"
+                  + type = "TIMESTAMP"
+                },
+              + {
+                  + mode = "NULLABLE"
+                  + name = "git_sha"
+                  + type = "STRING"
+                },
+              + {
+                  + description = "overall | single | alias | multi"
+                  + mode        = "REQUIRED"
+                  + name        = "tipo"
+                  + type        = "STRING"
+                },
+              + {
+                  + mode = "REQUIRED"
+                  + name = "n"
+                  + type = "INTEGER"
+                },
+              + {
+                  + mode = "REQUIRED"
+                  + name = "recall"
+                  + type = "FLOAT"
+                },
+              + {
+                  + mode = "NULLABLE"
+                  + name = "ci95_low"
+                  + type = "FLOAT"
+                },
+              + {
+                  + mode = "NULLABLE"
+                  + name = "ci95_high"
+                  + type = "FLOAT"
+                },
+              + {
+                  + mode = "NULLABLE"
+                  + name = "latency_mean_s"
+                  + type = "FLOAT"
+                },
+              + {
+                  + description = "Distingue corridas con gemma4 local de las de Vertex"
+                  + mode        = "NULLABLE"
+                  + name        = "llm_model"
+                  + type        = "STRING"
+                },
+            ]
+        )
+      + self_link                    = (known after apply)
+      + table_id                     = "eval"
+      + terraform_labels             = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + type                         = (known after apply)
+    }
+
+  # google_bigquery_table.guardarrailes will be created
+  + resource "google_bigquery_table" "guardarrailes" {
+      + creation_time                = (known after apply)
+      + dataset_id                   = "ah_emociones_analytics"
+      + deletion_protection          = false
+      + description                  = "Cada vez que dispara un guardarraíl determinista. Es la evidencia viva de FR-06 y NFR-01."
+      + effective_labels             = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + etag                         = (known after apply)
+      + expiration_time              = (known after apply)
+      + generated_schema_columns     = (known after apply)
+      + id                           = (known after apply)
+      + ignore_auto_generated_schema = false
+      + last_modified_time           = (known after apply)
+      + location                     = (known after apply)
+      + max_staleness                = (known after apply)
+      + num_bytes                    = (known after apply)
+      + num_long_term_bytes          = (known after apply)
+      + num_rows                     = (known after apply)
+      + project                      = "diplomado-499206"
+      + schema                       = jsonencode(
+            [
+              + {
+                  + mode = "REQUIRED"
+                  + name = "ts"
+                  + type = "TIMESTAMP"
+                },
+              + {
+                  + description = "emergencia | injection | prescripcion | diagnostico_forzado"
+                  + mode        = "REQUIRED"
+                  + name        = "tipo"
+                  + type        = "STRING"
+                },
+              + {
+                  + description = "Grupo de rag/emergency_patterns.json, si aplica"
+                  + mode        = "NULLABLE"
+                  + name        = "grupo"
+                  + type        = "STRING"
+                },
+              + {
+                  + mode = "NULLABLE"
+                  + name = "user_hash"
+                  + type = "STRING"
+                },
+            ]
+        )
+      + self_link                    = (known after apply)
+      + table_id                     = "guardarrailes"
+      + terraform_labels             = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + type                         = (known after apply)
+
+      + time_partitioning {
+          + expiration_ms = (known after apply)
+          + field         = "ts"
+          + type          = "DAY"
+        }
+    }
+
+  # google_bigquery_table.recuperacion will be created
+  + resource "google_bigquery_table" "recuperacion" {
+      + creation_time                = (known after apply)
+      + dataset_id                   = "ah_emociones_analytics"
+      + deletion_protection          = false
+      + description                  = "Diagnóstico del RAG en producción: dónde falla la cobertura (deuda de sinonimia)."
+      + effective_labels             = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + etag                         = (known after apply)
+      + expiration_time              = (known after apply)
+      + generated_schema_columns     = (known after apply)
+      + id                           = (known after apply)
+      + ignore_auto_generated_schema = false
+      + last_modified_time           = (known after apply)
+      + location                     = (known after apply)
+      + max_staleness                = (known after apply)
+      + num_bytes                    = (known after apply)
+      + num_long_term_bytes          = (known after apply)
+      + num_rows                     = (known after apply)
+      + project                      = "diplomado-499206"
+      + schema                       = jsonencode(
+            [
+              + {
+                  + mode = "REQUIRED"
+                  + name = "ts"
+                  + type = "TIMESTAMP"
+                },
+              + {
+                  + description = "Hash de la consulta — nunca el texto"
+                  + mode        = "REQUIRED"
+                  + name        = "query_hash"
+                  + type        = "STRING"
+                },
+              + {
+                  + mode = "REQUIRED"
+                  + name = "k"
+                  + type = "INTEGER"
+                },
+              + {
+                  + description = "Hubo match nominal de título/alias (el umbral τ, FR-09b)"
+                  + mode        = "REQUIRED"
+                  + name        = "hit_lexico"
+                  + type        = "BOOLEAN"
+                },
+              + {
+                  + mode = "REQUIRED"
+                  + name = "sin_cobertura"
+                  + type = "BOOLEAN"
+                },
+              + {
+                  + mode = "REPEATED"
+                  + name = "top_slugs"
+                  + type = "STRING"
+                },
+              + {
+                  + mode = "NULLABLE"
+                  + name = "top_score"
+                  + type = "FLOAT"
+                },
+            ]
+        )
+      + self_link                    = (known after apply)
+      + table_id                     = "recuperacion"
+      + terraform_labels             = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + type                         = (known after apply)
+
+      + time_partitioning {
+          + expiration_ms = (known after apply)
+          + field         = "ts"
+          + type          = "DAY"
+        }
+    }
+
+  # google_billing_budget.monthly[0] will be created
+  + resource "google_billing_budget" "monthly" {
+      + billing_account = "REDACTED-BILLING-ACCOUNT"
+      + display_name    = "Presupuesto ah-emociones"
+      + id              = (known after apply)
+      + name            = (known after apply)
+
+      + amount {
+          + specified_amount {
+              + currency_code = "USD"
+              + units         = "5"
+            }
+        }
+
+      + budget_filter {
+          + credit_types           = (known after apply)
+          + credit_types_treatment = "INCLUDE_ALL_CREDITS"
+          + labels                 = (known after apply)
+          + projects               = [
+              + "projects/diplomado-499206",
+            ]
+          + services               = (known after apply)
+          + subaccounts            = (known after apply)
+        }
+
+      + threshold_rules {
+          + spend_basis       = "CURRENT_SPEND"
+          + threshold_percent = 0.5
+        }
+      + threshold_rules {
+          + spend_basis       = "CURRENT_SPEND"
+          + threshold_percent = 0.9
+        }
+      + threshold_rules {
+          + spend_basis       = "CURRENT_SPEND"
+          + threshold_percent = 1
+        }
+      + threshold_rules {
+          + spend_basis       = "FORECASTED_SPEND"
+          + threshold_percent = 1
+        }
+    }
+
+  # google_cloud_run_v2_service.app will be created
+  + resource "google_cloud_run_v2_service" "app" {
+      + conditions              = (known after apply)
+      + create_time             = (known after apply)
+      + creator                 = (known after apply)
+      + delete_time             = (known after apply)
+      + deletion_protection     = false
+      + effective_annotations   = (known after apply)
+      + effective_labels        = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + etag                    = (known after apply)
+      + expire_time             = (known after apply)
+      + generation              = (known after apply)
+      + id                      = (known after apply)
+      + ingress                 = "INGRESS_TRAFFIC_ALL"
+      + last_modifier           = (known after apply)
+      + latest_created_revision = (known after apply)
+      + latest_ready_revision   = (known after apply)
+      + launch_stage            = (known after apply)
+      + location                = "us-central1"
+      + name                    = "ah-emociones-app"
+      + observed_generation     = (known after apply)
+      + project                 = "diplomado-499206"
+      + reconciling             = (known after apply)
+      + terminal_condition      = (known after apply)
+      + terraform_labels        = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + traffic_statuses        = (known after apply)
+      + uid                     = (known after apply)
+      + update_time             = (known after apply)
+      + uri                     = (known after apply)
+      + urls                    = (known after apply)
+
+      + template {
+          + max_instance_request_concurrency = 20
+          + service_account                  = "ah-emociones-run@diplomado-499206.iam.gserviceaccount.com"
+          + timeout                          = "120s"
+
+          + containers {
+              + build_info = (known after apply)
+              + image      = "us-central1-docker.pkg.dev/diplomado-499206/ah-emociones/app:latest"
+
+              + env {
+                  + name  = "ANALYTICS_SALT"
+                    # (1 unchanged attribute hidden)
+
+                  + value_source {
+                      + secret_key_ref {
+                          + secret  = "ah-emociones-analytics-salt"
+                          + version = "latest"
+                        }
+                    }
+                }
+              + env {
+                  + name  = "BQ_DATASET"
+                  + value = "ah_emociones_analytics"
+                }
+              + env {
+                  + name  = "EMBED_DIMS"
+                  + value = "3072"
+                }
+              + env {
+                  + name  = "EMBED_MODEL"
+                  + value = "gemini-embedding-001"
+                }
+              + env {
+                  + name  = "FIRESTORE_DATABASE"
+                  + value = "(default)"
+                }
+              + env {
+                  + name  = "GOOGLE_CLOUD_LOCATION"
+                  + value = "us-central1"
+                }
+              + env {
+                  + name  = "GOOGLE_CLOUD_PROJECT"
+                  + value = "diplomado-499206"
+                }
+              + env {
+                  + name  = "GOOGLE_GENAI_USE_VERTEXAI"
+                  + value = "True"
+                }
+              + env {
+                  + name  = "JWT_SECRET"
+                    # (1 unchanged attribute hidden)
+
+                  + value_source {
+                      + secret_key_ref {
+                          + secret  = "ah-emociones-jwt-secret"
+                          + version = "latest"
+                        }
+                    }
+                }
+              + env {
+                  + name  = "LLM_MODEL"
+                  + value = "gemini-2.5-flash-lite"
+                }
+              + env {
+                  + name  = "LLM_PROVIDER"
+                  + value = "vertex"
+                }
+              + env {
+                  + name  = "STORAGE_BACKEND"
+                  + value = "firestore"
+                }
+
+              + ports {
+                  + container_port = 8000
+                  + name           = (known after apply)
+                }
+
+              + resources {
+                  + cpu_idle          = true
+                  + limits            = {
+                      + "cpu"    = "1"
+                      + "memory" = "2Gi"
+                    }
+                  + startup_cpu_boost = true
+                }
+
+              + startup_probe {
+                  + failure_threshold     = 30
+                  + initial_delay_seconds = 10
+                  + period_seconds        = 5
+                  + timeout_seconds       = 1
+
+                  + http_get {
+                      + path = "/health"
+                      + port = (known after apply)
+                    }
+                }
+            }
+
+          + scaling {
+              + max_instance_count = 3
+              + min_instance_count = 0
+            }
+        }
+
+      + traffic (known after apply)
+    }
+
+  # google_cloud_run_v2_service_iam_member.public will be created
+  + resource "google_cloud_run_v2_service_iam_member" "public" {
+      + etag     = (known after apply)
+      + id       = (known after apply)
+      + location = "us-central1"
+      + member   = "allUsers"
+      + name     = "ah-emociones-app"
+      + project  = "diplomado-499206"
+      + role     = "roles/run.invoker"
+    }
+
+  # google_firestore_database.main will be created
+  + resource "google_firestore_database" "main" {
+      + app_engine_integration_mode       = (known after apply)
+      + concurrency_mode                  = (known after apply)
+      + create_time                       = (known after apply)
+      + database_edition                  = (known after apply)
+      + delete_protection_state           = "DELETE_PROTECTION_DISABLED"
+      + deletion_policy                   = "DELETE"
+      + earliest_version_time             = (known after apply)
+      + etag                              = (known after apply)
+      + id                                = (known after apply)
+      + key_prefix                        = (known after apply)
+      + location_id                       = "us-central1"
+      + name                              = "(default)"
+      + point_in_time_recovery_enablement = "POINT_IN_TIME_RECOVERY_DISABLED"
+      + project                           = "diplomado-499206"
+      + type                              = "FIRESTORE_NATIVE"
+      + uid                               = (known after apply)
+      + update_time                       = (known after apply)
+      + version_retention_period          = (known after apply)
+    }
+
+  # google_firestore_index.consultations_by_user will be created
+  + resource "google_firestore_index" "consultations_by_user" {
+      + api_scope   = "ANY_API"
+      + collection  = "consultations"
+      + database    = "(default)"
+      + density     = (known after apply)
+      + id          = (known after apply)
+      + multikey    = false
+      + name        = (known after apply)
+      + project     = "diplomado-499206"
+      + query_scope = "COLLECTION"
+
+      + fields {
+          + field_path = "user_id"
+          + order      = "ASCENDING"
+        }
+      + fields {
+          + field_path = "ts"
+          + order      = "DESCENDING"
+        }
+    }
+
+  # google_firestore_index.events_by_session will be created
+  + resource "google_firestore_index" "events_by_session" {
+      + api_scope   = "ANY_API"
+      + collection  = "session_events"
+      + database    = "(default)"
+      + density     = (known after apply)
+      + id          = (known after apply)
+      + multikey    = false
+      + name        = (known after apply)
+      + project     = "diplomado-499206"
+      + query_scope = "COLLECTION"
+
+      + fields {
+          + field_path = "session_key"
+          + order      = "ASCENDING"
+        }
+      + fields {
+          + field_path = "ts"
+          + order      = "ASCENDING"
+        }
+    }
+
+  # google_project_iam_member.runtime["roles/aiplatform.user"] will be created
+  + resource "google_project_iam_member" "runtime" {
+      + etag    = (known after apply)
+      + id      = (known after apply)
+      + member  = "serviceAccount:ah-emociones-run@diplomado-499206.iam.gserviceaccount.com"
+      + project = "diplomado-499206"
+      + role    = "roles/aiplatform.user"
+    }
+
+  # google_project_iam_member.runtime["roles/bigquery.jobUser"] will be created
+  + resource "google_project_iam_member" "runtime" {
+      + etag    = (known after apply)
+      + id      = (known after apply)
+      + member  = "serviceAccount:ah-emociones-run@diplomado-499206.iam.gserviceaccount.com"
+      + project = "diplomado-499206"
+      + role    = "roles/bigquery.jobUser"
+    }
+
+  # google_project_iam_member.runtime["roles/datastore.user"] will be created
+  + resource "google_project_iam_member" "runtime" {
+      + etag    = (known after apply)
+      + id      = (known after apply)
+      + member  = "serviceAccount:ah-emociones-run@diplomado-499206.iam.gserviceaccount.com"
+      + project = "diplomado-499206"
+      + role    = "roles/datastore.user"
+    }
+
+  # google_project_iam_member.runtime["roles/logging.logWriter"] will be created
+  + resource "google_project_iam_member" "runtime" {
+      + etag    = (known after apply)
+      + id      = (known after apply)
+      + member  = "serviceAccount:ah-emociones-run@diplomado-499206.iam.gserviceaccount.com"
+      + project = "diplomado-499206"
+      + role    = "roles/logging.logWriter"
+    }
+
+  # google_project_service.services["aiplatform.googleapis.com"] will be created
+  + resource "google_project_service" "services" {
+      + disable_on_destroy = false
+      + id                 = (known after apply)
+      + project            = "diplomado-499206"
+      + service            = "aiplatform.googleapis.com"
+    }
+
+  # google_project_service.services["artifactregistry.googleapis.com"] will be created
+  + resource "google_project_service" "services" {
+      + disable_on_destroy = false
+      + id                 = (known after apply)
+      + project            = "diplomado-499206"
+      + service            = "artifactregistry.googleapis.com"
+    }
+
+  # google_project_service.services["bigquery.googleapis.com"] will be created
+  + resource "google_project_service" "services" {
+      + disable_on_destroy = false
+      + id                 = (known after apply)
+      + project            = "diplomado-499206"
+      + service            = "bigquery.googleapis.com"
+    }
+
+  # google_project_service.services["billingbudgets.googleapis.com"] will be created
+  + resource "google_project_service" "services" {
+      + disable_on_destroy = false
+      + id                 = (known after apply)
+      + project            = "diplomado-499206"
+      + service            = "billingbudgets.googleapis.com"
+    }
+
+  # google_project_service.services["cloudbilling.googleapis.com"] will be created
+  + resource "google_project_service" "services" {
+      + disable_on_destroy = false
+      + id                 = (known after apply)
+      + project            = "diplomado-499206"
+      + service            = "cloudbilling.googleapis.com"
+    }
+
+  # google_project_service.services["firestore.googleapis.com"] will be created
+  + resource "google_project_service" "services" {
+      + disable_on_destroy = false
+      + id                 = (known after apply)
+      + project            = "diplomado-499206"
+      + service            = "firestore.googleapis.com"
+    }
+
+  # google_project_service.services["run.googleapis.com"] will be created
+  + resource "google_project_service" "services" {
+      + disable_on_destroy = false
+      + id                 = (known after apply)
+      + project            = "diplomado-499206"
+      + service            = "run.googleapis.com"
+    }
+
+  # google_project_service.services["secretmanager.googleapis.com"] will be created
+  + resource "google_project_service" "services" {
+      + disable_on_destroy = false
+      + id                 = (known after apply)
+      + project            = "diplomado-499206"
+      + service            = "secretmanager.googleapis.com"
+    }
+
+  # google_project_service.services["storage.googleapis.com"] will be created
+  + resource "google_project_service" "services" {
+      + disable_on_destroy = false
+      + id                 = (known after apply)
+      + project            = "diplomado-499206"
+      + service            = "storage.googleapis.com"
+    }
+
+  # google_secret_manager_secret.analytics_salt will be created
+  + resource "google_secret_manager_secret" "analytics_salt" {
+      + create_time           = (known after apply)
+      + deletion_protection   = false
+      + effective_annotations = (known after apply)
+      + effective_labels      = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + expire_time           = (known after apply)
+      + id                    = (known after apply)
+      + name                  = (known after apply)
+      + project               = "diplomado-499206"
+      + secret_id             = "ah-emociones-analytics-salt"
+      + terraform_labels      = {
+          + "goog-terraform-provisioned" = "true"
+        }
+
+      + replication {
+          + auto {
+            }
+        }
+    }
+
+  # google_secret_manager_secret.jwt will be created
+  + resource "google_secret_manager_secret" "jwt" {
+      + create_time           = (known after apply)
+      + deletion_protection   = false
+      + effective_annotations = (known after apply)
+      + effective_labels      = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + expire_time           = (known after apply)
+      + id                    = (known after apply)
+      + name                  = (known after apply)
+      + project               = "diplomado-499206"
+      + secret_id             = "ah-emociones-jwt-secret"
+      + terraform_labels      = {
+          + "goog-terraform-provisioned" = "true"
+        }
+
+      + replication {
+          + auto {
+            }
+        }
+    }
+
+  # google_secret_manager_secret_iam_member.runtime_jwt will be created
+  + resource "google_secret_manager_secret_iam_member" "runtime_jwt" {
+      + etag      = (known after apply)
+      + id        = (known after apply)
+      + member    = "serviceAccount:ah-emociones-run@diplomado-499206.iam.gserviceaccount.com"
+      + project   = "diplomado-499206"
+      + role      = "roles/secretmanager.secretAccessor"
+      + secret_id = "ah-emociones-jwt-secret"
+    }
+
+  # google_secret_manager_secret_iam_member.runtime_salt will be created
+  + resource "google_secret_manager_secret_iam_member" "runtime_salt" {
+      + etag      = (known after apply)
+      + id        = (known after apply)
+      + member    = "serviceAccount:ah-emociones-run@diplomado-499206.iam.gserviceaccount.com"
+      + project   = "diplomado-499206"
+      + role      = "roles/secretmanager.secretAccessor"
+      + secret_id = "ah-emociones-analytics-salt"
+    }
+
+  # google_secret_manager_secret_version.analytics_salt will be created
+  + resource "google_secret_manager_secret_version" "analytics_salt" {
+      + create_time            = (known after apply)
+      + deletion_policy        = "DELETE"
+      + destroy_time           = (known after apply)
+      + enabled                = true
+      + id                     = (known after apply)
+      + is_secret_data_base64  = false
+      + name                   = (known after apply)
+      + secret                 = (known after apply)
+      + secret_data            = (sensitive value)
+      + secret_data_wo         = (write-only attribute)
+      + secret_data_wo_version = 0
+      + version                = (known after apply)
+    }
+
+  # google_secret_manager_secret_version.jwt will be created
+  + resource "google_secret_manager_secret_version" "jwt" {
+      + create_time            = (known after apply)
+      + deletion_policy        = "DELETE"
+      + destroy_time           = (known after apply)
+      + enabled                = true
+      + id                     = (known after apply)
+      + is_secret_data_base64  = false
+      + name                   = (known after apply)
+      + secret                 = (known after apply)
+      + secret_data            = (sensitive value)
+      + secret_data_wo         = (write-only attribute)
+      + secret_data_wo_version = 0
+      + version                = (known after apply)
+    }
+
+  # google_service_account.runtime will be created
+  + resource "google_service_account" "runtime" {
+      + account_id   = "ah-emociones-run"
+      + description  = "Identidad del contenedor. Sin claves descargables."
+      + disabled     = false
+      + display_name = "Runtime de Cloud Run de ah-emociones"
+      + email        = "ah-emociones-run@diplomado-499206.iam.gserviceaccount.com"
+      + id           = (known after apply)
+      + member       = "serviceAccount:ah-emociones-run@diplomado-499206.iam.gserviceaccount.com"
+      + name         = (known after apply)
+      + project      = "diplomado-499206"
+      + unique_id    = (known after apply)
+    }
+
+  # google_storage_bucket.tfstate will be created
+  + resource "google_storage_bucket" "tfstate" {
+      + effective_labels            = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + force_destroy               = false
+      + id                          = (known after apply)
+      + location                    = "US"
+      + name                        = "ah-emociones-tfstate"
+      + project                     = "diplomado-499206"
+      + project_number              = (known after apply)
+      + public_access_prevention    = "enforced"
+      + rpo                         = (known after apply)
+      + self_link                   = (known after apply)
+      + storage_class               = "STANDARD"
+      + terraform_labels            = {
+          + "goog-terraform-provisioned" = "true"
+        }
+      + time_created                = (known after apply)
+      + uniform_bucket_level_access = true
+      + updated                     = (known after apply)
+      + url                         = (known after apply)
+
+      + lifecycle_rule {
+          + action {
+              + type          = "Delete"
+                # (1 unchanged attribute hidden)
+            }
+          + condition {
+              + matches_prefix         = []
+              + matches_storage_class  = []
+              + matches_suffix         = []
+              + num_newer_versions     = 10
+              + with_state             = (known after apply)
+                # (3 unchanged attributes hidden)
+            }
+        }
+
+      + soft_delete_policy (known after apply)
+
+      + versioning {
+          + enabled = true
+        }
+
+      + website (known after apply)
+    }
+
+  # random_password.analytics_salt will be created
+  + resource "random_password" "analytics_salt" {
+      + bcrypt_hash = (sensitive value)
+      + id          = (known after apply)
+      + length      = 32
+      + lower       = true
+      + min_lower   = 0
+      + min_numeric = 0
+      + min_special = 0
+      + min_upper   = 0
+      + number      = true
+      + numeric     = true
+      + result      = (sensitive value)
+      + special     = false
+      + upper       = true
+    }
+
+  # random_password.jwt will be created
+  + resource "random_password" "jwt" {
+      + bcrypt_hash = (sensitive value)
+      + id          = (known after apply)
+      + length      = 64
+      + lower       = true
+      + min_lower   = 0
+      + min_numeric = 0
+      + min_special = 0
+      + min_upper   = 0
+      + number      = true
+      + numeric     = true
+      + result      = (sensitive value)
+      + special     = false
+      + upper       = true
+    }
+
+Plan: 37 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + artifact_registry       = "us-central1-docker.pkg.dev/diplomado-499206/ah-emociones"
+  + bigquery_dataset        = "diplomado-499206.ah_emociones_analytics"
+  + cloud_run_url           = (known after apply)
+  + firestore_database      = "(default)"
+  + runtime_service_account = "ah-emociones-run@diplomado-499206.iam.gserviceaccount.com"
+  + tfstate_bucket          = "ah-emociones-tfstate"

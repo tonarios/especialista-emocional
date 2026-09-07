@@ -17,7 +17,7 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
 | 8 | docker | **done** | M6 | `make up` + chat + persistencia + non-root | 2026-09-05 | deepseek-v4-pro | commit `05a3890`; imagen 2.7 GB; app+db sanos; chat gemma4 OK; login 200 tras down/up; whoami=appuser |
 | 9 | security-tests | **done** | M7 | pytest verde + secrets_audit limpio | 2026-09-05 | deepseek-v4-pro | commit `55d3618`; 201 passed; 156 términos paramétricos; 6 emergencias sin recuperación; secrets_audit 4/4 limpio |
 | 10 | evidence-eval | **done** | M8 | PNGs + PDF + GIFs con métricas | 2026-09-06 | opus-5 (regenerado) | e2e 52 preguntas; recall single 0.935 / alias 1.0 / multi 0.333; bootstrap seed 42; **8 PNGs + 5 GIFs + reporte.pdf + docs/QA_report.md** sobre la UI Liquid Glass |
-| 11 | gcp-terraform | pending | M9 | — | — | — | — |
+| 11 | gcp-terraform | **parcial** | M9 | `validate`/`plan` válido + doc de migración | 2026-09-06 | opus-5 | rama `m9-gcp-terraform`; `plan` real: 37 add / 0 change / 0 destroy; 17 tests de seguridad de infra; imagen 2,7 GB → 582 MB; **falta migración de código a Firestore/Vertex** (§4 de `docs/migration.md`) |
 
 ## Bitácora (cronológica)
 
@@ -117,6 +117,50 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
    - **Multi-hop es el punto débil (0.333):** citar TODOS los síntomas en una síntesis con gemma4 local + el hueco de sinonimia `pelo→alopecia`. Documentado como riesgo en el reporte.
    - **GIFs:** omitidos (sin `ffmpeg` en el host); el exit criteria de M8 solo exige PNGs + PDF.
    - **Verificación:** `pytest` → **203 passed**; `scripts/evidence.sh` orquesta e2e→capturas→reporte; artefactos en `outputs/`.
+
+- **2026-09-06 — gcp-terraform (M9) PARCIAL — infra planificada y auditada.** Rama
+  `m9-gcp-terraform`. El owner fijó: costos mínimos, modelos más baratos de Vertex,
+  embeddings de Vertex, sin bases vectoriales, escala a cero, análisis en BigQuery, y
+  **presupuesto de costos confirmado antes de crear nada**.
+   - **Presupuesto primero (`docs/presupuesto-gcp.md`).** Precios consultados el 2026-09-06,
+     no de memoria, y consumo **medido sobre este repo**: 3.400 tok in / 450 out por turno
+     → **$0.00052/turno**. Reindexar el corpus (595k tok): **$0.09** una vez. Cloud Run,
+     Firestore, BigQuery y GCS caben enteros en free tier incluso con 5.000 turnos/mes.
+   - **Decisiones del owner sobre el presupuesto:** opción **A (Firestore)** en vez de Cloud
+     SQL — piso **$0.13/mes** frente a $9.83 y escala a cero de verdad; alcance **plan contra
+     proyecto real**, sin `apply`; embeddings **3072 dims** sin truncar.
+   - **Terraform reescrito** (el base era Cloud SQL + VPC + ETL, casi nada reutilizable):
+     `main/variables/data/iam/registry/run/budget/state/outputs.tf`. **`plan` real contra
+     `diplomado-499206`: 37 to add, 0 to change, 0 to destroy.** `fmt -check` y `validate` en
+     verde. Sin Cloud SQL, sin VPC Connector, sin pgvector.
+   - **Vertex por service account, sin clave de API:** desaparece el secreto `gemini-api-key`
+     del repo base. Quedan 2 secretos: `JWT_SECRET` y la sal del hash analítico.
+   - **17 tests de seguridad de infra** (`tests/test_infra_security.py`) sobre el **plan
+     resuelto**, no sobre el texto de los `.tf`: roles prohibidos, alcance por recurso,
+     `allUsers` solo en el invoker, bucket de estado privado, escala a cero, tope de
+     escalado, presupuesto con alertas, y **BigQuery sin campos capaces de llevar texto de
+     chats** (NFR-07). **Validados por mutación:** inyectar `roles/owner`, un campo `mensaje`
+     y `min_instances=1` en el plan hace fallar 5 aserciones; al restaurar, 17 en verde.
+   - **`secrets_audit.sh` extendido a infra (8/8):** sin `.tfstate`/`.tfvars` versionados, sin
+     literales en los `.tf`, sin claves de service account, y 0 valores sensibles expuestos en
+     el plan. Se corrigió que `.terraform.lock.hcl` estuviera ignorado — debe commitearse.
+   - **Imagen: 2,7 GB → 582 MB (cloud), 893 MB (local).** Dos causas: un `chown -R /app`
+     **después** del `uv sync` duplicaba el árbol en una capa de **682 MB** (ahora
+     multi-stage, usuario creado antes de copiar); y `scipy` (71 MB) estaba en dependencias
+     **sin que ningún fichero lo use**, más `litellm` (92 MB + botocore/openai/tokenizers)
+     que solo hace falta en local. `pyproject.toml` pasa a extras `local` / `cloud`.
+     Artifact Registry baja de $0.22 a $0.01/mes y mejora el arranque en frío.
+   - **BigQuery:** dataset con 4 tablas (`consultas`, `recuperacion`, `guardarrailes`,
+     `eval`), particionadas por día. Regla dura: **metadatos y métricas, nunca texto de
+     chats**; el usuario es `user_hash` con sal guardada en Secret Manager. La tabla `eval`
+     convierte las corridas de `evidence.sh` en serie temporal.
+   - **Pendiente antes de un `apply` útil** (§4 de `docs/migration.md`): la app todavía habla
+     Postgres y Ollama. Faltan la capa Firestore, un session service de ADK sobre Firestore
+     (ADK 2.8 no trae uno), los adaptadores de LLM y embeddings a Vertex, el reindexado a
+     3072 dims y **volver a correr el gold set contra Vertex** — las métricas actuales son de
+     `gemma4` local y no son extrapolables.
+   - **Verificación:** `pytest` → **216 passed** + 7 skipped; `scripts/infra_audit.sh`
+     completo; stack local reconstruido con la imagen adelgazada responde chat con 5 fuentes.
 
 - **2026-09-06 — evidence-eval REGENERADA (M8 rehecha).** La evidencia de `befe33a` se había
   generado contra el HTML **anterior** al rediseño Liquid Glass (y antes del cambio FR-13 en

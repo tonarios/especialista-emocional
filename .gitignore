@@ -29,7 +29,8 @@ outputs/gifs/frames/
 
 # Infra local (el state contiene secretos en claro)
 infra/terraform/.terraform/
-infra/terraform/.terraform.lock.hcl
+# .terraform.lock.hcl SÍ se commitea: fija los hashes de los providers. Sin él,
+# `terraform init` puede resolver una versión distinta a la auditada.
 infra/terraform/*.tfstate
 infra/terraform/*.tfstate.*
 *.tfvars
