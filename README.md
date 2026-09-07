@@ -4,8 +4,14 @@ Agente conversacional **RAG** sobre un diccionario de 1.265 términos de enferme
 emocionales, con **memoria persistente por usuario** y **guardarraíles médicos
 deterministas**. Un único contenedor: backend FastAPI + frontend vanilla.
 
-**Google ADK 2.x** · **gemma4** vía Ollama (local) · **FAISS + BM25** (híbrido) ·
-**PostgreSQL** (sesiones ADK, perfiles, auditoría).
+**Google ADK 2.x** · **FAISS + BM25** (híbrido, sin servicio de vectores) · dos perfiles
+intercambiables:
+
+| | local | nube |
+|---|---|---|
+| LLM | `gemma4` vía Ollama | `gemini-2.5-flash-lite` (Vertex) |
+| Embeddings | `bge-m3` (1024) | `gemini-embedding-001` (3072) |
+| Datos | PostgreSQL | Firestore (escala a cero) |
 
 > **Aviso.** Ofrece una interpretación simbólica desde un diccionario de autoconocimiento.
 > **No es consejo ni diagnóstico médico.** Es un proyecto académico de diplomado.
@@ -104,6 +110,12 @@ sin LLM-as-judge. Métricas por bootstrap con seed fijo.
 `gemma4` no es determinista: entre corridas se ha observado 0.865–0.885 global. Lo
 reproducible es el procedimiento, no la cifra.
 
+**Con Vertex (`gemini-2.5-flash-lite` + `gemini-embedding-001` a 3072 dims) la recuperación
+mejora y cierra el gate duro de M2**: alias sube de 0.867 a **0.933** (≥0.90 por primera vez)
+y single a 0.903, manteniendo precisión fuera de dominio 1.0. La latencia baja de 8,5 s a
+**2,2 s** por turno. Requirió recalibrar el umbral de cobertura, que estaba fijado para el
+espacio de `bge-m3`. Comparativa completa en [`docs/migration.md`](docs/migration.md) §4.
+
 **Dos cosas honestas sobre estos números:**
 
 1. **La precisión fuera de dominio de 1.0 se compró a costa de recall.** La cobertura se
@@ -140,7 +152,7 @@ habría mostrado.
 ## Pruebas
 
 ```bash
-scripts/test.sh     # 216 passed, 7 skipped
+scripts/test.sh     # 244 passed, 7 skipped
 ```
 
 Los 7 saltados son los de `tests/test_auth.py` que necesitan Postgres alcanzable desde el
@@ -152,6 +164,8 @@ Lo que la suite garantiza, más allá del conteo:
 - **173 tests de seguridad médica**: los 156 términos de riesgo elevado, cada uno con su
   plantilla de derivación; 0 patrones causales en las 8 plantillas; los 6 grupos de emergencia
   con `retrieval.search` monkeypatcheado para **fallar si se llama**.
+- **18 tests del backend de nube**: aislamiento entre portadores en Firestore, orden de los
+  turnos en el session service, y que **a BigQuery no llegue nunca el texto de un chat**.
 - **17 aserciones de seguridad de infraestructura** sobre el `terraform plan` resuelto —
   validadas por mutación (inyectar `roles/owner` o un campo de texto libre en BigQuery hace
   fallar la corrida).
@@ -159,7 +173,8 @@ Lo que la suite garantiza, más allá del conteo:
 ## Despliegue en GCP
 
 Terraform escrito, `validate` en verde y **`plan` ejecutado contra el proyecto real: 37
-recursos a crear**. Nada aplicado.
+recursos a crear**. Nada aplicado. El código ya conmuta entre local y nube
+(`STORAGE_BACKEND`, `LLM_PROVIDER`) y **el camino de nube está validado contra Vertex**.
 
 Cloud Run escalando a cero · Firestore · Vertex (`gemini-2.5-flash-lite` +
 `gemini-embedding-001`) · BigQuery para analítica · **sin Cloud SQL, sin VPC Connector, sin
@@ -195,6 +210,7 @@ deuda quedó abierta.
 - **Sinonimia coloquial** fuera de `aliases.json` (congelado). Cerrarla pide un
   `rag/synonyms.json` aparte.
 - **Multi-hop 0.333** — misma causa raíz vista desde la capa de generación.
-- **M9 parcial**: falta migrar la persistencia a Firestore y los adaptadores a Vertex, y
-  **volver a correr el gold set contra Vertex** — las métricas de arriba son de `gemma4` local
-  y no son extrapolables a otro modelo.
+- **M9**: falta construir y subir la imagen al Artifact Registry, y el `apply` (que requiere
+  visto bueno). El emulador de Firestore no se usa en local: los tests del backend de nube
+  usan un doble en memoria, así que un `apply` real sería la primera vez que el código habla
+  con Firestore de verdad.

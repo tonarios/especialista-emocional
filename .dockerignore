@@ -7,7 +7,9 @@
 # construido, que sí se hornea (§12, para no necesitar servicio de vectores).
 data
 !data/index
-data/index/.embeddings_cache.json
+!data/index-vertex
+# La caché de embeddings (20 MB) es un artefacto de construcción.
+data/index*/.embeddings_cache.json
 outputs
 docs
 harness

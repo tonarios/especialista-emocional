@@ -31,10 +31,10 @@ import unicodedata
 from pathlib import Path
 
 import faiss
-import httpx
 import numpy as np
 from rank_bm25 import BM25Okapi
 
+from especialista import providers
 from especialista.config import ROOT, settings
 
 DATA = ROOT / "data"
@@ -49,7 +49,6 @@ BM25_PATH = INDEX_DIR / "bm25.pkl"
 EMBED_CACHE_PATH = INDEX_DIR / ".embeddings_cache.json"
 
 EMBED_MODEL = settings.embed_model
-OLLAMA_EMBED_URL = settings.ollama_base_url.rstrip("/") + "/api/embed"
 
 # Único documento compuesto (FR-08b): se parte por sección.
 COMPOSED_SLUG = "huesos-en-general"
@@ -210,11 +209,8 @@ def embed_texts(texts: list[str], cache: dict[str, str]) -> np.ndarray:
         chunk = todo[start : start + batch]
         idxs = [i for i, _ in chunk]
         payload = [t for _, t in chunk]
-        r = httpx.post(OLLAMA_EMBED_URL, json={"model": EMBED_MODEL, "input": payload}, timeout=180)
-        r.raise_for_status()
-        embeds = r.json()["embeddings"]
-        for (i, _), emb in zip(chunk, embeds):
-            arr = np.asarray(emb, dtype=np.float32)
+        # El proveedor (Ollama local / Vertex en nube) lo decide LLM_PROVIDER.
+        for (i, _), arr in zip(chunk, providers.embed(payload)):
             out[i] = arr
             cache[hashes[i]] = _b64(arr)
     return np.vstack([np.asarray(v) for v in out])
@@ -229,6 +225,11 @@ def corpus_hash() -> str:
         h.update(f.read_bytes())
     for p in (ALIASES_PATH, RISK_TIERS_PATH):
         h.update(p.read_bytes())
+    # El modelo y las dimensiones forman parte de la identidad del índice: un
+    # vector de bge-m3 (1024) y uno de gemini-embedding-001 (3072) no viven en
+    # el mismo espacio y NO son comparables. Sin esto, cambiar de proveedor
+    # reutilizaría silenciosamente la caché y el ranking sería basura.
+    h.update(f"|embed={settings.embed_model}|dims={providers.embed_dims()}".encode())
     return h.hexdigest()
 
 

@@ -26,7 +26,7 @@ Medido sobre este repo, no sacado de un blog:
 | Llamada de extracción de síntomas | ~300 in / 50 out | 1 llamada estructurada por turno (§9) |
 | **Total por turno** | **~3.400 in / ~450 out** | |
 | Corpus completo | 2.264.925 ch ≈ **595k tokens** | 1.265 `.md` en `data/` |
-| Índice FAISS | 11 MB hoy (1024 dims); **~21 MB** al reindexar a 3072 | se hornea en la imagen |
+| Índice FAISS | 11 MB (bge-m3) · **19 MB** (Vertex 3072, ya construido) | se hornea en la imagen |
 | Imagen Docker (cloud) | **582 MB** | `agent-app:cloud`, tras adelgazar (§4) |
 
 **Costo Vertex por turno:**
@@ -36,12 +36,18 @@ Medido sobre este repo, no sacado de un blog:
 **Reindexado completo con embeddings de Vertex (una sola vez):**
 `595k tokens × $0.15/1M` = **$0.09**. Se puede repetir sin pensarlo.
 
+> **Verificado en la práctica (2026-09-07).** Se reindexó el corpus completo con
+> `gemini-embedding-001` a 3072 dims (1.216 vectores, índice de 19 MB) y se corrieron las 52
+> preguntas del e2e contra `gemini-2.5-flash-lite`. La **latencia media por turno bajó de
+> 8,5 s a 2,2 s** frente a `gemma4` local. Detalle en
+> [`migration.md`](migration.md) §4.
+
 ## 3. Lo que es gratis con este volumen
 
 | Servicio | Free tier mensual | Nuestro consumo con 5.000 turnos/mes | ¿Cabe? |
 |---|---|---|---|
-| Cloud Run vCPU | 180.000 vCPU-s | ~25.000 vCPU-s (1 vCPU × 5 s × 5.000) | ✅ 14% |
-| Cloud Run memoria | 360.000 GiB-s | ~50.000 GiB-s (2 GiB × 5 s × 5.000) | ✅ 14% |
+| Cloud Run vCPU | 180.000 vCPU-s | ~11.000 vCPU-s (1 vCPU × 2,2 s × 5.000, medido) | ✅ 6% |
+| Cloud Run memoria | 360.000 GiB-s | ~22.000 GiB-s (2 GiB × 2,2 s × 5.000, medido) | ✅ 6% |
 | Cloud Run peticiones | 2.000.000 | 5.000 | ✅ 0,25% |
 | Firestore lecturas | 50.000/día | ~15.000/día en el peor caso | ✅ |
 | Firestore escrituras | 20.000/día | ~2 por turno | ✅ |

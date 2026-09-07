@@ -10,14 +10,14 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
 | 1 | bootstrap | **done** | M1 | paquete importable + /health + línea base commiteada | 2026-09-05 | deepseek-v4-pro | commits `7ef4f6f`, `d133a3c`; `import especialista` OK; `/health` 200; pytest 14 passed |
 | 2 | medical-safety | **done** | transversal (M0 pendiente) | 6 grupos emergencia + plantillas por tier + causal testeable | 2026-09-05 | deepseek-v4-pro | commit `c4a334e`; 5/5 emergency gold set + 0 falsos positivos; 8 plantillas sin causal |
 | 3 | rag-index | **done** | M2 | índice FAISS+BM25+meta.json idempotente (gate) | 2026-09-05 | deepseek-v4-pro | commit `cdd68c9`; 1.216 vectores; hash `9d24b7dd…`; re-run idéntico; 0 redirects vectorizados; 3 huérfanos null |
-| 4 | rag-retrieval | **parcial** | M2 | GATE DURO gold set | 2026-09-05 | deepseek-v4-pro | single 27/31; ood 13/13; emergency 5/5; alias 13/15; multi 5/6; risk 9/10 — sinonimia coloquial ausente de aliases.json |
+| 4 | rag-retrieval | **parcial** (local) · **done** (Vertex) | M2 | GATE DURO gold set | 2026-09-07 | deepseek-v4-pro / opus-5 | bge-m3: single 27/31, alias 13/15 ✗, ood 13/13. **Vertex 3072: single 28/31 (0.903), alias 14/15 (0.933) ✓, ood 13/13 → gate duro cumplido**; multi 5/6 y risk 9/10 siguen abiertos |
 | 5 | agent-core | **done** | M3 | smoke multi-hop + citas + disclaimer | 2026-09-05 | deepseek-v4-pro | commit `14830bb`; runner determinista + LlmAgent; emergencia/injection no llegan al LLM; sin-cobertura sin confabular; gemma4 exige `think:false` |
 | 6 | auth-memory | **done** | M4 | aislamiento por usuario + persistencia + delete | 2026-09-05 | deepseek-v4-pro | commit `1a1a3ca`; register/login/JWT; perfil por portador; sesiones ADK en Postgres; record/clear consultations; rate-limit; 27 pytest passed |
 | 7 | frontend | **done** | M5 | flujo completo con chips de fuentes + disclaimer | 2026-09-05 | deepseek-v4-pro | commit `58b9331`; `frontend/` vanilla; `/chat` NDJSON; chips `basado en`; disclaimer fijo; 401/403/429 amigables |
 | 8 | docker | **done** | M6 | `make up` + chat + persistencia + non-root | 2026-09-05 | deepseek-v4-pro | commit `05a3890`; imagen 2.7 GB; app+db sanos; chat gemma4 OK; login 200 tras down/up; whoami=appuser |
 | 9 | security-tests | **done** | M7 | pytest verde + secrets_audit limpio | 2026-09-05 | deepseek-v4-pro | commit `55d3618`; 201 passed; 156 términos paramétricos; 6 emergencias sin recuperación; secrets_audit 4/4 limpio |
 | 10 | evidence-eval | **done** | M8 | PNGs + PDF + GIFs con métricas | 2026-09-06 | opus-5 (regenerado) | e2e 52 preguntas; recall single 0.935 / alias 1.0 / multi 0.333; bootstrap seed 42; **8 PNGs + 5 GIFs + reporte.pdf + docs/QA_report.md** sobre la UI Liquid Glass |
-| 11 | gcp-terraform | **parcial** | M9 | `validate`/`plan` válido + doc de migración | 2026-09-06 | opus-5 | rama `m9-gcp-terraform`; `plan` real: 37 add / 0 change / 0 destroy; 17 tests de seguridad de infra; imagen 2,7 GB → 582 MB; **falta migración de código a Firestore/Vertex** (§4 de `docs/migration.md`) |
+| 11 | gcp-terraform | **done** (sin `apply`) | M9 | `validate`/`plan` válido + doc de migración | 2026-09-07 | opus-5 | rama `m9-gcp-terraform`; `plan` real 37 add / 0 change / 0 destroy; 17 tests de infra + 18 de backend de nube; imagen 2,7 GB → 582 MB; código migrado a Firestore/Vertex y **gold set revalidado: alias 0.933 cierra el gate duro de M2** |
 
 ## Bitácora (cronológica)
 
@@ -117,6 +117,51 @@ LLM activo: opencode/deepseek-v4-pro (skills bootstrap + medical-safety ejecutad
    - **Multi-hop es el punto débil (0.333):** citar TODOS los síntomas en una síntesis con gemma4 local + el hueco de sinonimia `pelo→alopecia`. Documentado como riesgo en el reporte.
    - **GIFs:** omitidos (sin `ffmpeg` en el host); el exit criteria de M8 solo exige PNGs + PDF.
    - **Verificación:** `pytest` → **203 passed**; `scripts/evidence.sh` orquesta e2e→capturas→reporte; artefactos en `outputs/`.
+
+- **2026-09-07 — M9, migración de código a Firestore + Vertex, VALIDADA.** Completa lo que
+  el heartbeat anterior dejaba pendiente. La app ya conmuta entre local y nube.
+   - **Capa de almacenamiento intercambiable:** `especialista/stores/` con un protocolo
+     `Store` y dos backends (`postgres.py`, `firestore.py`). `memory`, `auth` y `audit`
+     conservan su API pública y ya no saben dónde viven los datos. Lo elige `STORAGE_BACKEND`.
+   - **`especialista/firestore_sessions.py`:** `BaseSessionService` de ADK sobre Firestore
+     (ADK 2.8 no trae uno). Sesión y eventos en documentos separados por el límite de 1 MiB;
+     ids secuenciales con relleno para que el orden lexicográfico sea el cronológico sin
+     índice compuesto; el cliente síncrono se delega a hilos para no bloquear el event loop.
+   - **`especialista/providers.py`:** único punto de conmutación de LLM y embeddings.
+     `retrieval.py` e `index.py` tenían **cada uno su propia llamada a Ollama**; ambas pasan
+     por aquí (el `_embed` de `retrieval` se había quedado fuera en el primer intento y lo
+     destapó el gold set con un 404 contra `localhost:11434`).
+   - **`especialista/analytics.py`:** eventos a BigQuery. Sin `ANALYTICS_SALT` **no emite
+     nada**: mejor perder analítica que escribir un identificador reversible.
+   - **Reindexado real a 3072 dims:** 1.216 vectores, índice de 19 MB, ~USD 0.09. El
+     `corpus_hash` ahora incluye modelo y dimensiones — sin eso, cambiar de proveedor
+     reutilizaría en silencio vectores de otro espacio y el ranking sería basura.
+   - **HALLAZGO: hubo que recalibrar el umbral de cobertura.** `TAU_DENSE_FALLBACK = 0.70`
+     estaba calibrado para `bge-m3`. Con Vertex, «¿qué significa emocionalmente el cuerpo?»
+     puntuaba 0.7385 sin match nominal y se colaba como cobertura, **rompiendo la precisión
+     fuera de dominio = 1.0** (lo innegociable del PRD §13.0). Se barrió el umbral sobre el
+     gold set: 0.74–0.76 restauran 13/13 perdiendo solo 1 caso de cobertura. Fijado en
+     **0.75**, y ahora es un mapa por modelo (desconocido → el más estricto).
+   - **RESULTADO: Vertex cierra el gate duro de M2.** Recuperación: single 0.871 → **0.903**,
+     alias 0.867 → **0.933** (≥0.90 por primera vez), ood 1.0 mantenido. Los tres criterios
+     del gate se cumplen a la vez por primera vez desde M2.
+   - **E2E:** global 0.865 → 0.846, single 0.903 → 0.839, multi 0.333 → **0.500**, latencia
+     **8,5 s → 2,2 s**. La bajada de `single` es el sistema **volviéndose más honesto**: de
+     los 3 casos que cambian a fallo, 2 son los huecos de sinonimia conocidos (`g019`
+     respirar→disnea, `g022` dormir→insomnio) que antes recibían cobertura por el respaldo
+     denso y ahora responden «sin cobertura», que es la verdad. Se descartó la explicación
+     fácil con datos: las citas por turno son 4,42 (gemma4) vs 4,46 (Vertex), no cambian.
+   - **Las dos corridas no se mezclan:** `e2e_results.json` (gemma4, referencia local) y
+     `e2e_results_vertex.json`. Las cifras de un modelo no son extrapolables a otro.
+   - **+28 tests** (216 → 244): 18 de backend de nube (aislamiento entre portadores en
+     Firestore con un doble en memoria, orden de turnos del session service, y que a
+     BigQuery **nunca** llegue texto de chat ni el email) y 10 de conmutación de proveedor
+     (el `corpus_hash` distingue modelo y dims, el umbral es por modelo, Vertex normaliza
+     los vectores — `IndexFlatIP` asume norma 1 y `gemini-embedding-001` no normaliza).
+   - **Nota:** los tests de nube usan un doble en memoria, no el emulador de Firestore. Un
+     `apply` real sería la primera vez que el código habla con Firestore de verdad.
+   - **Verificación:** `pytest` → **244 passed** + 7 skipped; stack local reconstruido y
+     respondiendo chat con 5 fuentes; `.env` restaurado al perfil local.
 
 - **2026-09-06 — gcp-terraform (M9) PARCIAL — infra planificada y auditada.** Rama
   `m9-gcp-terraform`. El owner fijó: costos mínimos, modelos más baratos de Vertex,

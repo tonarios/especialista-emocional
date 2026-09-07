@@ -48,33 +48,15 @@ def _ollama_model_name() -> str:
 
 
 def _ollama_chat(messages: list[dict], *, max_tokens: int, temperature: float) -> str:
-    """Inferencia contra Ollama nativo (`/api/chat`) vía httpx.
+    """Compatibilidad: delega en el proveedor activo (Ollama o Vertex).
 
-    Se usa el endpoint nativo en lugar de LiteLlm para gemma4 local: litellm 1.100
-    devuelve `content=''` de forma no determinista con `ollama_chat/gemma4`
-    (verificado 6/6 vacío vs 5/5 estable en /api/chat). Es el mismo patrón que
-    `index.py` usa ya para embeddings (httpx → /api/embed).
+    Se conserva el nombre porque los tests lo monkeypatchean. La lógica vive en
+    `especialista.providers`, que es el único punto que sabe contra qué modelo
+    se está hablando.
     """
-    import httpx
+    from especialista import providers
 
-    url = settings.ollama_base_url.rstrip("/") + "/api/chat"
-    payload = {
-        "model": _ollama_model_name(),
-        "messages": messages,
-        "stream": False,
-        # gemma4 (Gemma 3) es un modelo "thinking": sin `think: False` consume el
-        # presupuesto de tokens en razonamiento y deja `content` vacío.
-        "think": False,
-        "options": {"temperature": temperature, "num_predict": max_tokens},
-    }
-    for attempt in range(3):
-        r = httpx.post(url, json=payload, timeout=300)
-        r.raise_for_status()
-        content = (r.json().get("message") or {}).get("content") or ""
-        content = content.strip()
-        if content:
-            return content
-    return ""
+    return providers.chat(messages, max_tokens=max_tokens, temperature=temperature)
 
 
 # ── Tools (contrato ADK, funciones puras con type hints) ──────────

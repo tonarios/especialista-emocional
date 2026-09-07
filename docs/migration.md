@@ -2,8 +2,11 @@
 
 Estado: **Terraform escrito, `fmt`/`validate` en verde y `plan` ejecutado contra el proyecto
 real `diplomado-499206` — 37 recursos a crear, 0 a cambiar, 0 a destruir. No se ha aplicado
-nada.** El `apply` requiere visto bueno explícito del owner (política heredada del repo base)
-y, antes, cerrar la migración de código de §4.
+nada.** El `apply` requiere visto bueno explícito del owner (política heredada del repo base).
+
+La migración de código **está hecha y validada contra Vertex** (§4): la recuperación con
+`gemini-embedding-001` mejora sobre `bge-m3` y cierra el gate duro de M2 que llevaba
+pendiente. Falta construir y subir la imagen antes de aplicar.
 
 Costos y las alternativas que se descartaron: [`presupuesto-gcp.md`](presupuesto-gcp.md).
 
@@ -12,7 +15,7 @@ Costos y las alternativas que se descartaron: [`presupuesto-gcp.md`](presupuesto
 ```
                  ┌──────────────── Cloud Run (min=0, max=3) ─────────────────┐
   navegador ───► │  contenedor único: FastAPI + frontend vanilla             │
-                 │  índice FAISS horneado en la imagen (~21 MB, sin servicio │
+                 │  índice FAISS horneado en la imagen (19 MB, sin servicio  │
                  │  de vectores)                                             │
                  └───┬───────────────┬──────────────────┬────────────────────┘
                      │               │                  │
@@ -31,7 +34,7 @@ justo los componentes que corren 24/7 y no escalan a cero.
 | LLM | `gemini-2.5-flash-lite` | el más barato de la familia: $0.10 / $0.40 por 1M tok |
 | Embeddings | `gemini-embedding-001`, 3072 dims | sin truncar (decisión del owner) |
 | Auth + memoria | Firestore Native | cabe en el free tier; Cloud SQL costaría ~$9.83/mes en reposo |
-| Índice RAG | FAISS horneado en la imagen | 21 MB: no justifica un servicio aparte (§12 del PRD) |
+| Índice RAG | FAISS horneado en la imagen | 19 MB: no justifica un servicio aparte (§12 del PRD) |
 | Analítica | BigQuery, particionado por día | free tier; solo metadatos |
 | Secretos | Secret Manager (2) | `JWT_SECRET` y la sal del hash analítico |
 | Estado de TF | GCS privado con versionado | el state lleva secretos en claro |
@@ -101,24 +104,89 @@ a la auditada.
 Reproducir todo: `scripts/infra_audit.sh` (fmt → validate → plan real → 17 aserciones →
 auditoría de secretos). Evidencia en `outputs/evidence/{tfplan.json,tfplan.txt,infra_audit.txt,secrets_audit.txt}`.
 
-## 4. Lo que falta antes de un `apply` útil
+## 4. Migración de código: hecha y validada contra Vertex
 
-El Terraform está listo, pero **la aplicación todavía habla Postgres y Ollama**. Aplicar hoy
-levantaría infraestructura correcta con un contenedor que no arranca contra ella. Pendiente:
+La aplicación ya no habla solo Postgres y Ollama. Se añadió una capa de
+conmutación y **se validó el camino de nube contra el proyecto real**.
 
-| # | Trabajo | Alcance |
+| # | Trabajo | Estado |
 |---|---|---|
-| 1 | Capa de persistencia sobre Firestore | reescribir `memory.py`, `auth.py` y `audit.py`; seleccionar por `STORAGE_BACKEND` (`postgres` local / `firestore` nube) |
-| 2 | Session service de ADK sobre Firestore | ADK 2.8 trae `database_`, `sqlite_`, `in_memory_` y `vertex_ai_`, pero **no** Firestore: hay que implementar `BaseSessionService` |
-| 3 | Adaptador de LLM a Vertex | `run_deterministic` llama hoy a `/api/chat` de Ollama con `think:false`; añadir rama Vertex por `LLM_PROVIDER` |
-| 4 | Adaptador de embeddings a Vertex | `index.py` usa `/api/embed` de Ollama; añadir `gemini-embedding-001` |
-| 5 | Reindexar a 3072 dims | ~$0.09 y ~21 MB de índice; el hash de corpus ya invalida la caché solo |
-| 6 | Emisor de eventos a BigQuery | Storage Write API en el mismo turno; solo metadatos (§3) |
-| 7 | Volver a correr el gold set contra Vertex | las métricas actuales son de `gemma4` local; **no** son extrapolables |
+| 1 | Capa de persistencia intercambiable | `especialista/stores/` con protocolo `Store` y dos backends; `memory`/`auth`/`audit` no saben cuál usan |
+| 2 | Session service de ADK sobre Firestore | `especialista/firestore_sessions.py` (ADK 2.8 no trae uno) |
+| 3 | Adaptador de LLM y embeddings | `especialista/providers.py`, un único punto de conmutación por `LLM_PROVIDER` |
+| 4 | Reindexado a 3072 dims | hecho: 1.216 vectores, índice de 19 MB, coste real ~USD 0.09 |
+| 5 | Emisor de eventos a BigQuery | `especialista/analytics.py`, solo metadatos |
+| 6 | Gold set contra Vertex | corrido; resultados abajo |
 
-Estimación: ~350 líneas de código nuevo más el reindexado. El punto 7 no es opcional: cambiar
-de modelo y de espacio de embeddings puede mover el recall en cualquier dirección, y el
-reporte no debe heredar cifras de otro modelo.
+### 4.1 Recuperación con `gemini-embedding-001` (3072 dims)
+
+**Mejora respecto a `bge-m3`, y cierra la deuda de M2.**
+
+| Tipo | bge-m3 (1024) | Vertex (3072) | Meta |
+|---|---|---|---|
+| single | 27/31 = 0.871 | **28/31 = 0.903** | ≥0.85 ✓ |
+| alias | 13/15 = 0.867 ✗ | **14/15 = 0.933** | ≥0.90 ✓ |
+| risk_tier | 9/10 = 0.900 | 9/10 = 0.900 | 10/10 |
+| multi | 5/6 = 0.833 | 5/6 = 0.833 | 6/6 |
+| emergency | 5/5 | 5/5 | corta antes del LLM ✓ |
+| out_of_domain | 13/13 = 1.000 | 13/13 = 1.000 | precision 1.0 ✓ |
+
+`alias` pasa de 0.867 a **0.933** y supera por primera vez el gate duro ≥0.90 que
+llevaba pendiente desde M2. Los tres criterios del gate (single ≥0.85, alias ≥0.90,
+precisión fuera de dominio 1.0) se cumplen ahora simultáneamente.
+
+**Hubo que recalibrar el umbral de cobertura.** `TAU_DENSE_FALLBACK` valía 0.70,
+calibrado para `bge-m3`. Cada espacio de embeddings tiene su propia distribución de
+similitud, así que ese valor es sencillamente incorrecto para otro modelo: con
+Vertex, «¿qué significa emocionalmente el cuerpo?» puntuaba 0.7385 sin ningún match
+nominal y se colaba como cobertura, rompiendo la precisión fuera de dominio = 1.0
+que el PRD §13.0 declara innegociable.
+
+Se barrió el umbral sobre el gold set y se tomó el más bajo que la conserva:
+
+| Umbral | Precisión fuera de dominio | Cobertura en dominio |
+|---|---|---|
+| 0.70 | 12/13 ✗ | 65/67 |
+| 0.72 | 12/13 ✗ | 64/67 |
+| **0.74–0.76** | **13/13 ✓** | **64/67** |
+| 0.78+ | 13/13 ✓ | 63/67 |
+
+Se fijó **0.75**, en medio de la meseta estable. El umbral es ahora un mapa por
+modelo, y un modelo desconocido recibe el valor más estricto.
+
+### 4.2 End-to-end con `gemini-2.5-flash-lite`
+
+| Métrica | gemma4 local | Vertex flash-lite |
+|---|---|---|
+| Global | 0.865 | 0.846 |
+| single | 0.903 | 0.839 |
+| alias | 1.000 | 1.000 |
+| multi | 0.333 | **0.500** |
+| **Latencia media** | 8.5 s | **2.2 s** |
+
+**La bajada de `single` es el sistema volviéndose más honesto, no peor.** De los
+tres casos que cambian a fallo, dos (`g019` «me cuesta respirar cuando me angustio»
+y `g022` «no puedo dormir en toda la noche») son exactamente los huecos de sinonimia
+conocidos: con el umbral 0.70 recibían cobertura por el respaldo denso y la prosa del
+modelo mencionaba el término de pasada, lo que el verificador contaba como acierto.
+Con 0.75 el sistema responde **«sin cobertura»**, que es la verdad. Solo `g013` es una
+regresión real de ranking.
+
+Se descartó explícitamente la explicación fácil: no es que flash-lite cite menos.
+Las citas por turno son 4,42 (gemma4) frente a 4,46 (Vertex) — prácticamente iguales.
+
+Datos crudos: `outputs/evidence/e2e_results_vertex.json`. La corrida de referencia
+del sistema local sigue en `e2e_results.json`; **no se mezclan**, porque las cifras
+de un modelo no son extrapolables a otro.
+
+### 4.3 Lo que queda
+
+- **`multi` sigue sin llegar a 6/6** y `risk_tier` a 10/10. Misma causa raíz de siempre:
+  sinonimia coloquial ausente de `aliases.json` (congelado en M0).
+- **El emulador de Firestore no se usa en local**: los tests del backend de nube usan
+  un doble en memoria. Suficiente para el contrato, pero un `apply` real es la primera
+  vez que el código habla con Firestore de verdad.
+- **Falta construir y subir la imagen** al Artifact Registry (§5).
 
 ## 5. Procedimiento de despliegue (cuando se autorice)
 

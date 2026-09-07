@@ -2,8 +2,11 @@
 
 - Contraseñas: PBKDF2-HMAC-SHA256 con salt aleatorio por usuario (stdlib).
 - Tokens: JWT-ish HS256 firmados con HMAC-SHA256 (header.payload.sig, stdlib).
-- Secreto de firma: NUNCA hardcodeado. Se genera aleatoriamente la primera vez
-  y se persiste en la tabla `app_config` de PostgreSQL.
+- Secreto de firma: NUNCA hardcodeado. Prioridad 1, `JWT_SECRET` del entorno
+  (Secret Manager en nube); prioridad 2, uno generado y persistido en la
+  configuración de la app.
+
+El almacén concreto (PostgreSQL o Firestore) lo resuelve `especialista.stores`.
 """
 from __future__ import annotations
 
@@ -15,37 +18,11 @@ import re
 import secrets
 import time
 
-import psycopg
-
 from especialista.config import settings
+from especialista.stores import get_store
 
 APP_NAME = "ah_emociones"
 TOKEN_TTL = 60 * 60 * 12  # 12 h
-
-USERS_TABLE = """
-CREATE TABLE IF NOT EXISTS users (
-    email         TEXT PRIMARY KEY,
-    password_hash TEXT NOT NULL,
-    created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
-)
-"""
-APP_CONFIG_TABLE = """
-CREATE TABLE IF NOT EXISTS app_config (
-    key   TEXT PRIMARY KEY,
-    value TEXT NOT NULL
-)
-"""
-
-_conn: psycopg.Connection | None = None
-
-
-def _connect() -> psycopg.Connection:
-    global _conn
-    if _conn is None or _conn.closed:
-        _conn = psycopg.connect(settings.postgres_dsn, autocommit=True)
-        _conn.execute(USERS_TABLE)
-        _conn.execute(APP_CONFIG_TABLE)
-    return _conn
 
 
 # ── Contraseñas ───────────────────────────────────────────────────
@@ -69,27 +46,12 @@ def verify_password(password: str, stored: str) -> bool:
 # ── Usuarios ──────────────────────────────────────────────────────
 def create_user(email: str, password: str) -> dict:
     email = email.strip().lower()
-    conn = _connect()
-    try:
-        existing = conn.execute("SELECT 1 FROM users WHERE email = %s", (email,)).fetchone()
-        if existing:
-            raise ValueError("El correo ya está registrado")
-        conn.execute("INSERT INTO users (email, password_hash) VALUES (%s, %s)", (email, hash_password(password)))
-    finally:
-        conn.close()
+    get_store().create_user(email, hash_password(password))
     return {"email": email}
 
 
 def get_user(email: str) -> dict | None:
-    email = email.strip().lower()
-    conn = _connect()
-    try:
-        row = conn.execute("SELECT email, password_hash FROM users WHERE email = %s", (email,)).fetchone()
-    finally:
-        conn.close()
-    if row is None:
-        return None
-    return {"email": row[0], "password_hash": row[1]}
+    return get_store().get_user(email.strip().lower())
 
 
 def authenticate(email: str, password: str) -> dict | None:
@@ -111,20 +73,14 @@ def get_or_create_secret() -> bytes:
     # Prioridad 1: JWT_SECRET inyectada por el entorno (Secret Manager en cloud).
     if settings.jwt_secret_b64:
         return base64.b64decode(settings.jwt_secret_b64)
-    # Prioridad 2: secreto persistido en app_config (local).
-    conn = _connect()
-    try:
-        row = conn.execute("SELECT value FROM app_config WHERE key = 'signing_secret'").fetchone()
-        if row is None:
-            secret = secrets.token_bytes(32)
-            conn.execute(
-                "INSERT INTO app_config (key, value) VALUES ('signing_secret', %s)",
-                (base64.b64encode(secret).decode(),),
-            )
-            return secret
-        return base64.b64decode(row[0])
-    finally:
-        conn.close()
+    # Prioridad 2: secreto persistido por la app la primera vez (local).
+    store = get_store()
+    stored = store.get_config("signing_secret")
+    if stored is None:
+        secret = secrets.token_bytes(32)
+        store.set_config("signing_secret", base64.b64encode(secret).decode())
+        return secret
+    return base64.b64decode(stored)
 
 
 # ── Tokens (JWT-ish HS256) ────────────────────────────────────────

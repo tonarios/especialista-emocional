@@ -9,10 +9,14 @@ __pycache__/
 # Secrets — JAMÁS commitear
 .env
 .env.*
+# ...pero el ejemplo del perfil de nube SÍ (no lleva valores, solo nombres).
+!.env.cloud.example
 
 
-# Índice RAG generado (regenerable con `python -m index`)
+# Índice RAG generado (regenerable con `python -m index`). Uno por espacio de
+# embeddings: `index` = bge-m3 (1024), `index-vertex` = gemini-embedding-001 (3072).
 data/index/
+data/index-vertex/
 
 # Outputs generados: se publican solo los que referencian los docs
 # (docs/QA_report.md enlaza GIFs, stills y el PDF).

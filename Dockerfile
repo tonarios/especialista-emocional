@@ -36,9 +36,18 @@ COPY --chown=appuser:appuser especialista/ ./especialista/
 COPY --chown=appuser:appuser backend/ ./backend/
 COPY --chown=appuser:appuser frontend/ ./frontend/
 COPY --chown=appuser:appuser rag/ ./rag/
+
 # El índice FAISS se hornea en la imagen (§12: no hace falta servicio de
 # vectores). En local, docker compose lo sobreescribe con un bind mount.
-COPY --chown=appuser:appuser data/index/ ./data/index/
+#
+# INDEX_SRC debe corresponder al perfil: el índice de bge-m3 (1024 dims) y el de
+# gemini-embedding-001 (3072) NO son intercambiables — los vectores viven en
+# espacios distintos. El corpus_hash incluye modelo y dimensiones, así que un
+# índice desparejado se detecta como obsoleto en vez de dar ranking basura.
+#   EXTRA=local -> data/index         (bge-m3, ~11 MB)
+#   EXTRA=cloud -> data/index-vertex  (gemini-embedding-001, ~19 MB)
+ARG INDEX_SRC=data/index
+COPY --chown=appuser:appuser ${INDEX_SRC}/ ./data/index/
 
 USER appuser
 ENV PATH="/app/.venv/bin:$PATH" \
